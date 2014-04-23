@@ -77,7 +77,7 @@ require.def('antie/widgets/carousel/spinner',
              */
             stopAnimation: function () {
                 if (this._animating) {
-                    this._device.stopAnimation(this._currentAnimation);
+                    this._device.haltAnimation(this._currentAnimation);
                     this._clearAnimating();
                 }
             },

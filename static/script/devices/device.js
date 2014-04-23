@@ -499,10 +499,16 @@ require.def('antie/devices/device',
 
             },
             /**
-             * Stops the specified animation. The any completeHandler for the animation will be executed.
+             * Stops the specified animation, moving the element to its final end position.Any completeHandler for the animation will be executed.
              * @param {object} anim A handle to the animation you wish to stop.
              */
             stopAnimation: function(anim) {
+            },
+            /**
+             * Stops the specified animation, leaving the element in its current position. Any completeHandler for the animation will be executed.
+             * @param {object} anim A handle to the animation you wish to halt.
+             */
+            haltAnimation: function(anim) {
             },
             /**
              * Encodes an object as JSON.

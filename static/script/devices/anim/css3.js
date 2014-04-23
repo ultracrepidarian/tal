@@ -195,9 +195,15 @@ require.def(
 		Device.prototype.isAnimationDisabled = function(){
 			return false;
 		};
-		
-		Device.prototype.stopAnimation = function(transition) {
+        
+        /* documented in antie.devices.device */
+        Device.prototype.stopAnimation = function(transition) {
             transition.stop(true);
+        };
+        
+        /* documented in antie.devices.device */
+        Device.prototype.haltAnimation = function(transition) {
+            transition.stop(false);
         };
 	}
 );

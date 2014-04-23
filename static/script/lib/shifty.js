@@ -349,8 +349,8 @@ require.def('antie/lib/shifty', function() {
 		if (gotoEnd) {
 			simpleCopy(this._state.current, this._tweenParams.to);
 			applyFilter('afterTweenEnd', this, [this._state.current, this._tweenParams.originalState, this._tweenParams.to]);
-			this._tweenParams.callback.call(this._state.current);
 		}
+		this._tweenParams.callback.call(this._state.current);
 
 		return this;
 	};

@@ -273,6 +273,11 @@ require.def(
 			anim.stop(true);
 		};
 
+        /* documented in antie.devices.device */
+		Device.prototype.haltAnimation = function(anim) {
+			anim.stop(false);
+		};
+
         /* documented in antie.devices.Device */
 		Device.prototype.isAnimationDisabled = function(){
 			return false;

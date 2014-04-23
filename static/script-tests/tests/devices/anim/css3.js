@@ -899,6 +899,32 @@
         );
     };
 
+    this.CSS3AnimationTest.prototype.testStopAnimationStopsAnimationAndSkipsToEnd = function(queue) {
+        expectAsserts(1);
+
+        queuedApplicationInit(queue, 'lib/mockapplication', [], function(application) {
+            var device, transition;
+            device = application.getDevice();
+            transition = {};
+            transition.stop = this.sandbox.spy();
+            device.stopAnimation(transition);
+            assertEquals(true, transition.stop.getCall(0).args[0]); // Calling stop with true indicates to skip to the end
+        });
+    };
+
+    this.CSS3AnimationTest.prototype.testHaltAnimationStopsAnimationWithoutSkippingToEnd = function(queue) {
+        expectAsserts(2);
+
+        queuedApplicationInit(queue, 'lib/mockapplication', [], function(application) {
+            var device, transition;
+            device = application.getDevice();
+            transition = {};
+            transition.stop = this.sandbox.spy();
+            device.haltAnimation(transition);
+            assertEquals(1, transition.stop.callCount);
+            assertEquals(false, transition.stop.getCall(0).args[0]); // Calling stop with false indicates not to skip to the end
+        });
+    };
     onDeviceTestConfigValidation.removeTestsForIncompatibleDevices(['antie/devices/anim/css3'], this.CSS3AnimationTest);
 
 }());

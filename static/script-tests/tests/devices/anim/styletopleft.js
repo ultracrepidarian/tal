@@ -1423,7 +1423,7 @@
             assertFalse('Element in its end position (left)', div.style.top === "100px");
             assertFalse('Element in its end position (top)', div.style.top === "200px");
 
-            queue.call('Wait a moment and cancel the animation', function(callbacks) {
+            queue.call('Wait a moment and stop the animation', function(callbacks) {
                 // Wait a fraction of a second, cancel animation, then check it's jumped to its end state.
                 setTimeout(callbacks.add(function() {
                     device.stopAnimation(anim);
@@ -1431,6 +1431,21 @@
                     assertEquals('Element in its end position (top)', '200px', div.style.top);
                 }), 100);
             });
+        }, config);
+    };
+
+    this.StyleTopLeftAnimationTest.prototype.testHaltAnimationStopsAnimationWithoutSkippingToEnd = function(queue) {
+        expectAsserts(1);
+
+        var config = this.getDefaultConfig();
+
+        queuedApplicationInit(queue, 'lib/mockapplication', [], function(application) {
+            var device, anim;
+            device = application.getDevice();
+            anim = {};
+            anim.stop = this.sandbox.spy();
+            device.haltAnimation(anim);
+            assertEquals(false, anim.stop.getCall(0).args[0]); // Calling stop with false indicates not to skip to the end
         }, config);
     };
 
