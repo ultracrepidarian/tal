@@ -47,7 +47,6 @@ require.def('antie/widgets/carousel/spinner',
                 this._device = device;
                 this._mask = mask;
                 this._orientation = orientation;
-                this._animating = false;
                 this._currentAnimation = null;
             },
 
@@ -65,21 +64,23 @@ require.def('antie/widgets/carousel/spinner',
              * @param {Function} [animOptions.onComplete] A function which will be executed on completion of the alignment animation.
              */
             moveContentsTo: function (relativePixels, animOptions) {
-                var moveElementOptions;
+                var moveElementOptions, newAnim;
                 moveElementOptions = this._getOptions(animOptions, relativePixels);
                 this.stopAnimation();
-                this._animating = true;
-                this._currentAnimation = this._device.moveElementTo(moveElementOptions);
+                newAnim = this._device.moveElementTo(moveElementOptions);
+                if (newAnim !== null) {
+                    this._currentAnimation = newAnim;
+                }
             },
 
             /**
              * Completes any currently animating alignment, firing any associated callback.
              */
             stopAnimation: function () {
-                if (this._animating) {
-                    this._device.haltAnimation(this._currentAnimation);
-                    this._clearAnimating();
+                if (this._currentAnimation) {
+                    this._device.stopAnimation(this._currentAnimation);
                 }
+                this._clearAnimating();
             },
 
             _getOptions: function (options, relativePixels) {
@@ -107,13 +108,11 @@ require.def('antie/widgets/carousel/spinner',
                     if (options.onComplete && typeof options.onComplete === 'function') {
                         options.onComplete();
                     }
-
                 }
                 return wrappedComplete;
             },
 
             _clearAnimating: function () {
-                this._animating = false;
                 this._currentAnimation = null;
             },
 
