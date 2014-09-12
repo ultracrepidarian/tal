@@ -101,9 +101,7 @@ require.def(
             _registerPlugins : function(){
                 var self = this;
                 this.sefPlugin = document.getElementById('sefPlugin');
-                //this.sefPlugin.Open("StreamingPlayer", "1.0", "StreamingPlayer");
-                //this.sefPlugin.Open("Player", "1.0", "Player");
-                this.sefPlugin.Open('Player', '1.112', 'Player');
+                this.sefPlugin.Open("StreamingPlayer", "1.0", "StreamingPlayer");
 
                 this.audioPlugin = document.getElementById('audioPlugin');
                 this.tvmwPlugin = document.getElementById('pluginObjectTVMW');
@@ -219,8 +217,7 @@ require.def(
                 this.mediaSource = sources[0];
                 this.parameterizedMediaSourceUrl = this.mediaSource.getURL(tags);
                 if (this.mediaSource.isLiveStream()) {
-                    //this.parameterizedMediaSourceUrl += "|BBCSLIDING|COMPONENT=HLS";
-                    this.parameterizedMediaSourceUrl += "|COMPONENT=HLS";
+                    this.parameterizedMediaSourceUrl += "|BBCSLIDING|COMPONENT=HLS";
                 }
 		this.logger.info("URL is " + this.parameterizedMediaSourceUrl);
             },
