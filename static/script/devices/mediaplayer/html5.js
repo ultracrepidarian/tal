@@ -346,7 +346,7 @@ require.def(
             },
 
             _seekTo: function(seconds) {
-                this._mediaElement.currentTime = this._getClampedTime(seconds);
+                this._mediaElement.currentTime = this._getClampedTime(seconds).toSeconds();
             },
 
             _wipe: function() {

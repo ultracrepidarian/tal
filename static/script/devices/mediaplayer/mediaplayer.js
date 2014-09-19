@@ -108,6 +108,7 @@ require.def(
              * Clamp a time value so it does not exceed the current range.
              * Clamps to near the end instead of the end itself to allow for devices that cannot seek to the very end of the media.
              * @param {Number} seconds The time value to clamp in seconds from the start of the media
+             * @return {antie.devices.mediaplayer.MediaPlayer.Offset} The clamped time offset
              * @protected
              */
             _getClampedTime: function(seconds) {
@@ -115,7 +116,7 @@ require.def(
                 var nearToEnd = new MediaPlayer.Offset(Math.max(this.getRange().end - this.CLAMP_OFFSET_FROM_END_OF_RANGE, this.getRange().start));
                 var range = new MediaPlayer.Range(start, nearToEnd);
                 var offset = new MediaPlayer.Offset(seconds);
-                return range.clamp(offset).toSeconds();
+                return range.clamp(offset);
             },
 
             /**
@@ -130,7 +131,7 @@ require.def(
              */
             _isNearToCurrentTime: function(seconds) {
                 var currentTime = this.getCurrentTime();
-                var targetTime = this._getClampedTime(seconds);
+                var targetTime = this._getClampedTime(seconds).toSeconds();
                 return Math.abs(currentTime - targetTime) <= this.CURRENT_TIME_TOLERANCE;
             },
 
