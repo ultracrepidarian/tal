@@ -107,15 +107,14 @@ require.def(
             /**
              * Clamp a time value so it does not exceed the current range.
              * Clamps to near the end instead of the end itself to allow for devices that cannot seek to the very end of the media.
-             * @param {Number} seconds The time value to clamp in seconds from the start of the media
+             * @param {antie.devices.mediaplayer.MediaPlayer.Offset} offset The time offset to be clamped
              * @return {antie.devices.mediaplayer.MediaPlayer.Offset} The clamped time offset
              * @protected
              */
-            _getClampedTime: function(seconds) {
+            _getClampedTime: function(offset) {
                 var start = new MediaPlayer.Offset(this.getRange().start);
                 var nearToEnd = new MediaPlayer.Offset(Math.max(this.getRange().end - this.CLAMP_OFFSET_FROM_END_OF_RANGE, this.getRange().start));
                 var range = new MediaPlayer.Range(start, nearToEnd);
-                var offset = new MediaPlayer.Offset(seconds);
                 return range.clamp(offset);
             },
 
@@ -131,7 +130,7 @@ require.def(
              */
             _isNearToCurrentTime: function(seconds) {
                 var currentTime = this.getCurrentTime();
-                var targetTime = this._getClampedTime(seconds).toSeconds();
+                var targetTime = this._getClampedTime(new MediaPlayer.Offset(seconds)).toSeconds();
                 return Math.abs(currentTime - targetTime) <= this.CURRENT_TIME_TOLERANCE;
             },
 
@@ -255,8 +254,10 @@ require.def(
         // Primitive Obsession/CoM fixes ToDo:
         // ** Expand use of Range and Offset up from the bottom until everything is refactored...
         // x _getClampedTime uses range internally
-        // * _getClampedTime returns an offset
+        // x _getClampedTime returns an offset
         // * _getClampedTime takes an offset
+        // * html5 _seekTo function should take an offset
+        // * samsung 'seekingTo' var in playFrom should be an offset
         // * _isNearToCurrentTime uses range internally
         // * _isNearToCurrentTime returns an offset
         // * _isNearToCurrentTime takes an offset

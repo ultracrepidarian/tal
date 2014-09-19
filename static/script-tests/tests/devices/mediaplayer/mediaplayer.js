@@ -48,7 +48,8 @@
         return MediaPlayer.extend({
             getClampedTime: function(seconds, within) {
                 range = within;
-                return this._getClampedTime(seconds).toSeconds();
+                var offset = new MediaPlayer.Offset(seconds);
+                return this._getClampedTime(offset).toSeconds();
             },
             isNearToCurrentTime: function (seconds, currentTimeOverride) {
                 range = { start: -10000, end: 10000};
