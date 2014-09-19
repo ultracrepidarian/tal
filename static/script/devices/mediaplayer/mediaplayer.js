@@ -111,15 +111,11 @@ require.def(
              * @protected
              */
             _getClampedTime: function(seconds) {
-                var range = this.getRange();
-                var nearToEnd = Math.max(range.end - this.CLAMP_OFFSET_FROM_END_OF_RANGE, range.start);
-                if (seconds < range.start) {
-                    return range.start;
-                } else if (seconds > nearToEnd) {
-                    return nearToEnd;
-                } else {
-                    return seconds;
-                }
+                var start = new MediaPlayer.Offset(this.getRange().start);
+                var nearToEnd = new MediaPlayer.Offset(Math.max(this.getRange().end - this.CLAMP_OFFSET_FROM_END_OF_RANGE, this.getRange().start));
+                var range = new MediaPlayer.Range(start, nearToEnd);
+                var offset = new MediaPlayer.Offset(seconds);
+                return range.clamp(offset).toSeconds();
             },
 
             /**
@@ -252,6 +248,105 @@ require.def(
             */
             getState: function () {
                 throw new Error("getState method has not been implemented");
+            }
+        });
+
+        // Primitive Obsession/CoM fixes ToDo:
+        // ** Expand use of Range and Offset up from the bottom until everything is refactored...
+        // x _getClampedTime uses range internally
+        // * _getClampedTime returns an offset
+        // * _getClampedTime takes an offset
+        // * _isNearToCurrentTime uses range internally
+        // * _isNearToCurrentTime returns an offset
+        // * _isNearToCurrentTime takes an offset
+        // * API getRange returns a range
+        // * API playFrom takes an offset
+        // * API getCurrentTime returns an offset
+
+        /**
+         * Time Offset for use with Media PLayback.
+         * Represents an offset from the start of the media.
+         * @name antie.devices.mediaplayer.MediaPlayer.Offset
+         * @class
+         * @abstract
+         * @extends antie.Class
+         */
+        MediaPlayer.Offset = Class.extend(/** @lends antie.devices.mediaplayer.MediaPlayer.Offset.prototype */{
+            /**
+            * Constructor.
+            * Takes the time offset to be represented as a number of seconds from the start of the media.
+            * @param {Number} seconds The time offset from the start of the media in seconds.
+            */
+            init: function (seconds) {
+                this._seconds = seconds;
+            },
+
+            /**
+            * Create a cloned copy of this time offset.
+            */
+            clone: function () {
+                return new MediaPlayer.Offset(this._seconds);
+            },
+
+            /**
+            * Get the number of seconds represented by this Offset.
+            * @return {Number} The number of seconds from the start of the media.
+            */
+            toSeconds: function () {
+                return this._seconds;
+            },
+
+            /**
+            * Determine if another offset is before this one in the media.
+            * @return {Boolean} other True if the passed in offset occurs before this one.
+            */
+            before: function (other) {
+                return this._seconds < other._seconds;
+            },
+
+            /**
+            * Determine if another offset is after this one in the media.
+            * @return {Boolean} other True if the passed in offset occurs after this one.
+            */
+            after: function (other) {
+                return this._seconds > other._seconds;
+            }
+        });
+
+        /**
+         * Time Range class.
+         * @name antie.devices.mediaplayer.MediaPlayer
+         * @class
+         * @abstract
+         * @extends antie.Class
+         */
+        MediaPlayer.Range = Class.extend(/** @lends antie.devices.mediaplayer.MediaPlayer.Range.prototype */{
+            /**
+            * Constructor.
+            * Takes the start and end time offsets representing the range.
+            * @param {antie.devices.mediaplayer.MediaPlayer.Offset} start The time offset representing the inclusive start of the time range.
+            * @param {antie.devices.mediaplayer.MediaPlayer.Offset} end The time offset representing the inclusive end of the time range.
+            */
+            init: function (start, end) {
+                if (!(start instanceof MediaPlayer.Offset)) { throw "Start is not an Offset!"; }
+                if (!(end instanceof MediaPlayer.Offset)) { throw "End is not an Offset!"; }
+                if (start > end) { throw "Range is inverted. Start: "+start+". End: "+end; }
+                this._start = start;
+                this._end = end;
+            },
+
+            /**
+            * Clamp a time offset so that it lies within this range.
+            * @return {antie.devices.mediaplayer.MediaPlayer.Offset} The clamped offset.
+            */
+            clamp: function(offset) {
+                if (offset.before(this._start)) {
+                    return this._start.clone();
+                } else if (offset.after(this._end)) {
+                    return this._end.clone();
+                } else {
+                    return offset.clone();
+                }
             }
         });
 
