@@ -337,7 +337,7 @@ require.def(
             },
 
             _deferredPlayFrom: function() {
-                this._seekTo(this._targetSeekTime);
+                this._seekTo(new MediaPlayer.Offset(this._targetSeekTime));
                 this._mediaElement.play();
                 if (this._postBufferingState === MediaPlayer.STATE.PAUSED) {
                     this._mediaElement.pause();
@@ -346,7 +346,7 @@ require.def(
             },
 
             _seekTo: function(seconds) {
-                this._mediaElement.currentTime = this._getClampedTime(new MediaPlayer.Offset(seconds)).toSeconds();
+                this._mediaElement.currentTime = this._getClampedTime(seconds).toSeconds();
             },
 
             _wipe: function() {

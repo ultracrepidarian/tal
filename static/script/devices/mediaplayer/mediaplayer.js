@@ -255,8 +255,9 @@ require.def(
         // ** Expand use of Range and Offset up from the bottom until everything is refactored...
         // x _getClampedTime uses range internally
         // x _getClampedTime returns an offset
-        // * _getClampedTime takes an offset
+        // x _getClampedTime takes an offset
         // * html5 _seekTo function should take an offset
+        // * HTML5 _targetSeekTime should be an offset
         // * samsung 'seekingTo' var in playFrom should be an offset
         // * _isNearToCurrentTime uses range internally
         // * _isNearToCurrentTime returns an offset
