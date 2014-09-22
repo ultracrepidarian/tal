@@ -96,7 +96,7 @@ require.def(
             */
             playFrom: function(seconds) {
                 this._postBufferingState = MediaPlayer.STATE.PLAYING;
-                this._targetSeekTime = seconds;
+                this._targetSeekTime = new MediaPlayer.Offset(seconds);
                 switch (this.getState()) {
                     case MediaPlayer.STATE.STOPPED:
                     case MediaPlayer.STATE.PAUSED:
@@ -337,7 +337,7 @@ require.def(
             },
 
             _deferredPlayFrom: function() {
-                this._seekTo(new MediaPlayer.Offset(this._targetSeekTime));
+                this._seekTo(this._targetSeekTime);
                 this._mediaElement.play();
                 if (this._postBufferingState === MediaPlayer.STATE.PAUSED) {
                     this._mediaElement.pause();
