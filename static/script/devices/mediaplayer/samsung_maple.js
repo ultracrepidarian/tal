@@ -85,12 +85,12 @@ require.def(
             */
             playFrom: function (seconds) {
                 this._postBufferingState = MediaPlayer.STATE.PLAYING;
-                var seekingTo = this._range ? this._getClampedTime(new MediaPlayer.Offset(seconds)).toSeconds() : seconds;
-                var offset = seekingTo - this.getCurrentTime();
+                var seekingTo = this._range ? this._getClampedTime(new MediaPlayer.Offset(seconds)) : new MediaPlayer.Offset(seconds);
+                var offset = seekingTo.toSeconds() - this.getCurrentTime();
                 switch (this.getState()) {
                     case MediaPlayer.STATE.BUFFERING:
                         if (!this._currentTimeKnown) {
-                            this._deferSeekingTo = seekingTo;
+                            this._deferSeekingTo = seekingTo.toSeconds();
                         } else {
                             this._jump(offset);
                         }
@@ -99,7 +99,7 @@ require.def(
                     case MediaPlayer.STATE.PLAYING:
                         this._toBuffering();
                         if (!this._currentTimeKnown) {
-                            this._deferSeekingTo = seekingTo;
+                            this._deferSeekingTo = seekingTo.toSeconds();
                         } else if (offset === 0) {
                             this._toPlaying();
                         } else {
@@ -111,7 +111,7 @@ require.def(
                     case MediaPlayer.STATE.PAUSED:
                         this._toBuffering();
                         if (!this._currentTimeKnown) {
-                            this._deferSeekingTo = seekingTo;
+                            this._deferSeekingTo = seekingTo.toSeconds();
                         } else if (offset === 0) {
                             this._playerPlugin.Resume();
                             this._toPlaying();
@@ -122,7 +122,7 @@ require.def(
 
                     case MediaPlayer.STATE.STOPPED:
                     case MediaPlayer.STATE.COMPLETE:
-                        this._playerPlugin.ResumePlay(this._source, seekingTo);
+                        this._playerPlugin.ResumePlay(this._source, seekingTo.toSeconds());
                         this._toBuffering();
                         break;
 
