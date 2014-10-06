@@ -768,17 +768,19 @@ require.def('antie/devices/device',
                         var modifier = modifiers[i];
 
                         if (!registeredModifiers[modifier]) {
-                            throw Error("Nope, gotta register");
-                        }
+//                            throw Error("Nope, gotta register");
+                        } else {
 
-                        var competesFor = registeredModifiers[modifier].competesFor; // e.g. "device", "devices/mediaplayer", "devices/anim", "devices/exit", "devices/exit/broadcast"
-                        if (currentModifiers[competesFor]) {
-                            var current = currentModifiers[competesFor];
-                            registeredModifiers[current].tearDown();
-                        }
 
-                        registeredModifiers[modifier].setUp();
-                        currentModifiers[competesFor] = modifier;
+                            var competesFor = registeredModifiers[modifier].competesFor; // e.g. "device", "devices/mediaplayer", "devices/anim", "devices/exit", "devices/exit/broadcast"
+                            if (currentModifiers[competesFor]) {
+                                var current = currentModifiers[competesFor];
+                                registeredModifiers[current].tearDown();
+                            }
+
+                            registeredModifiers[modifier].setUp();
+                            currentModifiers[competesFor] = modifier;
+                        }
                     }
 
                     try {
@@ -796,7 +798,7 @@ require.def('antie/devices/device',
             }
         };
 
-        Device.registerDeviceModifier = function(modifier, competesFor, setUp, tearDown) {
+        Device.prototype.registerDeviceModifier = function(modifier, competesFor, setUp, tearDown) {
             registeredModifiers[modifier] = {competesFor: competesFor, setUp: setUp, tearDown: tearDown };
         };
 

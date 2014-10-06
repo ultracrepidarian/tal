@@ -323,23 +323,43 @@ require.def('antie/devices/broadcastsource/samsungtvsource',
                     major: mapleChannel.major,
                     minor: mapleChannel.minor,
                     sourceId: mapleChannel.sourceID
-                });
+                 });
             }
         });
 
-        /**
-         * Create a new widget giving control over broadcast television. Check whether
-         * the broadcast television API is available first with isBroadcastSourceSupported().
-         * @see antie.widgets.broadcastsource
-         * @returns {Object} Device-specific implementation of antie.widgets.broadcastsource
-         */
-        Device.prototype.createBroadcastSource = function() {
-            if (!this._broadcastSource) {
-                this._broadcastSource = new SamsungSource();
-            }
 
-            return this._broadcastSource;
+        var deviceModifierSetUp = function() {
+
+            Device.prototype.isBroadcastSourceSupported = function() {
+                return true;
+            };
+
+            /**
+             * Create a new widget giving control over broadcast television. Check whether
+             * the broadcast television API is available first with isBroadcastSourceSupported().
+             * @see antie.widgets.broadcastsource
+             * @returns {Object} Device-specific implementation of antie.widgets.broadcastsource
+             */
+            Device.prototype.createBroadcastSource = function() {
+                if (!this._broadcastSource) {
+                    this._broadcastSource = new SamsungSource();
+                }
+
+                return this._broadcastSource;
+            };
+
         };
+
+        var deviceModifierTearDown = function () {
+            // TODO: clean up in here, e.g.
+            //            delete Device.prototype.isBroadcastSourceSupported;
+            //            delete Device.prototype.createBroadcastSource;
+        };
+
+        var section = "devices/broadcastsource";
+
+        Device.prototype.registerDeviceModifier("antie/devices/broadcastsource/samsungtvsource", section, deviceModifierSetUp, deviceModifierTearDown);
+
 
         // Return for testing purposes only
         return SamsungSource;

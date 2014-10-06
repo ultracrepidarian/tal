@@ -309,22 +309,33 @@ require.def('antie/devices/broadcastsource/hbbtvsource',
             }
         });
 
-        Device.prototype.isBroadcastSourceSupported = function() {
-            return this.getHistorian().hasBroadcastOrigin();
+        var deviceModifierSetUp = function () {
+
+            Device.prototype.isBroadcastSourceSupported = function () {
+                return this.getHistorian().hasBroadcastOrigin();
+            };
+
+            /**
+             * Create a broadcastSource object on the Device to be
+             * accessed as a singleton to avoid the init being run
+             * multiple times
+             */
+            Device.prototype.createBroadcastSource = function () {
+                if (!this._broadcastSource) {
+                    this._broadcastSource = new HbbTVSource();
+                }
+
+                return this._broadcastSource;
+            };
         };
 
-        /**
-         * Create a broadcastSource object on the Device to be
-         * accessed as a singleton to avoid the init being run
-         * multiple times
-         */
-        Device.prototype.createBroadcastSource = function() {
-            if (!this._broadcastSource) {
-                this._broadcastSource = new HbbTVSource();
-            }
-
-            return this._broadcastSource;
+        var deviceModifierTearDown = function() {
+            // TODO: Delete the functions we added to Device in SetUp above
         };
+
+        var section = "devices/broadcastsource";
+
+        Device.prototype.registerDeviceModifier('antie/devices/broadcastsource/hbbtvsource', section, deviceModifierSetUp, deviceModifierTearDown);
 
         // Return the HbbtvSource object for testing purposes
         return HbbTVSource;
