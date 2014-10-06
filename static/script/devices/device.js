@@ -740,6 +740,14 @@ require.def('antie/devices/device',
             	return false;
             }
         });
+
+
+
+
+        var currentModifiers = { };     // e.g. "devices/mediaplayer" => "devices/mediaplayer/cehtml";
+        var registeredModifiers = { };   //  e.g. "devices/mediaplayer/cehtml" => { competesFor: "devices/mediaplayer", setUp: function(){...}, tearDown: function(){...} };
+
+
         /**
          * Loads a device configuration document from the given URL.
          * @name load
@@ -751,7 +759,28 @@ require.def('antie/devices/device',
          */
         Device.load = function(config, callbacks) {
             try {
-                require([config.modules.base].concat(config.modules.modifiers), function(DeviceClass) {
+                var modifiers = [config.modules.base].concat(config.modules.modifiers);
+
+                require(modifiers, function(DeviceClass) {
+
+                    for (var i = 0; i < modifiers.length; i++) {
+
+                        var modifier = modifiers[i];
+
+                        if (!registeredModifiers[modifier]) {
+                            throw Error("Nope, gotta register");
+                        }
+
+                        var competesFor = registeredModifiers[modifier].competesFor; // e.g. "device", "devices/mediaplayer", "devices/anim", "devices/exit", "devices/exit/broadcast"
+                        if (currentModifiers[competesFor]) {
+                            var current = currentModifiers[competesFor];
+                            registeredModifiers[current].tearDown();
+                        }
+
+                        registeredModifiers[modifier].setUp();
+                        currentModifiers[competesFor] = modifier;
+                    }
+
                     try {
                         callbacks.onSuccess(new DeviceClass(config));
                     } catch(ex) {
@@ -766,6 +795,12 @@ require.def('antie/devices/device',
                 }
             }
         };
+
+        Device.registerDeviceModifier = function(modifier, competesFor, setUp, tearDown) {
+            registeredModifiers[modifier] = {competesFor: competesFor, setUp: setUp, tearDown: tearDown };
+        };
+
+
 
         /**
          * Adds a logging method at device init time
