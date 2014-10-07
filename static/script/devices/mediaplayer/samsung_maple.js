@@ -90,7 +90,7 @@ require.def(
                 switch (this.getState()) {
                     case MediaPlayer.STATE.BUFFERING:
                         if (!this._currentTimeKnown) {
-                            this._deferSeekingTo = seekingTo.toSeconds();
+                            this._deferSeekingTo = seekingTo;
                         } else {
                             this._jump(offset);
                         }
@@ -99,7 +99,7 @@ require.def(
                     case MediaPlayer.STATE.PLAYING:
                         this._toBuffering();
                         if (!this._currentTimeKnown) {
-                            this._deferSeekingTo = seekingTo.toSeconds();
+                            this._deferSeekingTo = seekingTo;
                         } else if (offset === 0) {
                             this._toPlaying();
                         } else {
@@ -111,7 +111,7 @@ require.def(
                     case MediaPlayer.STATE.PAUSED:
                         this._toBuffering();
                         if (!this._currentTimeKnown) {
-                            this._deferSeekingTo = seekingTo.toSeconds();
+                            this._deferSeekingTo = seekingTo;
                         } else if (offset === 0) {
                             this._playerPlugin.Resume();
                             this._toPlaying();
@@ -282,7 +282,7 @@ require.def(
 
             _deferredSeek: function() {
                 if (this._deferSeekingTo) {
-                    this.playFrom(this._deferSeekingTo);
+                    this.playFrom(this._deferSeekingTo.toSeconds());
                     this._deferSeekingTo = null;
                 }
             },
