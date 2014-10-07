@@ -28,7 +28,7 @@
 
 require.def('antie/devices/broadcastsource/samsungtvsource',
     [
-        'antie/devices/browserdevice',
+        'antie/devices/device',
         'antie/devices/broadcastsource/basetvsource',
         'antie/runtimecontext',
         'antie/devices/broadcastsource/channel',

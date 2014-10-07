@@ -364,7 +364,6 @@
             self.sandbox.stub(Historian.prototype, "hasBroadcastOrigin", function() {
                 return false;
             });
-
             assertFalse(device.isBroadcastSourceSupported());
         }, config);
     };

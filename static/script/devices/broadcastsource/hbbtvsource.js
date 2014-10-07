@@ -26,7 +26,7 @@
 
 require.def('antie/devices/broadcastsource/hbbtvsource',
     [
-        'antie/devices/browserdevice',
+        'antie/devices/device',
         'antie/devices/broadcastsource/basetvsource',
         'antie/runtimecontext',
         'antie/devices/broadcastsource/channel',

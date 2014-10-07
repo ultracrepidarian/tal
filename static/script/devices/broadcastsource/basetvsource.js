@@ -27,7 +27,7 @@
 require.def('antie/devices/broadcastsource/basetvsource',
     [
         'antie/class',
-        'antie/devices/browserdevice'
+        'antie/devices/device'
     ],
     function (Class, Device) {
         'use strict';
