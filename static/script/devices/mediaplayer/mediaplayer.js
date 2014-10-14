@@ -265,7 +265,7 @@ require.def(
         // x Doc comments in Offset are wrong
         // x Add Offset 'diff' method to make samsung maple line 89 faster
         // x Add Offset 'isZero' method to make samsung maple 'offset === 0' tests better
-        // * Samsung 'jump' function should take Offset
+        // x Samsung 'jump' function should take Offset
         // * Add Offset isPositive method to clean up samsung _jump function
         // * Add Offset abs method to clean up samsung _jump function
         // * _isNearToCurrentTime uses range internally
@@ -319,10 +319,18 @@ require.def(
 
             /**
             * Determine if this Offset is of zero magnitude.
-            * @return {Boolean} True if the passed in offset occurs before this one.
+            * @return {Boolean} True if the passed in offset is zero.
             */
             isZero: function () {
                 return this._seconds === 0;
+            },
+
+            /**
+            * Determine if this Offset is positive.
+            * @return {Boolean} True if the passed in offset is positive.
+            */
+            isPositive: function () {
+                return this._seconds > 0;
             },
 
             /**

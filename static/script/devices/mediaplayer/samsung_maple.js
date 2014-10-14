@@ -380,7 +380,7 @@ require.def(
             },
 
             _jump: function (offset) {
-                if (offset.toSeconds() > 0) {
+                if (offset.isPositive()) {
                     this._playerPlugin.JumpForward(offset.toSeconds());
                 } else {
                     this._playerPlugin.JumpBackward(Math.abs(offset.toSeconds()));
