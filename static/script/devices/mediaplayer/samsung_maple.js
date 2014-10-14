@@ -100,7 +100,7 @@ require.def(
                         this._toBuffering();
                         if (!this._currentTimeKnown) {
                             this._deferSeekingTo = seekingTo;
-                        } else if (offset.toSeconds() === 0) {
+                        } else if (offset.isZero()) {
                             this._toPlaying();
                         } else {
                             this._jump(offset.toSeconds());
@@ -112,7 +112,7 @@ require.def(
                         this._toBuffering();
                         if (!this._currentTimeKnown) {
                             this._deferSeekingTo = seekingTo;
-                        } else if (offset.toSeconds() === 0) {
+                        } else if (offset.isZero()) {
                             this._playerPlugin.Resume();
                             this._toPlaying();
                         } else {

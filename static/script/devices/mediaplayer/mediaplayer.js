@@ -263,8 +263,8 @@ require.def(
         // x Samsung playFrom 'offset' var should be offset
         // x Range.init 'start > end' is wrong!
         // x Doc comments in Offset are wrong
-        // * Add Offset 'diff' method to make samsung maple line 89 faster
-        // * Add Offset 'nearTo' method to make samsung maple 'offset === 0' tests better
+        // x Add Offset 'diff' method to make samsung maple line 89 faster
+        // * Add Offset 'isZero' method to make samsung maple 'offset === 0' tests better
         // * Samsung 'jump' function should take Offset
         // * _isNearToCurrentTime uses range internally
         // * _isNearToCurrentTime returns an offset
@@ -313,6 +313,14 @@ require.def(
             */
             diffTo: function (other) {
                 return new MediaPlayer.Offset(this._seconds - other._seconds);
+            },
+
+            /**
+            * Determine if this Offset is of zero magnitude.
+            * @return {Boolean} True if the passed in offset occurs before this one.
+            */
+            isZero: function () {
+                return this._seconds === 0;
             },
 
             /**
