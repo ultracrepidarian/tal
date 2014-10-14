@@ -261,6 +261,9 @@ require.def(
         // x samsung 'seekingTo' var in playFrom should be an offset
         // x Samsung _deferSeekingTo should be offset
         // * Samsung playFrom 'offset' var should be offset
+        // * Add Offset 'diff' method to make samsung maple line 89 faster
+        // * Add Offset 'nearTo' method to make samsung maple 'offset === 0' tests better
+        // * Samsung 'jump' function should take Offset
         // * _isNearToCurrentTime uses range internally
         // * _isNearToCurrentTime returns an offset
         // * _isNearToCurrentTime takes an offset

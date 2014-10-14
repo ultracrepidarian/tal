@@ -86,13 +86,13 @@ require.def(
             playFrom: function (seconds) {
                 this._postBufferingState = MediaPlayer.STATE.PLAYING;
                 var seekingTo = this._range ? this._getClampedTime(new MediaPlayer.Offset(seconds)) : new MediaPlayer.Offset(seconds);
-                var offset = seekingTo.toSeconds() - this.getCurrentTime();
+                var offset = new MediaPlayer.Offset(seekingTo.toSeconds() - this.getCurrentTime());
                 switch (this.getState()) {
                     case MediaPlayer.STATE.BUFFERING:
                         if (!this._currentTimeKnown) {
                             this._deferSeekingTo = seekingTo;
                         } else {
-                            this._jump(offset);
+                            this._jump(offset.toSeconds());
                         }
                         break;
 
@@ -100,10 +100,10 @@ require.def(
                         this._toBuffering();
                         if (!this._currentTimeKnown) {
                             this._deferSeekingTo = seekingTo;
-                        } else if (offset === 0) {
+                        } else if (offset.toSeconds() === 0) {
                             this._toPlaying();
                         } else {
-                            this._jump(offset);
+                            this._jump(offset.toSeconds());
                         }
                         break;
 
@@ -112,11 +112,11 @@ require.def(
                         this._toBuffering();
                         if (!this._currentTimeKnown) {
                             this._deferSeekingTo = seekingTo;
-                        } else if (offset === 0) {
+                        } else if (offset.toSeconds() === 0) {
                             this._playerPlugin.Resume();
                             this._toPlaying();
                         } else {
-                            this._jump(offset);
+                            this._jump(offset.toSeconds());
                         }
                         break;
 
