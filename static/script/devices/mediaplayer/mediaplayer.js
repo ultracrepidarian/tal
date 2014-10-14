@@ -261,8 +261,8 @@ require.def(
         // x samsung 'seekingTo' var in playFrom should be an offset
         // x Samsung _deferSeekingTo should be offset
         // x Samsung playFrom 'offset' var should be offset
-        // * Range.init 'start > end' is wrong!
-        // * Doc comments in Offset are wrong
+        // x Range.init 'start > end' is wrong!
+        // x Doc comments in Offset are wrong
         // * Add Offset 'diff' method to make samsung maple line 89 faster
         // * Add Offset 'nearTo' method to make samsung maple 'offset === 0' tests better
         // * Samsung 'jump' function should take Offset
@@ -308,6 +308,7 @@ require.def(
 
             /**
             * Determine if another offset is before this one in the media.
+            * @param {antie.devices.mediaplayer.MediaPlayer.Offset} other The other Offset to compare to
             * @return {Boolean} other True if the passed in offset occurs before this one.
             */
             before: function (other) {
@@ -316,6 +317,7 @@ require.def(
 
             /**
             * Determine if another offset is after this one in the media.
+            * @param {antie.devices.mediaplayer.MediaPlayer.Offset} other The other Offset to compare to
             * @return {Boolean} other True if the passed in offset occurs after this one.
             */
             after: function (other) {
@@ -347,6 +349,7 @@ require.def(
 
             /**
             * Clamp a time offset so that it lies within this range.
+            * @param {antie.devices.mediaplayer.MediaPlayer.Offset} offset The Offset to clamp
             * @return {antie.devices.mediaplayer.MediaPlayer.Offset} The clamped offset.
             */
             clamp: function(offset) {
