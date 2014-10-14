@@ -86,7 +86,7 @@ require.def(
             playFrom: function (seconds) {
                 this._postBufferingState = MediaPlayer.STATE.PLAYING;
                 var seekingTo = this._range ? this._getClampedTime(new MediaPlayer.Offset(seconds)) : new MediaPlayer.Offset(seconds);
-                var offset = new MediaPlayer.Offset(seekingTo.toSeconds() - this.getCurrentTime());
+                var offset = seekingTo.diffTo(new MediaPlayer.Offset(this.getCurrentTime()));
                 switch (this.getState()) {
                     case MediaPlayer.STATE.BUFFERING:
                         if (!this._currentTimeKnown) {

@@ -307,9 +307,18 @@ require.def(
             },
 
             /**
+            * Get the difference between this offset and another
+            * @param {antie.devices.mediaplayer.MediaPlayer.Offset} other The Offset to get the difference to
+            * @return {antie.devices.mediaplayer.MediaPlayer.Offset} The difference, as a new Offset
+            */
+            diffTo: function (other) {
+                return new MediaPlayer.Offset(this._seconds - other._seconds);
+            },
+
+            /**
             * Determine if another offset is before this one in the media.
             * @param {antie.devices.mediaplayer.MediaPlayer.Offset} other The other Offset to compare to
-            * @return {Boolean} other True if the passed in offset occurs before this one.
+            * @return {Boolean} True if the passed in offset occurs before this one.
             */
             before: function (other) {
                 return this._seconds < other._seconds;
@@ -318,7 +327,7 @@ require.def(
             /**
             * Determine if another offset is after this one in the media.
             * @param {antie.devices.mediaplayer.MediaPlayer.Offset} other The other Offset to compare to
-            * @return {Boolean} other True if the passed in offset occurs after this one.
+            * @return {Boolean} True if the passed in offset occurs after this one.
             */
             after: function (other) {
                 return this._seconds > other._seconds;
