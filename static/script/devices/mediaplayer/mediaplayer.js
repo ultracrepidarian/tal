@@ -264,8 +264,10 @@ require.def(
         // x Range.init 'start > end' is wrong!
         // x Doc comments in Offset are wrong
         // x Add Offset 'diff' method to make samsung maple line 89 faster
-        // * Add Offset 'isZero' method to make samsung maple 'offset === 0' tests better
+        // x Add Offset 'isZero' method to make samsung maple 'offset === 0' tests better
         // * Samsung 'jump' function should take Offset
+        // * Add Offset isPositive method to clean up samsung _jump function
+        // * Add Offset abs method to clean up samsung _jump function
         // * _isNearToCurrentTime uses range internally
         // * _isNearToCurrentTime returns an offset
         // * _isNearToCurrentTime takes an offset

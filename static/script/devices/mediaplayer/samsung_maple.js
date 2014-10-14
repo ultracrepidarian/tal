@@ -92,7 +92,7 @@ require.def(
                         if (!this._currentTimeKnown) {
                             this._deferSeekingTo = seekingTo;
                         } else {
-                            this._jump(offset.toSeconds());
+                            this._jump(offset);
                         }
                         break;
 
@@ -103,7 +103,7 @@ require.def(
                         } else if (offset.isZero()) {
                             this._toPlaying();
                         } else {
-                            this._jump(offset.toSeconds());
+                            this._jump(offset);
                         }
                         break;
 
@@ -116,7 +116,7 @@ require.def(
                             this._playerPlugin.Resume();
                             this._toPlaying();
                         } else {
-                            this._jump(offset.toSeconds());
+                            this._jump(offset);
                         }
                         break;
 
@@ -379,11 +379,11 @@ require.def(
                 this._unregisterEventHandlers();
             },
 
-            _jump: function (offsetSeconds) {
-                if (offsetSeconds > 0) {
-                    this._playerPlugin.JumpForward(offsetSeconds);
+            _jump: function (offset) {
+                if (offset.toSeconds() > 0) {
+                    this._playerPlugin.JumpForward(offset.toSeconds());
                 } else {
-                    this._playerPlugin.JumpBackward(Math.abs(offsetSeconds));
+                    this._playerPlugin.JumpBackward(Math.abs(offset.toSeconds()));
                 }
             },
 
