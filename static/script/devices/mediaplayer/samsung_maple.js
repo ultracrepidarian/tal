@@ -383,7 +383,7 @@ require.def(
                 if (offset.isPositive()) {
                     this._playerPlugin.JumpForward(offset.toSeconds());
                 } else {
-                    this._playerPlugin.JumpBackward(Math.abs(offset.toSeconds()));
+                    this._playerPlugin.JumpBackward(offset.abs().toSeconds());
                 }
             },
 

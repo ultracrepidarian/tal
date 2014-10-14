@@ -266,8 +266,8 @@ require.def(
         // x Add Offset 'diff' method to make samsung maple line 89 faster
         // x Add Offset 'isZero' method to make samsung maple 'offset === 0' tests better
         // x Samsung 'jump' function should take Offset
-        // * Add Offset isPositive method to clean up samsung _jump function
-        // * Add Offset abs method to clean up samsung _jump function
+        // x Add Offset isPositive method to clean up samsung _jump function
+        // x Add Offset abs method to clean up samsung _jump function
         // * _isNearToCurrentTime uses range internally
         // * _isNearToCurrentTime returns an offset
         // * _isNearToCurrentTime takes an offset
@@ -315,6 +315,14 @@ require.def(
             */
             diffTo: function (other) {
                 return new MediaPlayer.Offset(this._seconds - other._seconds);
+            },
+
+            /**
+            * Get the absolute (positive) version of this Offset
+            * @return {antie.devices.mediaplayer.MediaPlayer.Offset} The absolute value, as a new Offset
+            */
+            abs: function () {
+                return new MediaPlayer.Offset(Math.abs(this._seconds));
             },
 
             /**
