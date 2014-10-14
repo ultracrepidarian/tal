@@ -260,7 +260,9 @@ require.def(
         // x HTML5 _targetSeekTime should be an offset
         // x samsung 'seekingTo' var in playFrom should be an offset
         // x Samsung _deferSeekingTo should be offset
-        // * Samsung playFrom 'offset' var should be offset
+        // x Samsung playFrom 'offset' var should be offset
+        // * Range.init 'start > end' is wrong!
+        // * Doc comments in Offset are wrong
         // * Add Offset 'diff' method to make samsung maple line 89 faster
         // * Add Offset 'nearTo' method to make samsung maple 'offset === 0' tests better
         // * Samsung 'jump' function should take Offset
@@ -338,7 +340,7 @@ require.def(
             init: function (start, end) {
                 if (!(start instanceof MediaPlayer.Offset)) { throw "Start is not an Offset!"; }
                 if (!(end instanceof MediaPlayer.Offset)) { throw "End is not an Offset!"; }
-                if (start > end) { throw "Range is inverted. Start: "+start+". End: "+end; }
+                if (start.after(end)) { throw "Range is inverted. Start: "+start+". End: "+end; }
                 this._start = start;
                 this._end = end;
             },
