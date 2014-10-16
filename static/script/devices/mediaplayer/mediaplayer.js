@@ -129,9 +129,9 @@ require.def(
              * @protected
              */
             _isNearToCurrentTime: function(seconds) {
-                var currentTime = this.getCurrentTime();
-                var targetTime = this._getClampedTime(new MediaPlayer.Offset(seconds)).toSeconds();
-                return Math.abs(currentTime - targetTime) <= this.CURRENT_TIME_TOLERANCE;
+                var currentTime = new MediaPlayer.Offset(this.getCurrentTime());
+                var targetTime = this._getClampedTime(new MediaPlayer.Offset(seconds));
+                return Math.abs(currentTime.toSeconds() - targetTime.toSeconds()) <= this.CURRENT_TIME_TOLERANCE;
             },
 
             /**
