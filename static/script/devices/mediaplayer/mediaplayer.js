@@ -126,12 +126,14 @@ require.def(
             /**
              * Check whether a time value is near to the current media play time.
              * @param {Number} seconds The time value to test, in seconds from the start of the media
+             * @returns {Boolean} Whether the given time is within tolerance of the current time
              * @protected
              */
             _isNearToCurrentTime: function(seconds) {
                 var currentTime = new MediaPlayer.Offset(this.getCurrentTime());
-                var targetTime = this._getClampedTime(new MediaPlayer.Offset(seconds));
-                return currentTime.isNearTo(targetTime, new MediaPlayer.Offset(this.CURRENT_TIME_TOLERANCE));
+                var clampedTargetTime = this._getClampedTime(new MediaPlayer.Offset(seconds));
+                var range = currentTime.withTolerance(new MediaPlayer.Offset(this.CURRENT_TIME_TOLERANCE));
+                return range.contains(clampedTargetTime);
             },
 
             /**
@@ -268,8 +270,8 @@ require.def(
         // x Samsung 'jump' function should take Offset
         // x Add Offset isPositive method to clean up samsung _jump function
         // x Add Offset abs method to clean up samsung _jump function
-        // * _isNearToCurrentTime uses range internally
-        // * _isNearToCurrentTime returns an offset
+        // x _isNearToCurrentTime uses range internally
+        // Switch to using a new Offset.add() function (needs better name) in withTolerance()
         // * _isNearToCurrentTime takes an offset
         // * API getRange returns a range
         // * API playFrom takes an offset
@@ -309,6 +311,17 @@ require.def(
             },
 
             /**
+            * Create a new Range centred around this Offset, with the given tolerance.
+            * @param {antie.devices.mediaplayer.MediaPlayer.Offset} tolerance The tolerance (half extent) around the centre point
+            * @return {antie.devices.mediaplayer.MediaPlayer.Offset} The new Range representing this offset plus a given tolerance
+            */
+            withTolerance: function (tolerance) {
+                var start = this._seconds - tolerance._seconds;
+                var end = this._seconds + tolerance._seconds;
+                return new MediaPlayer.Range(new MediaPlayer.Offset(start), new MediaPlayer.Offset(end));
+            },
+
+            /**
             * Get the difference between this offset and another
             * @param {antie.devices.mediaplayer.MediaPlayer.Offset} other The Offset to get the difference to
             * @return {antie.devices.mediaplayer.MediaPlayer.Offset} The difference, as a new Offset
@@ -339,16 +352,6 @@ require.def(
             */
             isPositive: function () {
                 return this._seconds > 0;
-            },
-
-            /**
-            * Determine if this Offset is within a given tolerance of another offset
-            * @param {antie.devices.mediaplayer.MediaPlayer.Offset} other The other Offset to compare to
-            * @param {antie.devices.mediaplayer.MediaPlayer.Offset} tolerance The tolerance with which to check
-            * @return {Boolean} True if the passed in offset is within the given tolerance of this offset.
-            */
-            isNearTo: function (other, tolerance) {
-                return Math.abs(this._seconds - other._seconds) <= tolerance._seconds;
             },
 
             /**
@@ -387,7 +390,7 @@ require.def(
             init: function (start, end) {
                 if (!(start instanceof MediaPlayer.Offset)) { throw "Start is not an Offset!"; }
                 if (!(end instanceof MediaPlayer.Offset)) { throw "End is not an Offset!"; }
-                if (start.after(end)) { throw "Range is inverted. Start: "+start+". End: "+end; }
+                if (start.after(end)) { throw "Range is inverted. Start: "+start._seconds+". End: "+end._seconds; }
                 this._start = start;
                 this._end = end;
             },
@@ -405,6 +408,16 @@ require.def(
                 } else {
                     return offset.clone();
                 }
+            },
+
+            /**
+            * Determine whether a given offset lies within this Range.
+            * @param {antie.devices.mediaplayer.MediaPlayer.Offset} offset The Offset to check
+            * @return {Boolean} True if the given offset lies with this range.
+            */
+            contains: function(offset) {
+                var outside = offset.before(this._start) || offset.after(this._end);
+                return !outside;
             }
         });
 
