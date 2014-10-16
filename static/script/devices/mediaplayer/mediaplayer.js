@@ -131,7 +131,7 @@ require.def(
             _isNearToCurrentTime: function(seconds) {
                 var currentTime = new MediaPlayer.Offset(this.getCurrentTime());
                 var targetTime = this._getClampedTime(new MediaPlayer.Offset(seconds));
-                return Math.abs(currentTime.toSeconds() - targetTime.toSeconds()) <= this.CURRENT_TIME_TOLERANCE;
+                return currentTime.isNearTo(targetTime, new MediaPlayer.Offset(this.CURRENT_TIME_TOLERANCE));
             },
 
             /**
@@ -339,6 +339,16 @@ require.def(
             */
             isPositive: function () {
                 return this._seconds > 0;
+            },
+
+            /**
+            * Determine if this Offset is within a given tolerance of another offset
+            * @param {antie.devices.mediaplayer.MediaPlayer.Offset} other The other Offset to compare to
+            * @param {antie.devices.mediaplayer.MediaPlayer.Offset} tolerance The tolerance with which to check
+            * @return {Boolean} True if the passed in offset is within the given tolerance of this offset.
+            */
+            isNearTo: function (other, tolerance) {
+                return Math.abs(this._seconds - other._seconds) <= tolerance._seconds;
             },
 
             /**
