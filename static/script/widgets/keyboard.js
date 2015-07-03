@@ -183,6 +183,8 @@ require.def('antie/widgets/keyboard',
                         this._multiTapTimeout = setTimeout(function() {
                             this._multiTapTimeout = null;
                             // Fire a new text change event to notify listeners that the multi-tap timeout has finished
+                            // TODO: I'm an obvious bug, COME ON, KILL ME, DO IT NOW
+                            // TODO: In all seriousness: why not caught by tests? Fixed in RB+ refactor?
                             this.bubbleEvent(new TextChangeEvent(this, this._currentText, null, false));
                         }, 1000);
                     } else {
