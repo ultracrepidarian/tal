@@ -266,3 +266,287 @@
 	};
 	
 })();
+
+require(
+	[
+		"antie/widgets/keyboard",
+		"antie/application",
+		"antie/runtimecontext",
+		"antie/devices/browserdevice",
+		"antie/widgets/button",
+		"antie/widgets/label",
+		"antie/events/keyevent",
+		"antie/events/textchangeevent",
+		"antie/events/selectevent"
+	],
+	function (Keyboard, Application, RuntimeContext, Device, Button, Label, KeyEvent, TextChangeEvent, SelectEvent) {
+
+		"use strict";
+
+		var KEYS_CONFIG = {
+			"map": {
+				"27": "BACK",
+				"114": "REWIND",
+				"115": "FAST_FWD",
+				"116": "STOP",
+				"117": "PLAY_PAUSE",
+				"40": "DOWN",
+				"13": "ENTER",
+				"98": "PAUSE",
+				"32": "SPACE",
+				"250": "PLAY",
+				"39": "RIGHT",
+				"38": "UP",
+				"37": "LEFT",
+				"120": "INFO",
+				"121": "SUBTITLE"
+			},
+			"multitap": [
+				"0 ",
+				"1",
+				"2ABC",
+				"3DEF",
+				"4GHI",
+				"5JKL",
+				"6MNO",
+				"7PQRS",
+				"8TUV",
+				"9WXYZ"
+			]
+		};
+
+		var sandbox, keyboard;
+
+		testCase("KeyboardTest", {
+			setUp: function () {
+				sandbox = sinon.sandbox.create();
+
+				sandbox.stub(Label.prototype);
+				sandbox.stub(TextChangeEvent.prototype);
+
+				var application = sinon.createStubInstance(Application);
+				var device = sinon.createStubInstance(Device);
+				application.getDevice.returns(device);
+				sandbox.stub(RuntimeContext, "getCurrentApplication").returns(application);
+
+				device.getConfig.returns({input: KEYS_CONFIG});
+				device.arrayIndexOf = function (widgetArray, widget) {
+						return widgetArray.indexOf(widget);
+					};
+
+				keyboard = this._newlyConstructedKeyboard();
+			},
+
+			tearDown: function () {
+				sandbox.restore();
+			},
+
+			testConstructionOfKeyboard: function () {
+				expectAsserts(1);
+
+				assert(keyboard instanceof Keyboard);
+			},
+
+			testSettingMultiTapTrue: function () {
+				expectAsserts(2);
+
+				assertFalse(keyboard.getMultiTap());
+				keyboard.setMultiTap(true);
+				assertTrue(keyboard.getMultiTap());
+			},
+
+			testSettingMultiTapFalse: function () {
+				expectAsserts(1);
+
+				keyboard.setMultiTap(false);
+				assertFalse(keyboard.getMultiTap());
+			},
+
+			testSettingText: function () {
+				expectAsserts(2);
+
+				assertSame("", keyboard.getText());
+				keyboard.setText("KDIEO W203");
+				assertSame("KDIEO W203", keyboard.getText());
+			},
+
+			testSettingCapitalisationToLowerCase: function () {
+				expectAsserts(1);
+				keyboard.setCapitalisation(Keyboard.CAPITALISATION_LOWER);
+				assertEquals(1, keyboard.getCapitalisation());
+			},
+
+			testSettingCapitalisationToUpperCase: function () {
+				expectAsserts(1);
+				keyboard.setCapitalisation(Keyboard.CAPITALISATION_UPPER);
+				assertEquals(0, keyboard.getCapitalisation());
+			},
+
+			testSettingCapitalisationToTitleCase: function () {
+				expectAsserts(1);
+				keyboard.setCapitalisation(Keyboard.CAPITALISATION_TITLE);
+				assertEquals(2, keyboard.getCapitalisation());
+			},
+
+			testSettingTheActiveChildKeyToC: function () {
+				expectAsserts(2);
+
+				keyboard.setActiveChildKey("C");
+				var activeKey = keyboard.getActiveChildWidget();
+
+				assert(activeKey instanceof Button);
+				assertEquals("test_keyboard_C_2_1", activeKey.id);
+			},
+
+			testSettingTheActiveChildKeyToS: function () {
+				expectAsserts(2);
+
+				keyboard.setActiveChildKey("S");
+				var activeKey = keyboard.getActiveChildWidget();
+
+				assert(activeKey instanceof Button);
+				assertEquals("test_keyboard_S_8_2", activeKey.id);
+			},
+
+			testSettingFocusOnH: function () {
+				expectAsserts(2);
+
+				keyboard.setActiveChildKey("H");
+				keyboard.focus(); //does not return true or false like other focus widget methods
+
+				var focussedKey = keyboard.getActiveChildWidget();
+
+				assert(focussedKey instanceof Button);
+				assertEquals("test_keyboard_H_7_1", focussedKey.id);
+			},
+
+			testSettingFocusOnPeriod: function () {
+				expectAsserts(2);
+
+				keyboard.setActiveChildKey(".");
+				keyboard.focus();
+
+				var focussedKey = keyboard.getActiveChildWidget();
+
+				assert(focussedKey instanceof Button);
+				assertEquals("test_keyboard_._6_3", focussedKey.id);
+			},
+
+			testSetMaximumLength: function () {
+				expectAsserts(2);
+
+				assertEquals(null, keyboard.getMaximumLength()); //null means no limit
+				keyboard.setMaximumLength(20);
+				assertEquals(20, keyboard.getMaximumLength());
+			},
+
+			testAppendingCharacterInResponseToASelectEvent: function () {
+				expectAsserts(2);
+
+				assertSame("", keyboard.getText());
+				var letter = new Button("test_keyboard_H_7_1");
+				letter.setDataItem("H");
+				var selectEvent = new SelectEvent(letter);
+				keyboard.bubbleEvent(selectEvent);
+
+				assertSame("H", keyboard.getText());
+			},
+
+			testAppendingCharacterWithLOWERCaseInResponseToASelectEvent: function () {
+				expectAsserts(2);
+
+				keyboard.setText("Start");
+				assertSame("Start", keyboard.getText());
+
+				keyboard.setCapitalisation(Keyboard.CAPITALISATION_LOWER);
+				var letter = new Button("test_keyboard_S_8_2");
+				letter.setDataItem("S");
+				var selectEvent = new SelectEvent(letter);
+				keyboard.bubbleEvent(selectEvent);
+
+				assertSame("Starts", keyboard.getText());
+			},
+
+			testAppendingCharacterWithUPPERCaseInResponseToASelectEvent: function () {
+				expectAsserts(2);
+
+				keyboard.setText("Start");
+				assertSame("Start", keyboard.getText());
+
+				keyboard.setCapitalisation(Keyboard.CAPITALISATION_UPPER);
+				var letter = new Button("test_keyboard_S_8_2");
+				letter.setDataItem("S");
+				var selectEvent = new SelectEvent(letter);
+				keyboard.bubbleEvent(selectEvent);
+
+				assertSame("StartS", keyboard.getText());
+			},
+
+			testAppendingCharacterWithTITLECaseInResponseToASelectEvent: function () {
+				expectAsserts(3);
+
+				keyboard.setText("Start");
+				assertSame("Start", keyboard.getText());
+
+				keyboard.setCapitalisation(Keyboard.CAPITALISATION_TITLE);
+				var letter = new Button("test_keyboard_S_8_2");
+				letter.setDataItem("S");
+				var selectEvent = new SelectEvent(letter);
+				keyboard.bubbleEvent(selectEvent);
+
+				assertSame("Starts", keyboard.getText());
+
+				keyboard.setText("Starts ");
+
+				letter = new Button("test_keyboard_S_8_2");
+				letter.setDataItem("S");
+				selectEvent = new SelectEvent(letter);
+				keyboard.bubbleEvent(selectEvent);
+
+				assertSame("Starts S", keyboard.getText());
+			},
+
+			testAppendingCharacterInResponseToAKeydownEvent: function () {
+				expectAsserts(3);
+
+				assertSame("", keyboard.getText());
+				var letter = KeyEvent.VK_0;
+				var keyEvent = new KeyEvent("keydown", letter);
+
+				keyboard.setMultiTap(false);
+				keyboard.bubbleEvent(keyEvent);
+
+				assertSame("0", keyboard.getText());
+				keyboard.bubbleEvent(keyEvent);
+				assertSame("00", keyboard.getText());
+			},
+
+			testAppendingCharacterInResponseToAKeydownEventWithMultiTapSetTrue: function () {
+				expectAsserts(4);
+
+				assertSame("", keyboard.getText());
+				var letter = KeyEvent.VK_2;
+				var keyEvent = new KeyEvent("keydown", letter);
+
+				keyboard.setMultiTap(true);
+				keyboard.bubbleEvent(keyEvent);
+
+				assertSame("2", keyboard.getText());
+				keyboard.bubbleEvent(keyEvent);
+				assertSame("A", keyboard.getText());
+				keyboard.bubbleEvent(keyEvent);
+				assertSame("B", keyboard.getText());
+			},
+
+			_newlyConstructedKeyboard: function () {
+				return new Keyboard("test_keyboard", 10, 4, [
+					"1", "2", "3", "4", "5", "6", "7", "8", "9", "0",
+					"A", "B", "C", "D", "E", "F", "G", "H", "I", "J",
+					"K", "L", "M", "N", "O", "P", "Q", "R", "S", "T",
+					"U", "V", "W", "X", "Y", "Z", ".", "'", "&dash;", "_"
+				]);
+			}
+
+		});
+	}
+);
