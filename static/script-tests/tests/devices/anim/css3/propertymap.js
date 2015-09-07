@@ -100,6 +100,9 @@
         this.sandbox.restore();
     };
 
+    /*
+     * @deprecated IPTV-352 this test is marked for eradication.
+     */
     this.PropertyMapTest.prototype.testSniffPrefix = function(queue) {
         var self = this;
         loadPM(queue,
