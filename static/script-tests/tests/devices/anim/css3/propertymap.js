@@ -26,16 +26,16 @@
     /* jshint newcap: false */
     function loadPM(queue, fn) {
         queuedRequire(queue,
-            ['antie/devices/anim/css3/propertymap'],
+            ['antie/devices/anim/css3/propertymap', 'antie/devices/anim/css3/prefix/sniffer'],
             fn
         );
     }
-    
+
     function restoreUA(method, ua) {
         switch (method) {
             case "getOverride":
             navigator.__defineGetter__(
-                'userAgent', 
+                'userAgent',
                 function() {
                     return(ua);
                 }
@@ -43,44 +43,44 @@
             break;
         }
     }
-    
-    function detectSpoofMode() { 
+
+    function detectSpoofMode() {
         var oldUa = navigator.userAgent;
         navigator.__defineGetter__(
-            'userAgent', 
+            'userAgent',
             function() {
                 return("Spoofed");
             }
         );
-        
+
         if (navigator.userAgent === "Spoofed") {
             restoreUA('getOverride', oldUa);
             return('getOverride');
-        } 
-        
+        }
+
         return('navOverride');
     }
-    
+
     function setSpoofedUANavigator(uaSpoofMode, userAgent) {
         var newNav;
         switch (uaSpoofMode) {
             case "getOverride":
                 navigator.__defineGetter__(
-                    'userAgent', 
+                    'userAgent',
                     function() {
                         return(userAgent);
                     }
                 );
             break;
-            
+
             case "navOverride":
                 newNav = {};
                 newNav.userAgent = userAgent;
                 navigator = newNav;
             break;
-        }  
+        }
     }
-    
+
     this.PropertyMapTest = AsyncTestCase("PropertyMap");
 
     this.PropertyMapTest.prototype.setUp = function() {
@@ -99,25 +99,26 @@
         delete this.uaSpoofMode;
         this.sandbox.restore();
     };
-    
+
     this.PropertyMapTest.prototype.testSniffPrefix = function(queue) {
         var self = this;
         loadPM(queue,
-            function(PropertyMap) {
-                var pMap, oldUa;
+            function(PropertyMap, Sniffer) {
+                var sniffer, oldUa;
                 oldUa = navigator.userAgent;
-                pMap = new PropertyMap();
+                sniffer = new Sniffer();
+
                 setSpoofedUANavigator(self.uaSpoofMode, "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_6_8) AppleWebKit/537.17 (KHTML, like Gecko) Chrome/24.0.1312.56 Safari/537.17");
-                assertEquals("Chrome UA detected as -webkit- prefix", "-webkit-", pMap._sniffPrefix());
+                assertEquals("Chrome UA detected as -webkit- prefix", "-webkit-", sniffer.sniff(navigator));
                 setSpoofedUANavigator(self.uaSpoofMode, "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.6; rv:17.0) Gecko/20100101 Firefox/17.0");
-                assertEquals("Firefox UA detected as -moz- prefix", "-moz-", pMap._sniffPrefix());
+                assertEquals("Firefox UA detected as -moz- prefix", "-moz-", sniffer.sniff(navigator));
                 setSpoofedUANavigator(self.uaSpoofMode, "Opera/9.80 (Macintosh; Intel Mac OS X 10.6.8) Presto/2.12.388 Version/12.12");
-                assertEquals("Opera UA detected as -o- prefix", "-o-", pMap._sniffPrefix());
+                assertEquals("Opera UA detected as -o- prefix", "-o-", sniffer.sniff(navigator));
                 setSpoofedUANavigator(self.uaSpoofMode, oldUa);
             }
         );
     };
-    
+
     this.PropertyMapTest.prototype.testPropertiesPrefixedAndAppliedToMap = function(queue) {
         loadPM(queue,
             function(PropertyMap) {
@@ -130,7 +131,7 @@
             }
         );
     };
-    
+
     this.PropertyMapTest.prototype.testCorrectCallbackEventsRegistered = function(queue) {
         loadPM(queue,
             function(PropertyMap) {
@@ -139,7 +140,7 @@
                 ffMap = new PropertyMap('-moz-');
                 operaMap = new PropertyMap('-o-');
                 futureMap = new PropertyMap('');
-                
+
                 assertEquals(['webkitTransitionEnd'], webkitMap.transitionEndEvents);
                 assertEquals(['transitionend'], ffMap.transitionEndEvents);
                 assertEquals(['oTransitionEnd', 'otransitionend'], operaMap.transitionEndEvents);
@@ -147,5 +148,5 @@
             }
         );
     };
-    
+
 }());
