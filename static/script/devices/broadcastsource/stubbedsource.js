@@ -37,13 +37,13 @@ require.def('antie/devices/broadcastsource/stubbedsource',
         'use strict';
 
         /**
-         * Contains a HBBTV implementation of the antie broadcast TV source.
+         * Contains a stubbed implementation of the antie broadcast TV source.
          * @class
-         * @name antie.devices.broadcastsource.HbbTVSource
+         * @name antie.devices.broadcastsource.StubbedSource
          * @extends antie.devices.broadcastsource.BaseTVSource
          */
 
-        var StubbedSource = BaseTvSource.extend(/** @lends antie.devices.broadcastsource.HbbTVSource.prototype */ {
+        var StubbedSource = BaseTvSource.extend(/** @lends antie.devices.broadcastsource.StubbedSource.prototype */ {
             /**
              * @constructor
              * @ignore
@@ -82,7 +82,7 @@ require.def('antie/devices/broadcastsource/stubbedsource',
          */
         Device.prototype.createBroadcastSource = function() {
             if(!this._broadcastSource) {
-                this._broadcastSource= new StubbedSource();
+                this._broadcastSource = new StubbedSource();
             }
 
             return this._broadcastSource;
