@@ -29,13 +29,14 @@ define(
     [
         'antie/runtimecontext',
         'antie/devices/device',
-        'antie/devices/mediaplayer/mediaplayer'
+        'antie/devices/mediaplayer/mediaplayer',
+        'antie/lib/dash'
     ],
-    function(RuntimeContext, Device, MediaPlayer) {
+    function(RuntimeContext, Device, MediaPlayer, DashMediaPlayer) {
         'use strict';
 
         /**
-         * Main MediaPlayer implementation for use with dash.j.
+         * MediaPlayer implementation which uses dash.js MediaPlayer object to manage playback
          * Use this device modifier if a device implements the EME/MSE media playback standard.
          * @name antie.devices.mediaplayer.DashPlayer
          * @class
@@ -102,7 +103,7 @@ define(
                     device.prependChildElement(appElement, this._mediaElement);
 
                     // register DASH player
-                    this._player = dashjs.MediaPlayer().create();
+                    this._player = DashMediaPlayer().create();
                     this._player.initialize(this._mediaElement, url, false);
                     this._toStopped();
                 } else {
@@ -300,8 +301,15 @@ define(
                     break;
 
                 default:
-                    if (this._mediaElement) {
-                        return this._mediaElement.currentTime;
+                    if (this._player) {
+                        var currentTime = this._player.time();
+                        var dvrTime = this._player.getDVRSeekOffset(currentTime);
+                        if (dvrTime > 0){
+                            return dvrTime;
+                        } else {
+                            return currentTime;
+                        }
+                            
                     }
                     break;
                 }
