@@ -25,15 +25,26 @@
  */
 
 define(
-    'antie/devices/mediaplayer/html5',
+    'antie/devices/mediaplayer/html5withdash',
     [
-        'antie/runtimecontext',
         'antie/devices/device',
-        'antie/devices/mediaplayer/html5player'
+        'antie/devices/mediaplayer/compositeplayer',
+        'antie/devices/mediaplayer/html5player',
+        'antie/devices/mediaplayer/dashplayer'
     ],
-    function(RuntimeContext, Device, Player) {
+    function(Device, CompositePlayer, Html5Player, DashPlayer) {
         'use strict';
-        var instance = new Player();
+
+        var bitrateLookupTable = {
+            '704' : 1570,
+            '960' : 2812,
+            '1280' : 5070,
+            '1920' : 8000
+        }
+        var instance = new CompositePlayer(new Html5Player(bitrateLookupTable));
+        instance.registerPlayer('application/dash+xml', new DashPlayer());
+
+        // Mixin this MediaPlayer implementation, so that device.getMediaPlayer() returns the correct implementation for the device
         Device.prototype.getMediaPlayer = function() {
             return instance;
         };

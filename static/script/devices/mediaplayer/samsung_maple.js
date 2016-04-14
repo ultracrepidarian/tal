@@ -261,6 +261,17 @@ define(
                 return this._mimeType;
             },
 
+            getBitRate: function() {
+                switch (this.getState()) {
+                case MediaPlayer.STATE.PLAYING:
+                case MediaPlayer.STATE.PAUSED:
+                case MediaPlayer.STATE.BUFFERING:
+                    return this._playerPlugin.GetCurrentBitrates();
+                    break;
+                }
+                return undefined;
+            },
+
             /**
              * @inheritDoc
              */

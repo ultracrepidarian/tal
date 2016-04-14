@@ -30,7 +30,7 @@ define(
         'antie/runtimecontext',
         'antie/devices/device',
         'antie/devices/mediaplayer/mediaplayer',
-        'antie/devices/mediaplayer/html5',
+        'antie/devices/mediaplayer/html5player',
         'antie/devices/mediaplayer/dashplayer'
     ],
     function(RuntimeContext, Device, MediaPlayer, Html5Player, DashPlayer) {
@@ -156,6 +156,13 @@ define(
             /**
              * @inheritDoc
              */
+            getBitRate:  function() {
+                return this._delegate("getBitRate");
+            },
+
+            /**
+             * @inheritDoc
+             */
             getCurrentTime: function() {
                 return this._delegate('getCurrentTime');
             },
@@ -195,14 +202,6 @@ define(
                 return undefined;
             }
         });
-
-        var instance = new Player(new Html5Player());
-        instance.registerPlayer('application/dash+xml', new DashPlayer());
-
-        // Mixin this MediaPlayer implementation, so that device.getMediaPlayer() returns the correct implementation for the device
-        Device.prototype.getMediaPlayer = function() {
-            return instance;
-        };
         return Player;
     }
 );

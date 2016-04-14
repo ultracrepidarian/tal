@@ -95,7 +95,8 @@ define(
                     duration: this.getDuration(),
                     url: this.getSource(),
                     mimeType: this.getMimeType(),
-                    state: this.getState()
+                    state: this.getState(),
+                    bitRate : this.getBitRate()
                 };
 
                 if (eventLabels) {
@@ -257,6 +258,15 @@ define(
              */
             getMimeType: function () {
                 throw new Error('getMimeType method has not been implemented');
+            },
+
+            /**
+             * Exposes the current playing bitrate (if it can be extracted by this player)
+             * If no bit rate is set (in state EMPTY or unavailable for this player), then this returns undefined.
+             * @return {Number} The bitrate
+             */
+            getBitRate : function() {
+                return undefined;
             },
 
             /**

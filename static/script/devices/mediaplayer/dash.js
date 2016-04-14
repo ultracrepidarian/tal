@@ -25,15 +25,18 @@
  */
 
 define(
-    'antie/devices/mediaplayer/html5',
+    'antie/devices/mediaplayer/dash',
     [
         'antie/runtimecontext',
         'antie/devices/device',
-        'antie/devices/mediaplayer/html5player'
+        'antie/devices/mediaplayer/dashplayer'
     ],
     function(RuntimeContext, Device, Player) {
         'use strict';
+
         var instance = new Player();
+
+        // Mixin this MediaPlayer implementation, so that device.getMediaPlayer() returns the correct implementation for the device
         Device.prototype.getMediaPlayer = function() {
             return instance;
         };
