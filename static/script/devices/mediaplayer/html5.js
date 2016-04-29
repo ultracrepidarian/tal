@@ -78,51 +78,133 @@ define(
                     this._mediaElement.style.width = '100%';
                     this._mediaElement.style.height = '100%';
 
-                    var self = this;
-                    this._wrapOnFinishedBuffering = function() {
-                        self._onFinishedBuffering();
-                    }; //jshint ignore:line
-                    this._wrapOnError = function() {
-                        self._onDeviceError();
-                    }; //jshint ignore:line
-                    this._wrapOnEndOfMedia = function() {
-                        self._onEndOfMedia();
-                    }; //jshint ignore:line
-                    this._wrapOnDeviceBuffering = function() {
-                        self._onDeviceBuffering();
-                    }; //jshint ignore:line
-                    this._wrapOnStatus = function() {
-                        self._onStatus();
-                    }; //jshint ignore:line
-                    this._wrapOnMetadata = function() {
-                        self._onMetadata();
-                    }; //jshint ignore:line
-                    this._wrapOnSourceError = function() {
-                        self._onSourceError();
-                    }; //jshint ignore:line
-                    this._mediaElement.addEventListener('canplay', this._wrapOnFinishedBuffering, false);
-                    this._mediaElement.addEventListener('seeked', this._wrapOnFinishedBuffering, false);
-                    this._mediaElement.addEventListener('playing', this._wrapOnFinishedBuffering, false);
-                    this._mediaElement.addEventListener('error', this._wrapOnError, false);
-                    this._mediaElement.addEventListener('ended', this._wrapOnEndOfMedia, false);
-                    this._mediaElement.addEventListener('waiting', this._wrapOnDeviceBuffering, false);
-                    this._mediaElement.addEventListener('timeupdate', this._wrapOnStatus, false);
-                    this._mediaElement.addEventListener('loadedmetadata', this._wrapOnMetadata, false);
-
-                    var appElement = RuntimeContext.getCurrentApplication().getRootWidget().outputElement;
-                    device.prependChildElement(appElement, this._mediaElement);
-
                     this._sourceElement = this._generateSourceElement(url, mimeType);
-                    this._sourceElement.addEventListener('error', this._wrapOnSourceError, false);
 
                     this._mediaElement.preload = 'auto';
                     device.appendChildElement(this._mediaElement, this._sourceElement);
 
                     this._mediaElement.load();
 
+                    this._activateMediaElement(this._mediaElement, this._sourceElement);
+
                     this._toStopped();
                 } else {
                     this._toError('Cannot set source unless in the \'' + MediaPlayer.STATE.EMPTY + '\' state');
+                }
+            },
+
+            /**
+             * @protected
+             */
+            _setAlternateSource: function(mediaType, url, mimeType) {
+                this._alternateSource = {
+                    mediaType: mediaType,
+                    sourceUrl: url,
+                    mimeType: mimeType
+                };
+                var device = RuntimeContext.getDevice();
+
+                var idSuffix = 'Video';
+                if (mediaType === MediaPlayer.TYPE.AUDIO || mediaType === MediaPlayer.TYPE.LIVE_AUDIO) {
+                    idSuffix = 'Audio';
+                }
+
+                this._alternateSource.mediaElement = device._createElement(idSuffix.toLowerCase(), 'mediaPlayer2' + idSuffix);
+                this._alternateSource.mediaElement.autoplay = false;
+                this._alternateSource.mediaElement.style.position = 'absolute';
+                this._alternateSource.mediaElement.style.top = '0px';
+                this._alternateSource.mediaElement.style.left = '0px';
+                this._alternateSource.mediaElement.style.width = '100%';
+                this._alternateSource.mediaElement.style.height = '100%';
+
+                this._alternateSource.sourceElement = this._generateSourceElement(url, mimeType);
+                this._alternateSource.sourceElement.addEventListener('error', this._wrapOnSourceError, false);
+
+                this._alternateSource.mediaElement.preload = 'auto';
+
+                device.appendChildElement(this._alternateSource.mediaElement, this._alternateSource.sourceElement);
+
+                this._alternateSource.mediaElement.load();
+            },
+
+            _activateMediaElement: function(mediaElement, sourceElement) {
+                var self = this;
+                var device = RuntimeContext.getDevice();
+                
+                this._wrapOnFinishedBuffering = function() {
+                    self._onFinishedBuffering();
+                }; //jshint ignore:line
+                this._wrapOnError = function() {
+                    self._onDeviceError();
+                }; //jshint ignore:line
+                this._wrapOnEndOfMedia = function() {
+                    self._onEndOfMedia();
+                }; //jshint ignore:line
+                this._wrapOnDeviceBuffering = function() {
+                    self._onDeviceBuffering();
+                }; //jshint ignore:line
+                this._wrapOnStatus = function() {
+                    self._onStatus();
+                }; //jshint ignore:line
+                this._wrapOnMetadata = function() {
+                    self._onMetadata();
+                }; //jshint ignore:line
+                this._wrapOnSourceError = function() {
+                    self._onSourceError();
+                }; //jshint ignore:line
+                mediaElement.addEventListener('canplay', this._wrapOnFinishedBuffering, false);
+                mediaElement.addEventListener('seeked', this._wrapOnFinishedBuffering, false);
+                mediaElement.addEventListener('playing', this._wrapOnFinishedBuffering, false);
+                mediaElement.addEventListener('error', this._wrapOnError, false);
+                mediaElement.addEventListener('ended', this._wrapOnEndOfMedia, false);
+                mediaElement.addEventListener('waiting', this._wrapOnDeviceBuffering, false);
+                mediaElement.addEventListener('timeupdate', this._wrapOnStatus, false);
+                mediaElement.addEventListener('loadedmetadata', this._wrapOnMetadata, false);
+
+                var appElement = RuntimeContext.getCurrentApplication().getRootWidget().outputElement;
+                device.prependChildElement(appElement, mediaElement);
+
+                sourceElement.addEventListener('error', this._wrapOnSourceError, false);
+            },
+
+            /**
+             * Play the alternate source from the time specified, the previous playing position, or the default position.
+             * The currently playing source becomes the alternate.
+             * @param {Number} [seconds] The optional time value to play the alternate source from.
+             */
+            _playAlternateSource: function (seconds) {
+                var currentSource = {
+                    mediaElement: this._mediaElement,
+                    sourceElement: this._sourceElement
+                };
+
+                this.pause();
+
+                this._mediaElement.removeEventListener('canplay', this._wrapOnFinishedBuffering, false);
+                this._mediaElement.removeEventListener('seeked', this._wrapOnFinishedBuffering, false);
+                this._mediaElement.removeEventListener('playing', this._wrapOnFinishedBuffering, false);
+                this._mediaElement.removeEventListener('error', this._wrapOnError, false);
+                this._mediaElement.removeEventListener('ended', this._wrapOnEndOfMedia, false);
+                this._mediaElement.removeEventListener('waiting', this._wrapOnDeviceBuffering, false);
+                this._mediaElement.removeEventListener('timeupdate', this._wrapOnStatus, false);
+                this._mediaElement.removeEventListener('loadedmetadata', this._wrapOnMetadata, false);
+                this._sourceElement.removeEventListener('error', this._wrapOnSourceError, false);
+
+                // Not sure if it should be removed from the DOM or hidden
+                var device = RuntimeContext.getDevice();
+                device.removeElement(this._mediaElement)
+
+                this._activateMediaElement(this._alternateSource.mediaElement, this._alternateSource.sourceElement);
+
+                this._mediaElement = this._alternateSource.mediaElement;
+                this._sourceElement = this._alternateSource.sourceElement;
+
+                this._alternateSource = currentSource;
+
+                if (seconds) {
+                    this.playFrom(seconds);
+                } else {
+                    this.resume();
                 }
             },
 
