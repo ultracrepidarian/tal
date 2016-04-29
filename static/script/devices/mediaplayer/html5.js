@@ -171,6 +171,8 @@ define(
              * Play the alternate source from the time specified, the previous playing position, or the default position.
              * The currently playing source becomes the alternate.
              * @param {Number} [seconds] The optional time value to play the alternate source from.
+             *
+             * @protected
              */
             _playAlternateSource: function (seconds) {
                 var currentSource = {
