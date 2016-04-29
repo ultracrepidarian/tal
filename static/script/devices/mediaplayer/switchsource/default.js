@@ -29,10 +29,9 @@ define(
     [
         'antie/class',
         'antie/runtimecontext',
-        'antie/devices/device',
-        'antie/devices/mediaplayer/mediaplayer'
+        'antie/devices/device'
     ],
-    function (Class, RuntimeContext, Device, MediaPlayer) {
+    function (Class, RuntimeContext, Device) {
         'use strict';
 
         /**
