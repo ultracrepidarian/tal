@@ -102,7 +102,15 @@ define(
                     transProperties = transitionDefinition.getProperties();
                     for(i = 0; i !== transProperties.length; i += 1) {
                         property = transProperties[i];
+                        if (property === 'top' || property === 'left') {
+                            props.push('transform');
+                            props.push('-webkit-transform');
+                            props.push('-o-transform');
+                            props.push('-moz-transform');
+                        }
+
                         props.push(property);
+
                         delays.push(transitionDefinition.getPropertyDelay(property));
                         timingFns.push(transitionDefinition.getPropertyTimingFn(property));
                         durations.push(transitionDefinition.getPropertyDuration(property));
