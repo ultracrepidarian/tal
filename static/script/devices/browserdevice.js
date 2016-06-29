@@ -35,6 +35,8 @@ define(
     function(Device, KeyEvent, Historian, Sanitiser) {
         'use strict';
 
+        var knownElements = {};
+
         function trim(str) {
             return str.replace(/^\s+/, '').replace(/\s+$/, '');
         }
@@ -389,10 +391,14 @@ define(
              * @returns A size object containing the width and height of the element.
              */
             getElementSize: function(el) {
-                return {
+                if (!knownElements[el.id]) {
+                  knownElements[el.id] = {
                     width: el.clientWidth || el.offsetWidth,
                     height: el.clientHeight || el.offsetHeight
-                };
+                  }
+                }
+
+                return knownElements[el.id];
             },
             /**
              * Sets the size of an element.
