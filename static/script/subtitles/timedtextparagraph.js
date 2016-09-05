@@ -1,9 +1,9 @@
 /**
- * @fileOverview A span element in a Timed Text document
+ * @fileOverview A paragraph element in a Timed Text document
  * @author ultracrepidarian
  */
 define(
-    'antie/subtitles/timedtextspan',
+    'antie/subtitles/timedtextparagraph',
     [
         'antie/subtitles/timedtextelement'
     ],
@@ -11,13 +11,13 @@ define(
         'use strict';
 
         /**
-         * A span element in a Timed Text document
+         * A paragraph element in a Timed Text document
          *
          * @class
-         * @name antie.subtitles.TimedTextSpan
+         * @name antie.subtitles.TimedTextParagraph
          * @extends antie.Class
          */
-        var TimedTextSpan = TimedTextElement.extend(/** @lends antie.subtitles.TimedTextSpan.prototype */ {
+        var TimedTextParagraph = TimedTextElement.extend(/** @lends antie.subtitles.TimedTextParagraph.prototype */ {
 
             /**
              *
@@ -36,6 +36,6 @@ define(
             }
         });
 
-        return TimedTextSpan;
+        return TimedTextParagraph;
     }
 );
