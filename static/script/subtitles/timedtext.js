@@ -7,11 +7,11 @@ define(
     [
         'antie/subtitles/timedtextelement',
         'antie/runtimecontext',
-        'antie/subtitles/errors/ttmlparseerror'
-        // 'antie/subtitles/timedtexthead',
-        // 'antie/subtitles/timedtextbody'
+        'antie/subtitles/errors/ttmlparseerror',
+        'antie/subtitles/timedtexthead',
+        'antie/subtitles/timedtextbody'
     ],
-    function (TimedTextElement, RuntimeContext, TtmlParseError /*, TimedTextHead, TimedTextBody*/) {
+    function (TimedTextElement, RuntimeContext, TtmlParseError, TimedTextHead, TimedTextBody) {
         'use strict';
 
         /**
@@ -46,8 +46,23 @@ define(
 
                 logger.debug('Found TTML root element <tt> in namespace ' + ttNode.lookupNamespaceURI(null));
                 this._lang = ttNode.getAttributeNS(TimedTextElement.NAMESPACE.xml, 'lang');
-                // this._head = new TimedTextHead();
-                // this._body = new TimedTextBody();
+
+                var headNodes = ttNode.getElementsByTagName('head');
+                if (!headNodes || headNodes.length < 1) {
+                    logger.debug('TTML document does not contain a <head> tag');
+                } else {
+                    logger.debug('Found TTML <head> element');
+                    this._head = new TimedTextHead(headNodes[0]);
+                }
+
+                var bodyNodes = ttNode.getElementsByTagName('body');
+                if (!bodyNodes || bodyNodes.length < 1) {
+                    // TODO what do we do if theres more than one body
+                    logger.debug('TTML document does not contain a <body> tag');
+                } else {
+                    logger.debug('Found TTML <body> element');
+                    this._body = new TimedTextBody(bodyNodes[0]);
+                }
             },
 
             /**
@@ -64,7 +79,11 @@ define(
              * instance cannot be used after this.
              */
             destroy : function() {
+                this._head.destroy();
+                this._head = null;
 
+                this._body.destroy();
+                this._body = null;
             }
         });
 

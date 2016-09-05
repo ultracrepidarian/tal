@@ -1,5 +1,5 @@
 /**
- * @fileOverview The subtitles for a piece of content
+ * @fileOverview The Base class for a timed text element
  * @author ultracrepidarian
  */
 define(
@@ -11,7 +11,7 @@ define(
         'use strict';
 
         /**
-         * The var namespace for TTML parsers
+         * The Base class for a timed text element
          *
          * @class
          * @name antie.subtitles.TimedTextElement
