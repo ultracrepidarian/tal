@@ -5,13 +5,13 @@
 define(
     'antie/subtitles/timedtext',
     [
-        'antie/class',
+        'antie/subtitles/timedtextelement',
         'antie/runtimecontext',
         'antie/subtitles/errors/ttmlparseerror'
         // 'antie/subtitles/timedtexthead',
         // 'antie/subtitles/timedtextbody'
     ],
-    function (Class, RuntimeContext, TtmlParseError /*, TimedTextHead, TimedTextBody*/) {
+    function (TimedTextElement, RuntimeContext, TtmlParseError /*, TimedTextHead, TimedTextBody*/) {
         'use strict';
 
         /**
@@ -21,7 +21,7 @@ define(
          * @name antie.subtitles.TimedText
          * @extends antie.Class
          */
-        var TimedText = Class.extend(/** @lends antie.subtitles.TimedText.prototype */ {
+        var TimedText = TimedTextElement.extend(/** @lends antie.subtitles.TimedText.prototype */ {
             /**
              * Constructs a new timed text instance from a TTML XML document.
              *
@@ -30,13 +30,6 @@ define(
              * @ignore
              */
             init: function (ttmlDoc) {
-                var namespace = {
-                    xml: 'http://www.w3.org/XML/1998/namespace',
-                    tt:  'http://www.w3.org/ns/ttml',
-                    ttp: 'http://www.w3.org/ns/ttml#parameter',
-                    tts: 'http://www.w3.org/ns/ttml#styling',
-                    ttm: 'http://www.w3.org/ns/ttml#metadata'
-                };
 
                 var logger = RuntimeContext.getDevice().getLogger();
 
@@ -52,7 +45,7 @@ define(
                 }
 
                 logger.debug('Found TTML root element <tt> in namespace ' + ttNode.lookupNamespaceURI(null));
-                this._lang = ttNode.getAttributeNS(namespace.xml, 'lang');
+                this._lang = ttNode.getAttributeNS(TimedTextElement.NAMESPACE.xml, 'lang');
                 // this._head = new TimedTextHead();
                 // this._body = new TimedTextBody();
             },
