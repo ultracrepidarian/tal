@@ -6,19 +6,21 @@ require(
         'antie/runtimecontext',
         'antie/subtitles/errors/ttmlparseerror',
         'antie/subtitles/timedtexthead',
-        'antie/subtitles/timedtextbody'
+        'antie/subtitles/timedtextbody',
+        'mocks/mockloggerobject'
     ],
-    function(TimedText, Application, Device, RuntimeContext, TtmlParseError, TimedTextHead, TimedTextBody) {
+    function(TimedText, Application, Device, RuntimeContext, TtmlParseError, TimedTextHead, TimedTextBody, mockLoggerObject) {
         'use strict';
 
-        var mockLogger;
-        var mockDevice;
-        var mockApplication;
-        var mockTimedTextHead;
-        var mockTimedTextBody;
-        var ttmlDoc;
-
         describe('antie.subtitles.TimedText', function() {
+
+            var mockLogger;
+            var mockDevice;
+            var mockApplication;
+            var mockTimedTextHead;
+            var mockTimedTextBody;
+            var ttmlDoc;
+
             beforeEach(function () {
                 mockTimedTextHead = Object.create(TimedTextHead.prototype);
                 mockTimedTextBody = Object.create(TimedTextBody.prototype);
@@ -26,16 +28,7 @@ require(
                 spyOn(TimedTextHead.prototype, 'init').andReturn(mockTimedTextHead);
                 spyOn(TimedTextBody.prototype, 'init').andReturn(mockTimedTextBody);
 
-                var loggersEnabled = {'log':false, 'debug':false, 'info':true, 'warn':true, 'error':true};
-                mockLogger = jasmine.createSpyObj('mockLogger', Object.keys(loggersEnabled));
-
-                for (var severity in loggersEnabled) {
-                    if (loggersEnabled[severity]) {
-                        mockLogger[severity].andCallFake(function() {
-                            console[severity].apply(console, arguments);  // Actually log it to the console
-                        });
-                    }
-                }
+                mockLogger = mockLoggerObject('mockLogger');
 
                 mockDevice = Object.create(Device.prototype);
                 spyOn(mockDevice, 'getLogger').andReturn(mockLogger);

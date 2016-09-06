@@ -23,7 +23,7 @@ module.exports = function(grunt) {
                     'static/script-tests/jasmine/jstestdriver-adapter.js',
                     'static/script-tests/lib/mockapplication.js',
                     'static/script-tests/lib/phantompolyfills.js',
-                    'static/script-tests/mocks/mockelement.js',
+                    'static/script-tests/mocks/*.js',
                     'static/script-tests/tests/devices/mediaplayer/commontests.js',
                     'static/script-tests/tests/devices/mediaplayer/html5commontests.js',
                     'static/script-tests/tests/devices/mediaplayer/cehtmlcommontests.js'
