@@ -172,10 +172,12 @@ require(
             it('will clear the update timeout if it is set', function() {
                 var subtitles = new Subtitles('id', mockTimedText, mockGetMediaTimeCallback);
                 subtitles._updateInterval = 10;
+                spyOn(window, 'clearInterval');
 
                 subtitles.stop();
 
                 expect(subtitles._updateInterval).toEqual(null);
+                expect(window.clearInterval).toHaveBeenCalled();
             });
 
             it('update function will stop the subtitles widget if there is no media player set', function() {
@@ -253,6 +255,22 @@ require(
                 expect(mockBrowserDevice.createLabel).toHaveBeenCalledWith('id', ['subtitlesLabel'], 'textContent1');
                 expect(mockBrowserDevice.createLabel).toHaveBeenCalledWith('id', ['subtitlesLabel'], 'textContent2');
                 expect(mockBrowserDevice.createLabel).toHaveBeenCalledWith('id', ['subtitlesLabel'], 'textContent3');
+            });
+
+            it('destroy function will clear the timer and set the references to null', function() {
+                var subtitles = new Subtitles('id', mockTimedText, mockGetMediaTimeCallback);
+                subtitles.outputElement = mockOutputElement;
+                subtitles._updateInterval = 1234;
+
+                spyOn(window, 'clearInterval');
+
+                subtitles.destroy();
+
+                expect(window.clearInterval).toHaveBeenCalled();
+                expect(subtitles._updateInterval).toEqual(null);
+                expect(subtitles._timedText).toEqual(null);
+                expect(subtitles._getMediaTimeCallback).toEqual(null);
+                expect(subtitles._activeElements).toEqual(null);
             });
         });
     }

@@ -67,7 +67,8 @@ define(
             },
 
             /**
-             * Starts displaying the captions.
+             * Starts displaying the captions and starts an interval Timer
+             * to keep them updating
              */
             start: function () {
                 if(!this._updateInterval){
@@ -83,7 +84,7 @@ define(
                 }
             },
             /**
-             * Stops displaying the captions.
+             * Stops displaying the captions and clears the interval timer
              */
             stop: function () {
                 if(this._updateInterval){
@@ -116,7 +117,8 @@ define(
             },
 
             /**
-             * Update captions in the DOM for elements at a given time.
+            * Update the subtitles on screen with those that are current
+            * according to the time of the mediaPlayer
              * @private
              * @param {Integer} time The time (in seconds) to show the captions for.
              */
@@ -133,9 +135,8 @@ define(
             },
 
             /**
-             * Update captions in the DOM for elements at a given time.
+             * Clear the outputElement so there are no subtitles on the screen
              * @private
-             * @param {Integer} time The time (in seconds) to show the captions for.
              */
             _removeCaptions: function () {
                 var device = this.getCurrentApplication().getDevice();
@@ -143,7 +144,7 @@ define(
             },
 
             /**
-             * Update captions in the DOM for elements at a given time.
+             * Add subtitles to the output element
              * @private
              * @param {Array} [antie.subtitles.TimedTextElement] activeElements
              *                  the array of active timedTextElements to display.
@@ -154,6 +155,24 @@ define(
                 for(var i = 0; i < activeElements.length; i++){
                     device.appendChildElement(this.outputElement, device.createLabel('id', ['subtitlesLabel'], activeElements[i].getTextContent()));
                 }
+            },
+
+
+            /**
+             * Destroys the widget and clears timers
+             * @private
+             * @param {Array} [antie.subtitles.TimedTextElement] activeElements
+             *                  the array of active timedTextElements to display.
+             */
+            destroy: function () {
+                if(this._updateInterval){
+                    clearInterval(this._updateInterval);
+                    this._updateInterval = null;
+                }
+
+                this._timedText = null;
+                this._getMediaTimeCallback = null;
+                this._activeElements = null;
             }
         });
 
