@@ -1,18 +1,18 @@
 require(
     [
+        'antie/subtitles/timedtexthead',
+        'antie/subtitles/timedtextelement'
     ],
-    function() {
+    function(TimedTextHead, TimedTextElement) {
         'use strict';
 
         describe('antie.subtitles.TimedTextHead', function() {
-            beforeEach(function () {
+
+            it('has node name "head"', function() {
+                var el = new TimedTextHead();
+                expect(el.getNodeName()).toBe(TimedTextElement.NODE_NAME.head);
             });
 
-            afterEach(function() {
-            });
-
-            it('', function() {
-            });
         });
     }
 );

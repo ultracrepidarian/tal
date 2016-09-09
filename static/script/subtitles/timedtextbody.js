@@ -15,24 +15,27 @@ define(
          *
          * @class
          * @name antie.subtitles.TimedTextBody
-         * @extends antie.Class
+         * @extends antie.subtitles.TimedTextElement
          */
         var TimedTextBody = TimedTextElement.extend(/** @lends antie.subtitles.TimedTextBody.prototype */ {
 
             /**
-             *
+             * @param {antie.subtitles.TimedTextElement[]} children
+             *        The children of this element
              *
              * @constructor
-             * @ignore
              */
-            init: function () {
+            init: function (children) {
+                this._super(TimedTextElement.NODE_NAME.body, children);
             },
 
             /**
              * Cleans out this instance ready for garbage collection.  This
              * instance cannot be used after this.
+             * @public
              */
             destroy : function() {
+                this._super.destroy();
             }
         });
 

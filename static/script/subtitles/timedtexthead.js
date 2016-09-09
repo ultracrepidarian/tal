@@ -15,7 +15,7 @@ define(
          *
          * @class
          * @name antie.subtitles.TimedTextHead
-         * @extends antie.Class
+         * @extends antie.subtitles.TimedTextElement
          */
         var TimedTextHead = TimedTextElement.extend(/** @lends antie.subtitles.TimedTextHead.prototype */ {
 
@@ -26,6 +26,7 @@ define(
              * @ignore
              */
             init: function () {
+                this._super(TimedTextElement.NODE_NAME.head);
             },
 
             /**

@@ -5,13 +5,10 @@
 define(
     'antie/subtitles/timedtext',
     [
-        'antie/subtitles/timedtextelement',
-        'antie/runtimecontext',
-        'antie/subtitles/errors/ttmlparseerror',
-        'antie/subtitles/timedtexthead',
-        'antie/subtitles/timedtextbody'
+        'antie/subtitles/elementset',
+        'antie/subtitles/timedtextelement'
     ],
-    function (TimedTextElement, RuntimeContext, TtmlParseError, TimedTextHead, TimedTextBody) {
+    function (ElementSet, TimedTextElement) {
         'use strict';
 
         /**
@@ -19,70 +16,175 @@ define(
          *
          * @class
          * @name antie.subtitles.TimedText
-         * @extends antie.Class
+         * @extends antie.subtitles.TimedTextElement
          */
         var TimedText = TimedTextElement.extend(/** @lends antie.subtitles.TimedText.prototype */ {
             /**
              * Constructs a new timed text instance from a TTML XML document.
              *
-             * @param {XMLDocument} ttmlDoc The TTML source file parsed into an XML document
+             * @param {TimedTextHead} head the parsed <head> tag
+             * @param {TimedTextBody} body the parsed <body> tag
              * @constructor
-             * @ignore
              */
-            init: function (ttmlDoc) {
+            init: function (head, body) {
+                this._head = head;
+                this._body = body;
 
-                var logger = RuntimeContext.getDevice().getLogger();
-
-                if (!ttmlDoc) {
-                    throw new TtmlParseError('TTML document is missing');
-                } else if (!(ttmlDoc instanceof XMLDocument)) {
-                    throw new TtmlParseError('TTML document is not a valid XML document (type=' + typeof ttmlDoc + ')');
+                var children = [];
+                if (head) {
+                    children.push(head);
                 }
-
-                var ttNode = ttmlDoc.documentElement;
-                if (!ttNode || ttNode.nodeName !== 'tt') {
-                    throw new TtmlParseError('TTML document root element is not <tt> - it was: ' + (ttNode && ('<' + ttNode.nodeName + '>')));
+                if (body) {
+                    children.push(body);
                 }
+                this._super(TimedTextElement.NODE_NAME.tt, children);
+            },
 
-                logger.debug('Found TTML root element <tt> in namespace ' + ttNode.lookupNamespaceURI(null));
-                this._lang = ttNode.getAttributeNS(TimedTextElement.NAMESPACE.xml, 'lang');
+            /**
+             * Returns the <head> child.
+             *
+             * @returns {TimedTextHead} the <head> child
+             */
+            getHead: function() {
+                return this._head;
+            },
 
-                var headNodes = ttNode.getElementsByTagName('head');
-                if (!headNodes || headNodes.length < 1) {
-                    logger.debug('TTML document does not contain a <head> tag');
+            /**
+             * Returns the <body> child.
+             *
+             * @returns {TimedTextBody} the <body> child
+             */
+            getBody: function() {
+                return this._body;
+            },
+
+            /**
+             * Adds element to a timepoint (new or existing) at the given time.
+             *
+             * @param {TimedTextElement} element
+             *        The element to be added
+             *
+             * @param {Number} time
+             *        The time in milliseconds
+             * @private
+             */
+            _addElementAtTime: function(element, time)  {
+                if (this._timePoints.length > 0 && this._timePoints[this._timePoints.length - 1].time === time) {
+                    this._timePoints[this._timePoints.length - 1].active.add(element);
                 } else {
-                    logger.debug('Found TTML <head> element');
-                    this._head = new TimedTextHead(headNodes[0]);
-                }
+                    var active;
+                    if (this._timePoints.length > 0) {
+                        active = new ElementSet(this._timePoints[this._timePoints.length - 1].active);
+                    } else {
+                        active = new ElementSet();
+                    }
 
-                var bodyNodes = ttNode.getElementsByTagName('body');
-                if (!bodyNodes || bodyNodes.length < 1) {
-                    // TODO what do we do if theres more than one body
-                    logger.debug('TTML document does not contain a <body> tag');
-                } else {
-                    logger.debug('Found TTML <body> element');
-                    this._body = new TimedTextBody(bodyNodes[0]);
+                    active.add(element);
+                    this._timePoints.push({
+                        'time': time,
+                        'active': active
+                    });
                 }
             },
 
             /**
-             * Returns the subtitle language.
+             * Removes element from timepoint (new or existing) at the given time.
+             * If there is no timepoint at this time a new one is created, containing
+             * all the currently active elements except element.
              *
-             * @returns {String} the subtitle language
+             * @param {TimedTextElement} element
+             *        The element to be removed
+             *
+             * @param {Number} time
+             *        The time in milliseconds
+             * @private
              */
-            getLang: function() {
-                return this._lang;
+            _removeElementAtTime: function(element, time)  {
+                if (this._timePoints.length > 0 && this._timePoints[this._timePoints.length - 1].time === time) {
+                    this._timePoints[this._timePoints.length - 1].active.delete(element);
+                } else {
+                    var active;
+                    if (this._timePoints.length > 0) {
+                        active = new ElementSet(this._timePoints[this._timePoints.length - 1].active);
+                    } else {
+                        active = new ElementSet();
+                    }
+                    active.delete(element);
+                    this._timePoints.push({
+                        'time': time,
+                        'active': active
+                    });
+                }
+            },
+
+            /**
+             * Initialises all the timepoints so {@link antie.subtitles.TimedTextElement#getActiveElements}
+             * has something to work off.
+             */
+            initialiseActiveElements: function() {
+                var beginnings = this.getTimingPoints().sort(function(a, b) {
+                    return a.beginMilliseconds - b.beginMilliseconds;
+                });
+                var endings = beginnings.slice().sort(function(a, b) {
+                    return a.endMilliseconds - b.endMilliseconds;
+                });
+
+                this._timePoints = [];
+                for (var i = 0, j = 0; i < beginnings.length || j < endings.length;) {
+                    if (!(i < beginnings.length)) {
+                        // We have run out of beginnings (but not endings)
+                        this._removeElementAtTime(endings[j].element, endings[j].endMilliseconds);
+                        j += 1;
+                    } else if (!(j < endings.length)) {
+                        // We have run out of endings (but not beginnings). Can this happen?
+                        this._addElementAtTime(beginnings[i].element, beginnings[i].beginMilliseconds);
+                        i += 1;
+                    } else {
+                        // We have both beginnings and endings still to process
+                        if (beginnings[i].beginMilliseconds <= endings[j].endMilliseconds) {
+                            this._addElementAtTime(beginnings[i].element, beginnings[i].beginMilliseconds);
+                            i += 1;
+                        } else {
+                            this._removeElementAtTime(endings[j].element, endings[j].endMilliseconds);
+                            j += 1;
+                        }
+                    }
+                }
+
+                this._lastSeen = null;
+            },
+
+            /**
+             * @param {Number} seconds
+             *        Number of seconds into the media
+             * @returns {TimedTextElement[]} elements that should be onscreen at the specified time
+             * @public
+             */
+            getActiveElements: function(seconds) {
+                if (!this._timePoints || this._timePoints.length === 0) {
+                    return [];
+                }
+
+                var milliseconds = Math.round(seconds * 1000);
+                for (var i = 0; i < this._timePoints.length; i++) {
+                    if (milliseconds < this._timePoints[i].time) {
+                        if (i === 0) {
+                            return [];
+                        }
+                        return this._timePoints[i - 1].active.toArray();
+                    }
+                }
+
+                return this._timePoints[this._timePoints.length - 1].active.toArray();
             },
 
             /**
              * Cleans out this instance ready for garbage collection.  This
              * instance cannot be used after this.
              */
-            destroy : function() {
-                this._head.destroy();
+            destroy: function() {
+                this._super.destroy();
                 this._head = null;
-
-                this._body.destroy();
                 this._body = null;
             }
         });

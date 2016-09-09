@@ -11,6 +11,13 @@ define(
     function (Class, TtmlParseError) {
         'use strict';
 
+        var MULTIPLIER = {
+            h: 60 * 60,
+            m: 60,
+            s: 1,
+            ms: 1/1000
+        };
+
         /**
          * A media timestamp.
          *
@@ -38,6 +45,10 @@ define(
                 this._seconds = this._parseTime(timeString);
             },
 
+            getMilliseconds: function() {
+                return Math.round(this._seconds * 1000);
+            },
+
             /**
              * Constructs a new timestamp instance.
              *
@@ -50,18 +61,12 @@ define(
 
                 match = /^(\d+):(\d\d):(\d\d(\.\d+)?)$/.exec(timeString);
                 if (match) {
-                    return parseInt(match[1])*60*60 + parseInt(match[2]*60) + parseFloat(match[3]);
+                    return parseInt(match[1])*MULTIPLIER.h + parseInt(match[2]*MULTIPLIER.m) + parseFloat(match[3]);
                 }
 
-                var multiplier = {
-                    h: 60 * 60,
-                    m: 60,
-                    s: 1,
-                    ms: 1/1000
-                };
                 match = /^(\d+(\.\d+)?)(h|m|s|ms)$/.exec(timeString);
                 if (match) {
-                    return parseFloat(match[1]) * multiplier[match[3]];
+                    return parseFloat(match[1]) * MULTIPLIER[match[3]];
                 }
 
                 throw new TtmlParseError('Invalid timestamp: ' + timeString);

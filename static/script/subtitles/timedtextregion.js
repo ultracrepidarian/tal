@@ -15,7 +15,7 @@ define(
          *
          * @class
          * @name antie.subtitles.TimedTextRegion
-         * @extends antie.Class
+         * @extends antie.subtitles.TimedTextElement
          */
         var TimedTextRegion = TimedTextElement.extend(/** @lends antie.subtitles.TimedTextRegion.prototype */ {
 
