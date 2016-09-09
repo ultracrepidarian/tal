@@ -27,8 +27,11 @@
 
 define(
     'antie/widgets/subtitles',
-    ['antie/widgets/widget'],
-    function(Widget) {
+    [
+        'antie/widgets/widget',
+        'antie/subtitles/timedtextelement'
+    ],
+    function(Widget, TimedTextElement) {
         'use strict';
 
         /**
@@ -153,7 +156,14 @@ define(
                 var device = this.getCurrentApplication().getDevice();
 
                 for(var i = 0; i < activeElements.length; i++){
-                    device.appendChildElement(this.outputElement, device.createLabel('id', ['subtitlesLabel'], activeElements[i].getTextContent()));
+                    var children = activeElements[i].getChildren();
+                    for(var j = 0; j < children.length; j ++){
+                        if(children[j].getNodeName() === TimedTextElement.NODE_NAME.text){
+                            var label = device.createLabel('', [], children[j].getText());
+
+                            device.appendChildElement(this.outputElement, label);
+                        }
+                    }
                 }
             },
 

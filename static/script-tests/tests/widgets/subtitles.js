@@ -7,9 +7,10 @@ require(
         'antie/widgets/container',
         'antie/widgets/label',
         'antie/devices/mediaplayer/mediaplayer',
-        'antie/subtitles/timedtext'
+        'antie/subtitles/timedtext',
+        'antie/subtitles/timedtextelement'
     ],
-    function(Application, Subtitles, Widget, BrowserDevice, Container, Label, MediaPlayer, TimedText) {
+    function(Application, Subtitles, Widget, BrowserDevice, Container, Label, MediaPlayer, TimedText, TimedTextElement) {
         'use strict';
 
         describe('antie.widgets.Subtitles', function() {
@@ -21,7 +22,9 @@ require(
             var mockOutputElement;
             var mockLabel;
 
-            var mockTimedTextElement1, mockTimedTextElement2, mockTimedTextElement3;
+            var mockPElement1, mockPElement2;
+            var mockDivElement1, mockDivElement2;
+            var mockTextElement1, mockTextElement2, mockTextElement3;
             var mockActiveElements;
 
             beforeEach(function () {
@@ -29,22 +32,36 @@ require(
                     return 100.1;
                 };
                 mockTimedText = Object.create(TimedText.prototype);
-                mockTimedText.getActiveElements = function(){};
                 mockBrowserDevice = Object.create(BrowserDevice.prototype);
                 mockApplication = Object.create(Application.prototype);
                 mockContainer = Object.create(Container.prototype);
                 mockOutputElement = Object.create(Container.prototype);
                 mockLabel = Object.create(Label.prototype);
 
-                mockTimedTextElement1 = Object.create(TimedText.prototype);
-                mockTimedTextElement1.getTextContent = function(){}; //TODO use the proper function here
-                spyOn(mockTimedTextElement1, 'getTextContent').andReturn('textContent1');
-                mockTimedTextElement2 = Object.create(TimedText.prototype);
-                mockTimedTextElement2.getTextContent = function(){}; //TODO use the proper function here
-                spyOn(mockTimedTextElement2, 'getTextContent').andReturn('textContent2');
-                mockTimedTextElement3 = Object.create(TimedText.prototype);
-                mockTimedTextElement3.getTextContent = function(){}; //TODO use the proper function here
-                spyOn(mockTimedTextElement3, 'getTextContent').andReturn('textContent3');
+                mockTextElement1 = Object.create(TimedTextElement.prototype);
+                spyOn(mockTextElement1, 'getText').andReturn('textContent1');
+                spyOn(mockTextElement1, 'getNodeName').andReturn(TimedTextElement.NODE_NAME.text);
+                mockTextElement2 = Object.create(TimedTextElement.prototype);
+                spyOn(mockTextElement2, 'getText').andReturn('textContent2');
+                spyOn(mockTextElement2, 'getNodeName').andReturn(TimedTextElement.NODE_NAME.text);
+                mockTextElement3 = Object.create(TimedTextElement.prototype);
+                spyOn(mockTextElement3, 'getText').andReturn('textContent3');
+                spyOn(mockTextElement3, 'getNodeName').andReturn(TimedTextElement.NODE_NAME.text);
+
+                mockDivElement1 = Object.create(TimedTextElement.prototype);
+                spyOn(mockDivElement1, 'getText');
+                spyOn(mockDivElement1, 'getNodeName').andReturn(TimedTextElement.NODE_NAME.div);
+                spyOn(mockDivElement1, 'getChildren').andReturn([]);
+
+                mockDivElement2 = Object.create(TimedTextElement.prototype);
+                spyOn(mockDivElement2, 'getText');
+                spyOn(mockDivElement2, 'getNodeName').andReturn(TimedTextElement.NODE_NAME.div);
+                spyOn(mockDivElement2, 'getChildren').andReturn([]);
+
+                mockPElement1 = Object.create(TimedTextElement.prototype);
+                spyOn(mockPElement1, 'getChildren').andReturn([mockTextElement1]);
+                mockPElement2 = Object.create(TimedTextElement.prototype);
+                spyOn(mockPElement2, 'getChildren').andReturn([mockTextElement2, mockTextElement3]);
 
                 spyOn(mockBrowserDevice, 'createContainer').andReturn(mockContainer);
                 spyOn(mockBrowserDevice, 'createLabel').andReturn(mockLabel);
@@ -53,7 +70,7 @@ require(
                 spyOn(mockBrowserDevice, 'clearElement');
                 spyOn(mockBrowserDevice, 'appendChildElement');
 
-                mockActiveElements = [mockTimedTextElement1, mockTimedTextElement2, mockTimedTextElement3];
+                mockActiveElements = [mockPElement1, mockPElement2];
 
                 spyOn(mockTimedText, 'getActiveElements').andReturn(mockActiveElements);
                 spyOn(mockApplication, 'getDevice').andReturn(mockBrowserDevice);
@@ -243,18 +260,62 @@ require(
                 expect(mockBrowserDevice.clearElement).toHaveBeenCalledWith(mockOutputElement);
             });
 
-            it('_addCaptions will add create a label for each active element and append it to the outputElement', function() {
+            it('_addCaptions do nothing if called with an empty array', function() {
                 var subtitles = new Subtitles('id', mockTimedText, mockGetMediaTimeCallback);
                 subtitles.outputElement = mockOutputElement;
+
+                mockActiveElements = [];
+
+                subtitles._addCaptions(mockActiveElements);
+
+                expect(mockBrowserDevice.appendChildElement.calls.length).toBe(0);
+                expect(mockBrowserDevice.appendChildElement).not.toHaveBeenCalled();
+
+                expect(mockBrowserDevice.createLabel).not.toHaveBeenCalled();
+            });
+
+            it('_addCaptions will add create a single label if the active element is a single p element with text', function() {
+                var subtitles = new Subtitles('id', mockTimedText, mockGetMediaTimeCallback);
+                subtitles.outputElement = mockOutputElement;
+
+                mockActiveElements = [mockPElement1];
+
+                subtitles._addCaptions(mockActiveElements);
+
+                expect(mockBrowserDevice.appendChildElement.calls.length).toBe(1);
+                expect(mockBrowserDevice.appendChildElement).toHaveBeenCalledWith(mockOutputElement, mockLabel);
+
+                expect(mockBrowserDevice.createLabel).toHaveBeenCalledWith('', [], 'textContent1');
+            });
+
+            it('_addCaptions will add create three labels if there are two active elements with 1 and 2 text elements respectively', function() {
+                var subtitles = new Subtitles('id', mockTimedText, mockGetMediaTimeCallback);
+                subtitles.outputElement = mockOutputElement;
+
+                mockActiveElements = [mockPElement1, mockPElement2];
 
                 subtitles._addCaptions(mockActiveElements);
 
                 expect(mockBrowserDevice.appendChildElement.calls.length).toBe(3);
                 expect(mockBrowserDevice.appendChildElement).toHaveBeenCalledWith(mockOutputElement, mockLabel);
 
-                expect(mockBrowserDevice.createLabel).toHaveBeenCalledWith('id', ['subtitlesLabel'], 'textContent1');
-                expect(mockBrowserDevice.createLabel).toHaveBeenCalledWith('id', ['subtitlesLabel'], 'textContent2');
-                expect(mockBrowserDevice.createLabel).toHaveBeenCalledWith('id', ['subtitlesLabel'], 'textContent3');
+                expect(mockBrowserDevice.createLabel).toHaveBeenCalledWith('', [], 'textContent1');
+                expect(mockBrowserDevice.createLabel).toHaveBeenCalledWith('', [], 'textContent2');
+                expect(mockBrowserDevice.createLabel).toHaveBeenCalledWith('', [], 'textContent3');
+            });
+
+            it('_addCaptions will do nothing if the active elements have no children', function() {
+                var subtitles = new Subtitles('id', mockTimedText, mockGetMediaTimeCallback);
+                subtitles.outputElement = mockOutputElement;
+
+                mockActiveElements = [mockDivElement1, mockDivElement2];
+
+                subtitles._addCaptions(mockActiveElements);
+
+                expect(mockBrowserDevice.appendChildElement.calls.length).toBe(0);
+                expect(mockBrowserDevice.appendChildElement).not.toHaveBeenCalled();
+
+                expect(mockBrowserDevice.createLabel).not.toHaveBeenCalled();
             });
 
             it('destroy function will clear the timer and set the references to null', function() {
