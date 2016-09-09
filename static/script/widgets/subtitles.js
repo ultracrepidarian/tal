@@ -74,35 +74,22 @@ define(
              * to keep them updating
              */
             start: function () {
+                this.update();
+
                 if(!this._updateInterval){
                     this._updateInterval = setInterval(this.update.bind(this), 750);
-                }
-
-                if (this.outputElement) {
-                    var device = this.getCurrentApplication().getDevice();
-                    device.showElement({
-                        el: this.outputElement,
-                        skipAnim: true
-                    });
                 }
             },
             /**
              * Stops displaying the captions and clears the interval timer
              */
             stop: function () {
+                this._removeCaptions();
+
                 if(this._updateInterval){
                     clearInterval(this._updateInterval);
                     this._updateInterval = null;
                 }
-
-                if (this.outputElement) {
-                    var device = this.getCurrentApplication().getDevice();
-                    device.hideElement({
-                        el: this.outputElement,
-                        skipAnim: true
-                    });
-                }
-                // this._cleanOldCaptions(this._media.getDuration());
             },
 
             /**

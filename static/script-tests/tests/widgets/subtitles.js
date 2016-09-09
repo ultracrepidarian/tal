@@ -111,28 +111,6 @@ require(
                 expect(outputElement).toBe(secondMockContainer);
             });
 
-            it('can display subtitles if the widget is rendered', function() {
-                var subtitles = new Subtitles('id', mockTimedText, mockGetMediaTimeCallback);
-                var outputElement = subtitles.render(mockBrowserDevice);
-
-                subtitles.start();
-
-                expect(mockBrowserDevice.showElement).toHaveBeenCalledWith(
-                    {
-                        el: outputElement,
-                        skipAnim: true
-                    }
-                );
-            });
-
-            it('wont show subtitles if the widget is not rendered', function() {
-                var subtitles = new Subtitles('id', mockTimedText, mockGetMediaTimeCallback);
-
-                subtitles.start();
-
-                expect(mockBrowserDevice.showElement).not.toHaveBeenCalled();
-            });
-
             it('will set an interval to call the update function once start is called', function() {
                 var subtitles = new Subtitles('id', mockTimedText, mockGetMediaTimeCallback);
                 spyOn(window, 'setInterval').andReturn(1);
@@ -144,7 +122,9 @@ require(
                 expect(window.setInterval).toHaveBeenCalledWith(jasmine.any(Function), 750);
 
                 // check the timeout is set to call the update function
-                expect(subtitles.update).not.toHaveBeenCalled();
+                expect(subtitles.update).toHaveBeenCalled();
+
+                subtitles.update.reset();
 
                 //call it
                 window.setInterval.calls[0].args[0]();
@@ -164,36 +144,17 @@ require(
                 expect(window.setInterval).not.toHaveBeenCalled();
             });
 
-            it('can stop displaying subtitles if the widget is rendered', function() {
-                var subtitles = new Subtitles('id', mockTimedText, mockGetMediaTimeCallback);
-                var outputElement = subtitles.render(mockBrowserDevice);
-
-                subtitles.stop();
-
-                expect(mockBrowserDevice.hideElement).toHaveBeenCalledWith(
-                    {
-                        el: outputElement,
-                        skipAnim: true
-                    }
-                );
-            });
-
-            it('wont hide subtitles if the widget is not rendered', function() {
-                var subtitles = new Subtitles('id', mockTimedText, mockGetMediaTimeCallback);
-
-                subtitles.stop();
-
-                expect(mockBrowserDevice.hideElement).not.toHaveBeenCalled();
-            });
-
             it('will clear the update timeout if it is set', function() {
                 var subtitles = new Subtitles('id', mockTimedText, mockGetMediaTimeCallback);
                 subtitles._updateInterval = 10;
+                spyOn(subtitles, '_removeCaptions');
+
                 spyOn(window, 'clearInterval');
 
                 subtitles.stop();
 
                 expect(subtitles._updateInterval).toEqual(null);
+                expect(subtitles._removeCaptions).toHaveBeenCalled();
                 expect(window.clearInterval).toHaveBeenCalled();
             });
 
