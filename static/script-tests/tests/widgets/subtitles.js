@@ -246,7 +246,7 @@ require(
                 expect(mockBrowserDevice.appendChildElement.calls.length).toBe(1);
                 expect(mockBrowserDevice.appendChildElement).toHaveBeenCalledWith(mockOutputElement, mockLabel);
 
-                expect(mockBrowserDevice.createLabel).toHaveBeenCalledWith('', [], 'textContent1');
+                expect(mockBrowserDevice.createLabel).toHaveBeenCalledWith(null, ['subtitlesTextElement'], 'textContent1');
             });
 
             it('_addCaptions will add create three labels if there are two active elements with 1 and 2 text elements respectively', function() {
@@ -260,9 +260,9 @@ require(
                 expect(mockBrowserDevice.appendChildElement.calls.length).toBe(3);
                 expect(mockBrowserDevice.appendChildElement).toHaveBeenCalledWith(mockOutputElement, mockLabel);
 
-                expect(mockBrowserDevice.createLabel).toHaveBeenCalledWith('', [], 'textContent1');
-                expect(mockBrowserDevice.createLabel).toHaveBeenCalledWith('', [], 'textContent2');
-                expect(mockBrowserDevice.createLabel).toHaveBeenCalledWith('', [], 'textContent3');
+                expect(mockBrowserDevice.createLabel).toHaveBeenCalledWith(null, ['subtitlesTextElement'], 'textContent1');
+                expect(mockBrowserDevice.createLabel).toHaveBeenCalledWith(null, ['subtitlesTextElement'], 'textContent2');
+                expect(mockBrowserDevice.createLabel).toHaveBeenCalledWith(null, ['subtitlesTextElement'], 'textContent3');
             });
 
             it('_addCaptions will do nothing if the active elements have no children', function() {
@@ -293,6 +293,27 @@ require(
                 expect(subtitles._timedText).toEqual(null);
                 expect(subtitles._getMediaTimeCallback).toEqual(null);
                 expect(subtitles._activeElements).toEqual(null);
+            });
+
+            it('arraysEqual function can verify if two arrays have the same elements', function() {
+                var subtitles = new Subtitles('id', mockTimedText, mockGetMediaTimeCallback);
+
+                var array1 = [];
+                var array2 = [mockDivElement1];
+                var array3 = [mockDivElement1, mockDivElement2];
+                var array4 = [mockDivElement1, mockDivElement2];
+
+                expect(subtitles._arraysEqual(array1, array1)).toEqual(true);
+                expect(subtitles._arraysEqual(array2, array2)).toEqual(true);
+                expect(subtitles._arraysEqual(null, null)).toEqual(true);
+                expect(subtitles._arraysEqual(null, array2)).toEqual(false);
+                expect(subtitles._arraysEqual(array2, null)).toEqual(false);
+                expect(subtitles._arraysEqual(array1, array2)).toEqual(false);
+                expect(subtitles._arraysEqual(array2, array3)).toEqual(false);
+
+                // this is the important one, where two different arraysEqual
+                // contain the same elements
+                expect(subtitles._arraysEqual(array3, array4)).toEqual(true);
             });
         });
     }

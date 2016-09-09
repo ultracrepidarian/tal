@@ -114,8 +114,8 @@ define(
              */
             _updateCaptions: function (time) {
                 var currentActiveElements = this._timedText.getActiveElements(time);
-
-                if(currentActiveElements !== this._activeElements){
+                // if the two arrays are equal there is no need to refresh the content
+                if(!this._arraysEqual(currentActiveElements, this._activeElements)){
                     this._activeElements = currentActiveElements;
                     // // Clear out old captions
                     this._removeCaptions();
@@ -146,20 +146,44 @@ define(
                     var children = activeElements[i].getChildren();
                     for(var j = 0; j < children.length; j ++){
                         if(children[j].getNodeName() === TimedTextElement.NODE_NAME.text){
-                            var label = device.createLabel('', [], children[j].getText());
-
+                            var label = device.createLabel(null, ['subtitlesTextElement'], children[j].getText());
                             device.appendChildElement(this.outputElement, label);
                         }
                     }
                 }
             },
 
+            /**
+            * function to compare whether two arrays contain the same elements
+            * This is useful in the case where you have a shallow copy of the
+            * array, where arrayA === arrayB would evaluate to false, even through
+            * the elements they contain are the same, and in the same order
+            *
+            * @param {Array} arrayA the first array to compare
+            * @param {Array} arrayB the second array to compare
+            */
+            _arraysEqual: function(arrayA, arrayB){
+                if (arrayA === arrayB){
+                    return true;
+                }
+                if (arrayA === null || arrayB === null) {
+                    return false;
+                }
+                if (arrayA.length !== arrayB.length) {
+                    return false;
+                }
+
+                for (var i = 0; i < arrayA.length; ++i) {
+                    if (arrayA[i] !== arrayB[i]) {
+                        return false;
+                    }
+                }
+                return true;
+            },
 
             /**
              * Destroys the widget and clears timers
              * @private
-             * @param {Array} [antie.subtitles.TimedTextElement] activeElements
-             *                  the array of active timedTextElements to display.
              */
             destroy: function () {
                 if(this._updateInterval){
