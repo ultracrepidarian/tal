@@ -87,15 +87,13 @@ require(
 
                 expect(subtitles._getMediaTimeCallback).toBe(mockGetMediaTimeCallback);
                 expect(subtitles._timedText).toBe(mockTimedText);
-
-                expect(Widget.prototype.addClass).toHaveBeenCalledWith('subtitles');
             });
 
             it('will render a new outputDevice if one doesnt exist', function() {
                 var subtitles = new Subtitles('id', mockTimedText, mockGetMediaTimeCallback);
                 var outputElement = subtitles.render(mockBrowserDevice);
 
-                expect(mockBrowserDevice.createContainer).toHaveBeenCalledWith('id');
+                expect(mockBrowserDevice.createContainer).toHaveBeenCalledWith('id', ['subtitlesContainer']);
                 expect(outputElement).toBe(mockContainer);
             });
 

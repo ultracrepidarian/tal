@@ -55,7 +55,6 @@ define(
                 this._getMediaTimeCallback = getMediaTimeCallback;
                 this._activeElements = [];
 
-                this.addClass('subtitles');
             },
             /**
              * Renders the widget and any child widgets to device-specific output.
@@ -64,7 +63,7 @@ define(
              */
             render: function(device) {
                 if (!this.outputElement) {
-                    this.outputElement = device.createContainer(this.id);
+                    this.outputElement = device.createContainer(this.id, ['subtitlesContainer']);
                 }
                 return this.outputElement;
             },
