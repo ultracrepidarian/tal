@@ -151,7 +151,6 @@ require(
 
             it('finds all ordered timing points', function() {
                 var timedText = ttmlParser.parse(ttmlDoc);
-                timedText.initialiseActiveElements();
                 expect(timedText._timePoints.length).toBe(4);
                 expect(timedText._timePoints[0].time).toBe(2000);
                 expect(timedText._timePoints[1].time).toBe(5760);
@@ -169,7 +168,6 @@ require(
 
             it('gets the correct active subtitles for a given time', function() {
                 var timedText = ttmlParser.parse(ttmlDoc);
-                timedText.initialiseActiveElements();
                 var elementsAt0 = timedText.getActiveElements(0);
                 expect(elementsAt0.length).toBe(0);
 

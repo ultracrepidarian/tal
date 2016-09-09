@@ -268,7 +268,10 @@ define(
                     }
                 }
 
-                return new TimedText(head, body);
+                var timedText = new TimedText(head, body);
+                this._parseAttributes(ttmlTtElement, timedText.getAttributes());
+                timedText.initialiseActiveElements();
+                return timedText;
             },
 
             /**
