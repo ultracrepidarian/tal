@@ -97,6 +97,22 @@ define(
                 return el;
             },
             /**
+             * Creates a generic paragraph element in the device's user-agent.
+             * @param {String} [id] The id of the element to create.
+             * @param {Array} [classNames] An array of class names to apply to the element.
+             * @returns A paragraph element within the device's user-agent.
+             */
+            createParagraph: function(id, classNames) {
+                return this._createElement('p', id, classNames);
+            },
+            /**
+             * Creates a line break element in the device's user-agent.
+             * @returns A container element within the device's user-agent.
+             */
+            createLineBreak: function(id, classNames) {
+                return this._createElement('br', id, classNames);
+            },
+            /**
              * Creates a generic container element in the device's user-agent.
              * @param {String} [id] The id of the element to create.
              * @param {Array} [classNames] An array of class names to apply to the element.
@@ -166,6 +182,15 @@ define(
                     el.onerror = onError;
                 }
                 return el;
+            },
+            /**
+            * Creates a text node in the device's user-agent.
+            * @private
+            * @param {String} text the string that will be contained by the text node
+            * @returns A text node within the device's user-agent.
+            */
+            createTextNode: function(text) {
+                return document.createTextNode(text);
             },
             /**
              * Loads an external style sheet.

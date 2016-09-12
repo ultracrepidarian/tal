@@ -103,6 +103,8 @@
     defineElementCreationTests('createList', 'ul');
     defineElementCreationTests('createListItem', 'li');
     defineElementCreationTests('createImage', 'img');
+    defineElementCreationTests('createParagraph', 'p');
+    defineElementCreationTests('createLineBreak', 'br');
 
     this.BrowserDeviceTest.prototype.testCreateLabelText = function(queue) {
         expectAsserts(1);
@@ -111,6 +113,16 @@
             var device = new BrowserDevice(antie.framework.deviceConfiguration);
             var el = device.createLabel(null, null, 'HELLO WORLD');
             assertEquals('HELLO WORLD', el.innerHTML);
+        });
+    };
+
+    this.BrowserDeviceTest.prototype.testCreateTextNode = function(queue) {
+        expectAsserts(1);
+
+        queuedRequire(queue, ['antie/devices/browserdevice'], function(BrowserDevice) {
+            var device = new BrowserDevice(antie.framework.deviceConfiguration);
+            var el = device.createTextNode('HELLO WORLD');
+            assertEquals('HELLO WORLD', el.textContent);
         });
     };
 
