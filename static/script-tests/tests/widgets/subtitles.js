@@ -20,7 +20,13 @@ require(
             var mockApplication;
             var mockTimedText;
             var mockOutputElement;
-            var mockLabel;
+            var mockLineBreakElement;
+            var mockDivElement;
+            var mockParagraphElement;
+            var mockSpanElement;
+            var mockTextElement;
+
+            var mockHTMLElement;
 
             var mockPElement1, mockPElement2;
             var mockDivElement1, mockDivElement2;
@@ -36,7 +42,22 @@ require(
                 mockApplication = Object.create(Application.prototype);
                 mockContainer = Object.create(Container.prototype);
                 mockOutputElement = Object.create(Container.prototype);
-                mockLabel = Object.create(Label.prototype);
+
+                mockHTMLElement = Object.create(HTMLElement.prototype);
+                spyOn(mockHTMLElement, 'appendChild');
+
+                // set up the mock timedtext elements
+                mockLineBreakElement = Object.create(TimedTextElement.prototype);
+                spyOn(mockLineBreakElement, 'getNodeName').andReturn(TimedTextElement.NODE_NAME.br);
+                mockDivElement = Object.create(TimedTextElement.prototype);
+                spyOn(mockDivElement, 'getNodeName').andReturn(TimedTextElement.NODE_NAME.div);
+                mockParagraphElement = Object.create(TimedTextElement.prototype);
+                spyOn(mockParagraphElement, 'getNodeName').andReturn(TimedTextElement.NODE_NAME.p);
+                mockSpanElement = Object.create(TimedTextElement.prototype);
+                spyOn(mockSpanElement, 'getNodeName').andReturn(TimedTextElement.NODE_NAME.span);
+                mockTextElement = Object.create(TimedTextElement.prototype);
+                spyOn(mockTextElement, 'getNodeName').andReturn(TimedTextElement.NODE_NAME.text);
+                spyOn(mockTextElement, 'getText').andReturn('I see dead people');
 
                 mockTextElement1 = Object.create(TimedTextElement.prototype);
                 spyOn(mockTextElement1, 'getText').andReturn('textContent1');
@@ -64,7 +85,12 @@ require(
                 spyOn(mockPElement2, 'getChildren').andReturn([mockTextElement2, mockTextElement3]);
 
                 spyOn(mockBrowserDevice, 'createContainer').andReturn(mockContainer);
-                spyOn(mockBrowserDevice, 'createLabel').andReturn(mockLabel);
+                spyOn(mockBrowserDevice, 'createLineBreak');
+                spyOn(mockBrowserDevice, 'createParagraph');
+                spyOn(mockBrowserDevice, 'createLabel');
+                spyOn(mockBrowserDevice, 'createSpan');
+                spyOn(mockBrowserDevice, 'createTextNode');
+
                 spyOn(mockBrowserDevice, 'showElement');
                 spyOn(mockBrowserDevice, 'hideElement');
                 spyOn(mockBrowserDevice, 'clearElement');
@@ -233,48 +259,51 @@ require(
                 expect(mockBrowserDevice.createLabel).not.toHaveBeenCalled();
             });
 
-            it('_addCaptions will add create a single label if the active element is a single p element with text', function() {
+            it('_addCaptions will add create and add a single active element to the widget', function() {
                 var subtitles = new Subtitles('id', mockTimedText, mockGetMediaTimeCallback);
+                spyOn(subtitles, '_createElementTree').andReturn(mockHTMLElement);
                 subtitles.outputElement = mockOutputElement;
 
                 mockActiveElements = [mockPElement1];
 
                 subtitles._addCaptions(mockActiveElements);
 
+                expect(subtitles._createElementTree).toHaveBeenCalledWith(mockPElement1);
                 expect(mockBrowserDevice.appendChildElement.calls.length).toBe(1);
-                expect(mockBrowserDevice.appendChildElement).toHaveBeenCalledWith(mockOutputElement, mockLabel);
+                expect(mockBrowserDevice.appendChildElement).toHaveBeenCalledWith(mockOutputElement, mockHTMLElement);
 
-                expect(mockBrowserDevice.createLabel).toHaveBeenCalledWith(null, ['subtitlesTextElement'], 'textContent1');
             });
 
-            it('_addCaptions will add create three labels if there are two active elements with 1 and 2 text elements respectively', function() {
+            it('_addCaptions will loop through more than one active element and create their HTML representations', function() {
                 var subtitles = new Subtitles('id', mockTimedText, mockGetMediaTimeCallback);
+                spyOn(subtitles, '_createElementTree').andReturn(mockHTMLElement);
                 subtitles.outputElement = mockOutputElement;
 
                 mockActiveElements = [mockPElement1, mockPElement2];
 
                 subtitles._addCaptions(mockActiveElements);
 
-                expect(mockBrowserDevice.appendChildElement.calls.length).toBe(3);
-                expect(mockBrowserDevice.appendChildElement).toHaveBeenCalledWith(mockOutputElement, mockLabel);
+                expect(mockBrowserDevice.appendChildElement.calls.length).toBe(2);
+                expect(mockBrowserDevice.appendChildElement).toHaveBeenCalledWith(mockOutputElement, mockHTMLElement);
+                expect(mockBrowserDevice.appendChildElement).toHaveBeenCalledWith(mockOutputElement, mockHTMLElement);
 
-                expect(mockBrowserDevice.createLabel).toHaveBeenCalledWith(null, ['subtitlesTextElement'], 'textContent1');
-                expect(mockBrowserDevice.createLabel).toHaveBeenCalledWith(null, ['subtitlesTextElement'], 'textContent2');
-                expect(mockBrowserDevice.createLabel).toHaveBeenCalledWith(null, ['subtitlesTextElement'], 'textContent3');
+                expect(subtitles._createElementTree).toHaveBeenCalledWith(mockPElement1);
+                expect(subtitles._createElementTree).toHaveBeenCalledWith(mockPElement2);
             });
 
-            it('_addCaptions will do nothing if the active elements have no children', function() {
+            it('_addCaptions will do nothing if passed an empty array', function() {
                 var subtitles = new Subtitles('id', mockTimedText, mockGetMediaTimeCallback);
+                spyOn(subtitles, '_createElementTree').andReturn(mockHTMLElement);
                 subtitles.outputElement = mockOutputElement;
 
-                mockActiveElements = [mockDivElement1, mockDivElement2];
+                mockActiveElements = [];
 
                 subtitles._addCaptions(mockActiveElements);
 
                 expect(mockBrowserDevice.appendChildElement.calls.length).toBe(0);
                 expect(mockBrowserDevice.appendChildElement).not.toHaveBeenCalled();
 
-                expect(mockBrowserDevice.createLabel).not.toHaveBeenCalled();
+                expect(subtitles._createElementTree).not.toHaveBeenCalled();
             });
 
             it('destroy function will clear the timer and set the references to null', function() {
@@ -312,6 +341,333 @@ require(
                 // this is the important one, where two different arraysEqual
                 // contain the same elements
                 expect(subtitles._arraysEqual(array3, array4)).toEqual(true);
+            });
+
+            it('createElement function will call through to the device to create the correct elements', function() {
+                var subtitles = new Subtitles('id', mockTimedText, mockGetMediaTimeCallback);
+
+                subtitles._createElement(mockLineBreakElement);
+                expect(mockBrowserDevice.createLineBreak).toHaveBeenCalled();
+
+                subtitles._createElement(mockDivElement);
+                expect(mockBrowserDevice.createContainer).toHaveBeenCalled();
+
+                subtitles._createElement(mockParagraphElement);
+                expect(mockBrowserDevice.createParagraph).toHaveBeenCalled();
+
+                subtitles._createElement(mockSpanElement);
+                expect(mockBrowserDevice.createSpan).toHaveBeenCalled();
+
+                subtitles._createElement(mockTextElement);
+                expect(mockBrowserDevice.createTextNode).toHaveBeenCalledWith('I see dead people');
+            });
+
+
+            it('createElementTree function will recurse through the active elements children and create the nodes with 4 levels', function() {
+                var subtitles = new Subtitles('id', mockTimedText, mockGetMediaTimeCallback);
+                spyOn(subtitles, '_createElementTree').andCallThrough();
+
+                // set up the TimedTextElements and the corresponding HTML representation objects
+                var mockElementGreatgrandchild1 = Object.create(HTMLElement.prototype);
+                spyOn(mockElementGreatgrandchild1, 'appendChild');
+                var mockTimedTextElementGreatgrandchild1 = Object.create(TimedTextElement.prototype);
+                spyOn(mockTimedTextElementGreatgrandchild1, 'getChildren').andReturn([]);
+
+                var mockElementGreatgrandchild2 = Object.create(HTMLElement.prototype);
+                spyOn(mockElementGreatgrandchild2, 'appendChild');
+                var mockTimedTextElementGreatgrandchild2 = Object.create(TimedTextElement.prototype);
+                spyOn(mockTimedTextElementGreatgrandchild2, 'getChildren').andReturn([]);
+
+                var mockElementGrandchild1 = Object.create(HTMLElement.prototype);
+                spyOn(mockElementGrandchild1, 'appendChild');
+                var mockTimedTextElementGrandchild1 = Object.create(TimedTextElement.prototype);
+                spyOn(mockTimedTextElementGrandchild1, 'getChildren').andReturn([]);
+
+                var mockElementGrandchild2 = Object.create(HTMLElement.prototype);
+                spyOn(mockElementGrandchild2, 'appendChild');
+                var mockTimedTextElementGrandchild2 = Object.create(TimedTextElement.prototype);
+                spyOn(mockTimedTextElementGrandchild2, 'getChildren').andReturn([mockTimedTextElementGreatgrandchild1, mockTimedTextElementGreatgrandchild2]);
+
+                var mockElementChild1 = Object.create(HTMLElement.prototype);
+                spyOn(mockElementChild1, 'appendChild');
+                var mockTimedTextElementChild1 = Object.create(TimedTextElement.prototype);
+                spyOn(mockTimedTextElementChild1, 'getChildren').andReturn([mockTimedTextElementGrandchild1, mockTimedTextElementGrandchild2]);
+
+                var mockElementChild2 = Object.create(HTMLElement.prototype);
+                spyOn(mockElementChild2, 'appendChild');
+                var mockTimedTextElementChild2 = Object.create(TimedTextElement.prototype);
+                spyOn(mockTimedTextElementChild2, 'getChildren').andReturn([]);
+
+                var mockElementRoot = Object.create(HTMLElement.prototype);
+                spyOn(mockElementRoot, 'appendChild');
+                var mockTimedTextElementRoot = Object.create(TimedTextElement.prototype);
+                spyOn(mockTimedTextElementRoot, 'getChildren').andReturn([mockTimedTextElementChild1, mockTimedTextElementChild2]);
+
+                // By spying on getChildren and returning the child nodes as above,
+                // the following structure is modelled:
+                //
+                //  <mockElementRoot>
+                //      <mockElementChild1>
+                //          <mockElementGrandchild1>
+                //          </mockElementGrandchild1>
+                //          <mockElementGrandchild2>
+                //              <mockElementGreatgrandchild1>
+                //              </mockElementGreatgrandchild1>
+                //              <mockElementGreatgrandchild2>
+                //              </mockElementGreatgrandchild2>
+                //          </mockElementGrandchild2>
+                //      </mockElementChild1>
+                //      <mockElementChild2>
+                //      </mockElementChild2>
+                //  </mockElementRoot>
+
+                // fake out the _createElement function to map the TimedTextElements
+                // to HTMLElements
+                spyOn(subtitles, '_createElement').andCallFake(
+                    function(element){
+                        switch(element){
+                        case mockTimedTextElementRoot:
+                            return mockElementRoot;
+                        case mockTimedTextElementChild1:
+                            return mockElementChild1;
+                        case mockTimedTextElementChild2:
+                            return mockElementChild2;
+                        case mockTimedTextElementGrandchild1:
+                            return mockElementGrandchild1;
+                        case mockTimedTextElementGrandchild2:
+                            return mockElementGrandchild2;
+                        case mockTimedTextElementGreatgrandchild1:
+                            return mockElementGreatgrandchild1;
+                        case mockTimedTextElementGreatgrandchild2:
+                            return mockElementGreatgrandchild2;
+                        default:
+                            return null;
+                        }
+                    }
+                );
+
+                // Call the function under test with the root node
+                subtitles._createElementTree(mockTimedTextElementRoot);
+
+                //expect it to have recursed through each node
+                expect(subtitles._createElementTree.calls.length).toBe(7);
+
+                // expect the append child functions to join up the HTMLNodes correctly
+                expect(mockElementRoot.appendChild).toHaveBeenCalledWith(mockElementChild1);
+                expect(mockElementRoot.appendChild).toHaveBeenCalledWith(mockElementChild2);
+
+                expect(mockElementChild1.appendChild).toHaveBeenCalledWith(mockElementGrandchild1);
+                expect(mockElementChild1.appendChild).toHaveBeenCalledWith(mockElementGrandchild2);
+
+                expect(mockElementChild2.appendChild).not.toHaveBeenCalled();
+
+                expect(mockElementGrandchild1.appendChild).not.toHaveBeenCalled();
+
+                expect(mockElementGrandchild2.appendChild).toHaveBeenCalledWith(mockElementGreatgrandchild1);
+                expect(mockElementGrandchild2.appendChild).toHaveBeenCalledWith(mockElementGreatgrandchild2);
+            });
+
+            it('createElementTree function will recurse through the active elements children and create the nodes with 3 levels', function() {
+                var subtitles = new Subtitles('id', mockTimedText, mockGetMediaTimeCallback);
+                spyOn(subtitles, '_createElementTree').andCallThrough();
+
+                // set up the TimedTextElements and the corresponding HTML representation objects
+                var mockElementGrandchild1 = Object.create(HTMLElement.prototype);
+                spyOn(mockElementGrandchild1, 'appendChild');
+                var mockTimedTextElementGrandchild1 = Object.create(TimedTextElement.prototype);
+                spyOn(mockTimedTextElementGrandchild1, 'getChildren').andReturn([]);
+
+                var mockElementGrandchild2 = Object.create(HTMLElement.prototype);
+                spyOn(mockElementGrandchild2, 'appendChild');
+                var mockTimedTextElementGrandchild2 = Object.create(TimedTextElement.prototype);
+                spyOn(mockTimedTextElementGrandchild2, 'getChildren').andReturn([]);
+
+                var mockElementChild1 = Object.create(HTMLElement.prototype);
+                spyOn(mockElementChild1, 'appendChild');
+                var mockTimedTextElementChild1 = Object.create(TimedTextElement.prototype);
+                spyOn(mockTimedTextElementChild1, 'getChildren').andReturn([mockTimedTextElementGrandchild1, mockTimedTextElementGrandchild2]);
+
+                var mockElementChild2 = Object.create(HTMLElement.prototype);
+                spyOn(mockElementChild2, 'appendChild');
+                var mockTimedTextElementChild2 = Object.create(TimedTextElement.prototype);
+                spyOn(mockTimedTextElementChild2, 'getChildren').andReturn([]);
+
+                var mockElementRoot = Object.create(HTMLElement.prototype);
+                spyOn(mockElementRoot, 'appendChild');
+                var mockTimedTextElementRoot = Object.create(TimedTextElement.prototype);
+                spyOn(mockTimedTextElementRoot, 'getChildren').andReturn([mockTimedTextElementChild1, mockTimedTextElementChild2]);
+
+                // By spying on getChildren and returning the child nodes as above,
+                // the following structure is modelled:
+                //
+                //  <mockElementRoot>
+                //      <mockElementChild1>
+                //          <mockElementGrandchild1>
+                //          </mockElementGrandchild1>
+                //          <mockElementGrandchild2>
+                //          </mockElementGrandchild2>
+                //      </mockElementChild1>
+                //      <mockElementChild2>
+                //      </mockElementChild2>
+                //  </mockElementRoot>
+
+                // fake out the _createElement function to map the TimedTextElements
+                // to HTMLElements
+                spyOn(subtitles, '_createElement').andCallFake(
+                    function(element){
+                        switch(element){
+                        case mockTimedTextElementRoot:
+                            return mockElementRoot;
+                        case mockTimedTextElementChild1:
+                            return mockElementChild1;
+                        case mockTimedTextElementChild2:
+                            return mockElementChild2;
+                        case mockTimedTextElementGrandchild1:
+                            return mockElementGrandchild1;
+                        case mockTimedTextElementGrandchild2:
+                            return mockElementGrandchild2;
+                        default:
+                            return null;
+                        }
+                    }
+                );
+
+                // Call the function under test with the root node
+                subtitles._createElementTree(mockTimedTextElementRoot);
+
+                //expect it to have recursed through each node
+                expect(subtitles._createElementTree.calls.length).toBe(5);
+
+                // expect the append child functions to join up the HTMLNodes correctly
+                expect(mockElementRoot.appendChild).toHaveBeenCalledWith(mockElementChild1);
+                expect(mockElementRoot.appendChild).toHaveBeenCalledWith(mockElementChild2);
+
+                expect(mockElementChild1.appendChild).toHaveBeenCalledWith(mockElementGrandchild1);
+                expect(mockElementChild1.appendChild).toHaveBeenCalledWith(mockElementGrandchild2);
+
+                expect(mockElementChild2.appendChild).not.toHaveBeenCalled();
+
+                expect(mockElementGrandchild1.appendChild).not.toHaveBeenCalled();
+                expect(mockElementGrandchild2.appendChild).not.toHaveBeenCalled();
+            });
+
+            it('createElementTree function will recurse through the active elements children and create the nodes with 3 levels', function() {
+                var subtitles = new Subtitles('id', mockTimedText, mockGetMediaTimeCallback);
+                spyOn(subtitles, '_createElementTree').andCallThrough();
+
+                // set up the TimedTextElements and the corresponding HTML representation objects
+                var mockElementGrandchild1 = Object.create(HTMLElement.prototype);
+                spyOn(mockElementGrandchild1, 'appendChild');
+                var mockTimedTextElementGrandchild1 = Object.create(TimedTextElement.prototype);
+                spyOn(mockTimedTextElementGrandchild1, 'getChildren').andReturn([]);
+
+                var mockElementGrandchild2 = Object.create(HTMLElement.prototype);
+                spyOn(mockElementGrandchild2, 'appendChild');
+                var mockTimedTextElementGrandchild2 = Object.create(TimedTextElement.prototype);
+                spyOn(mockTimedTextElementGrandchild2, 'getChildren').andReturn([]);
+
+                var mockElementChild1 = Object.create(HTMLElement.prototype);
+                spyOn(mockElementChild1, 'appendChild');
+                var mockTimedTextElementChild1 = Object.create(TimedTextElement.prototype);
+                spyOn(mockTimedTextElementChild1, 'getChildren').andReturn([mockTimedTextElementGrandchild1]);
+
+                var mockElementChild2 = Object.create(HTMLElement.prototype);
+                spyOn(mockElementChild2, 'appendChild');
+                var mockTimedTextElementChild2 = Object.create(TimedTextElement.prototype);
+                spyOn(mockTimedTextElementChild2, 'getChildren').andReturn([mockTimedTextElementGrandchild2]);
+
+                var mockElementRoot = Object.create(HTMLElement.prototype);
+                spyOn(mockElementRoot, 'appendChild');
+                var mockTimedTextElementRoot = Object.create(TimedTextElement.prototype);
+                spyOn(mockTimedTextElementRoot, 'getChildren').andReturn([mockTimedTextElementChild1, mockTimedTextElementChild2]);
+
+                // By spying on getChildren and returning the child nodes as above,
+                // the following structure is modelled:
+                //
+                //  <mockElementRoot>
+                //      <mockElementChild1>
+                //          <mockElementGrandchild1>
+                //          </mockElementGrandchild1>
+                //      </mockElementChild1>
+                //      <mockElementChild2>
+                //          <mockElementGrandchild2>
+                //          </mockElementGrandchild2>
+                //      </mockElementChild2>
+                //  </mockElementRoot>
+
+                // fake out the _createElement function to map the TimedTextElements
+                // to HTMLElements
+                spyOn(subtitles, '_createElement').andCallFake(
+                    function(element){
+                        switch(element){
+                        case mockTimedTextElementRoot:
+                            return mockElementRoot;
+                        case mockTimedTextElementChild1:
+                            return mockElementChild1;
+                        case mockTimedTextElementChild2:
+                            return mockElementChild2;
+                        case mockTimedTextElementGrandchild1:
+                            return mockElementGrandchild1;
+                        case mockTimedTextElementGrandchild2:
+                            return mockElementGrandchild2;
+                        default:
+                            return null;
+                        }
+                    }
+                );
+
+                // Call the function under test with the root node
+                subtitles._createElementTree(mockTimedTextElementRoot);
+
+                //expect it to have recursed through each node
+                expect(subtitles._createElementTree.calls.length).toBe(5);
+
+                // expect the append child functions to join up the HTMLNodes correctly
+                expect(mockElementRoot.appendChild).toHaveBeenCalledWith(mockElementChild1);
+                expect(mockElementRoot.appendChild).toHaveBeenCalledWith(mockElementChild2);
+
+                expect(mockElementChild1.appendChild).toHaveBeenCalledWith(mockElementGrandchild1);
+                expect(mockElementChild1.appendChild).not.toHaveBeenCalledWith(mockElementGrandchild2);
+
+                expect(mockElementChild2.appendChild).not.toHaveBeenCalledWith(mockElementGrandchild1);
+                expect(mockElementChild2.appendChild).toHaveBeenCalledWith(mockElementGrandchild2);
+
+                expect(mockElementGrandchild1.appendChild).not.toHaveBeenCalled();
+                expect(mockElementGrandchild2.appendChild).not.toHaveBeenCalled();
+            });
+
+            it('createElementTree will return a single new node for an element without children', function() {
+                var subtitles = new Subtitles('id', mockTimedText, mockGetMediaTimeCallback);
+                spyOn(subtitles, '_createElementTree').andCallThrough();
+
+                // set up the TimedTextElements and the corresponding HTML representation objects
+                var mockElementRoot = Object.create(HTMLElement.prototype);
+                spyOn(mockElementRoot, 'appendChild');
+                var mockTimedTextElementRoot = Object.create(TimedTextElement.prototype);
+                spyOn(mockTimedTextElementRoot, 'getChildren').andReturn([]);
+
+                // By spying on getChildren and returning the child nodes as above,
+                // the following structure is modelled:
+                //  <mockElementRoot>
+                //  </mockElementRoot>
+
+                spyOn(subtitles, '_createElement').andCallFake(
+                    function(element){
+                        switch(element){
+                        case mockTimedTextElementRoot:
+                            return mockElementRoot;
+                        default:
+                            return null;
+                        }
+                    }
+                );
+
+                // Call the function under test with the root node
+                subtitles._createElementTree(mockTimedTextElementRoot);
+
+                //expect it not to have recursed as there is only one node
+                expect(subtitles._createElementTree.calls.length).toBe(1);
+                expect(mockElementRoot.appendChild).not.toHaveBeenCalled();
             });
         });
     }

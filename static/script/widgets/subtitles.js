@@ -142,13 +142,60 @@ define(
                 var device = this.getCurrentApplication().getDevice();
 
                 for(var i = 0; i < activeElements.length; i++){
-                    var children = activeElements[i].getChildren();
-                    for(var j = 0; j < children.length; j ++){
-                        if(children[j].getNodeName() === TimedTextElement.NODE_NAME.text){
-                            var label = device.createLabel(null, ['subtitlesTextElement'], children[j].getText());
-                            device.appendChildElement(this.outputElement, label);
-                        }
-                    }
+                    var element = this._createElementTree(activeElements[i]);
+                    device.appendChildElement(this.outputElement, element);
+                }
+            },
+
+            /**
+             * Recurse through an active timed text element and it's children and
+             * create the dom node structure to be displayed in the widget
+             * @private
+             * @param {TimedTextLement} timedTextElement the active element
+             * @returns {HTMLElement} the root HTML element with childNodes corresponding
+             *                        to the children of the timedTextElement
+             */
+            _createElementTree: function(timedTextElement){
+                //create this node
+                var node = this._createElement(timedTextElement);
+
+                // create the child nodes and attach them to this one, if there
+                // are no children then it will just fall through and return
+                var children = timedTextElement.getChildren();
+                for(var i = 0; i < children.length; i++){
+
+                    // call this function recursively on the child nodes to create
+                    // the whole tree
+                    node.appendChild(this._createElementTree(children[i]));
+                }
+
+                // return this node to be attached to its parent node or the output element
+                return node;
+            },
+
+            /**
+             * Create and return an HTMLNode for a corresponding TimedTextElement using
+             * the device abstraction layer
+             * @private
+             * @param {TimedTextLement} timedTextElement the single element to create
+             *                         an HTMLNode for
+             * @returns {HTMLElement} the basic HTML element
+             */
+            _createElement: function(element){
+                var device = this.getCurrentApplication().getDevice();
+                switch(element.getNodeName()){
+                case TimedTextElement.NODE_NAME.br:
+                    return device.createLineBreak();
+                case TimedTextElement.NODE_NAME.div:
+                    return device.createContainer();
+                case TimedTextElement.NODE_NAME.p:
+                    return device.createParagraph();
+                case TimedTextElement.NODE_NAME.span:
+                    return device.createSpan();
+                case TimedTextElement.NODE_NAME.text:
+                    return device.createTextNode(element.getText());
+                default:
+                    return null;
                 }
             },
 
@@ -160,6 +207,7 @@ define(
             *
             * @param {Array} arrayA the first array to compare
             * @param {Array} arrayB the second array to compare
+            * @returns {Boolean} whether the arrays have equal elements
             */
             _arraysEqual: function(arrayA, arrayB){
                 if (arrayA === arrayB){
