@@ -99,6 +99,7 @@
 
     defineElementCreationTests('createContainer', 'div');
     defineElementCreationTests('createLabel', 'span');
+    defineElementCreationTests('createSpan', 'span');
     defineElementCreationTests('createButton', 'div');
     defineElementCreationTests('createList', 'ul');
     defineElementCreationTests('createListItem', 'li');

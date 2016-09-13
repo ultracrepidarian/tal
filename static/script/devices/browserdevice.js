@@ -134,6 +134,16 @@ define(
                 return el;
             },
             /**
+             * Creates a span in the device's user-agent.
+             * @param {String} [id] The id of the element to create.
+             * @param {Array} [classNames] An array of class names to apply to the element.
+             * @returns A span within the device's user-agent.
+             */
+            createSpan: function(id, classNames) {
+                var el = this._createElement('span', id, classNames);
+                return el;
+            },
+            /**
              * Creates a button (an element that can be selected by the user to perform an action) in the device's user-agent.
              * @param {String} [id] The id of the element to create.
              * @param {Array} [classNames] An array of class names to apply to the element.
