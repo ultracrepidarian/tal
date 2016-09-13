@@ -42,6 +42,14 @@ require(
                             ' xmlns:tts="http://www.w3.org/ns/ttml#styling"' +
                             ' xmlns:ttm="http://www.w3.org/ns/ttml#metadata"' +
                             ' xml:lang="eng"' +
+                            ' ttp:profile="http://www.w3.org/ns/ttml#profile-dfxp"' +
+                            ' ttp:timeBase="smpte"' +
+                            ' ttp:frameRate="30"' +
+                            ' ttp:frameRateMultiplier="1000 1001"' +
+                            ' ttp:dropMode="dropNTSC"' +
+                            ' ttp:markerMode="continuous"' +
+                            ' ttp:clockMode="local"' +
+                            ' ttp:cellResolution="80 24"' +
                         '>' +
                         '<head>' +
                         '</head>' +
@@ -69,6 +77,18 @@ require(
             it('parses <tt> into a TimedText', function() {
                 var timedText = ttmlParser.parse(ttmlDoc);
                 expect(timedText).toEqual(jasmine.any(TimedText));
+            });
+
+            it('parses <tt> attributes', function() {
+                var timedText = ttmlParser.parse(ttmlDoc);
+                expect(timedText.getAttribute('profile')).toBe('http://www.w3.org/ns/ttml#profile-dfxp');
+                expect(timedText.getAttribute('timeBase')).toBe('smpte');
+                expect(timedText.getAttribute('frameRate')).toBe(30);
+                expect(timedText.getAttribute('frameRateMultiplier')).toEqual({numerator: 1000, denominator: 1001});
+                expect(timedText.getAttribute('dropMode')).toBe('dropNTSC');
+                expect(timedText.getAttribute('markerMode')).toBe('continuous');
+                expect(timedText.getAttribute('clockMode')).toBe('local');
+                expect(timedText.getAttribute('cellResolution')).toEqual({columns: 80, rows: 24});
             });
 
             it('parses <tt><body> into a TimedTextBody', function() {
@@ -152,10 +172,14 @@ require(
             it('finds all ordered timing points', function() {
                 var timedText = ttmlParser.parse(ttmlDoc);
                 expect(timedText._timePoints.length).toBe(4);
-                expect(timedText._timePoints[0].time).toBe(2000);
-                expect(timedText._timePoints[1].time).toBe(5760);
-                expect(timedText._timePoints[2].time).toBe(5800);
-                expect(timedText._timePoints[3].time).toBe(7720);
+                expect(timedText._timePoints[0].milliseconds).toBe(2000);
+                expect(timedText._timePoints[0].seconds).toBe(2);
+                expect(timedText._timePoints[1].milliseconds).toBe(5760);
+                expect(timedText._timePoints[1].seconds).toBeCloseTo(5.760, 3);
+                expect(timedText._timePoints[2].milliseconds).toBe(5800);
+                expect(timedText._timePoints[2].seconds).toBeCloseTo(5.800, 3);
+                expect(timedText._timePoints[3].milliseconds).toBe(7720);
+                expect(timedText._timePoints[3].seconds).toBeCloseTo(7.720, 3);
 
                 expect(timedText._timePoints[0].active._elements.length).toBe(1);
                 expect(timedText._timePoints[1].active._elements.length).toBe(0);
@@ -305,6 +329,61 @@ require(
                 var timedText = ttmlParser.parse(ttmlDocNoBody);
 
                 expect(timedText.getBody()).toBeNull();
+            });
+
+            it('calculates milliseconds from frame number: round(1000 * frame / (framRate * frameRateMultiplier))', function() {
+                var ttmlDocSmpte = new DOMParser().parseFromString(
+                    '<?xml version="1.0" encoding="UTF-8"?>' +
+                    '<tt' +
+                            ' xmlns="http://www.w3.org/ns/ttml"' +
+                            ' xmlns:ttp="http://www.w3.org/ns/ttml#parameter"' +
+                            ' xmlns:tts="http://www.w3.org/ns/ttml#styling"' +
+                            ' xmlns:ttm="http://www.w3.org/ns/ttml#metadata"' +
+                            ' xml:lang="eng"' +
+                            ' ttp:profile="http://www.w3.org/ns/ttml#profile-dfxp"' +
+                            ' ttp:timeBase="smpte"' +
+                            ' ttp:frameRate="30"' +
+                            ' ttp:frameRateMultiplier="1000 1001"' +   // Typical value for NTSC: 30*(1000/1001) ~= 29.97 fps
+                            ' ttp:dropMode="dropNTSC"' +
+                            ' ttp:markerMode="continuous"' +
+                            ' ttp:clockMode="local"' +
+                            ' ttp:cellResolution="80 24"' +
+                        '>' +
+                        '<head>' +
+                        '</head>' +
+                        '<body>' +
+                            '<div >' +
+                                '<p begin="00:00:02:02" end="00:00:05:12" region="speaker">' +
+                                    '<span tts:color="white">Welcome to the beautiful Bisham</span><br/>' +
+                                    '<span tts:color="white">Abbey. If you wander round the</span>' +
+                                '</p>' +
+                                '<p begin="00:00:05:13" end="00:00:07:29" region="speaker">grounds</p>' +
+                            '</div>' +
+                        '</body>' +
+                    '</tt>',
+
+                    'text/xml'
+                );
+
+                var timedText = ttmlParser.parse(ttmlDocSmpte);
+                var paragraphs = timedText.getBody().getChildren()[0].getChildren();
+                expect(paragraphs.length).toBe(2);
+
+                expect(paragraphs[0]).toEqual(jasmine.any(TimedTextElement));
+                expect(paragraphs[0].getNodeName()).toBe(TimedTextElement.NODE_NAME.p);
+                expect(paragraphs[0].getAttributes().getAttribute('begin')).toEqual(jasmine.any(Timestamp));
+                expect(paragraphs[0].getAttributes().getAttribute('begin').getMilliseconds()).toBe(2067);
+                expect(paragraphs[0].getAttributes().getAttribute('end')).toEqual(jasmine.any(Timestamp));
+                expect(paragraphs[0].getAttributes().getAttribute('end').getMilliseconds()).toBe(5400);
+                expect(paragraphs[0].getAttributes().getAttribute('dur')).toBeNull();
+
+                expect(paragraphs[1]).toEqual(jasmine.any(TimedTextElement));
+                expect(paragraphs[1].getNodeName()).toBe(TimedTextElement.NODE_NAME.p);
+                expect(paragraphs[1].getAttributes().getAttribute('begin')).toEqual(jasmine.any(Timestamp));
+                expect(paragraphs[1].getAttributes().getAttribute('begin').getMilliseconds()).toBe(5434);
+                expect(paragraphs[1].getAttributes().getAttribute('end')).toEqual(jasmine.any(Timestamp));
+                expect(paragraphs[1].getAttributes().getAttribute('end').getMilliseconds()).toBe(7968);
+                expect(paragraphs[1].getAttributes().getAttribute('dur')).toBeNull();
             });
 
         });

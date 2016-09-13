@@ -20,13 +20,21 @@ define(
         var TimedTextHead = TimedTextElement.extend(/** @lends antie.subtitles.TimedTextHead.prototype */ {
 
             /**
-             *
-             *
              * @constructor
              * @ignore
              */
-            init: function () {
-                this._super(TimedTextElement.NODE_NAME.head);
+            init: function (styling, layout) {
+                this._styling = styling;
+                this._layout = layout;
+
+                var children = [];
+                if (styling) {
+                    children.push(styling);
+                }
+                if (layout) {
+                    children.push(layout);
+                }
+                this._super(TimedTextElement.NODE_NAME.head, children);
             },
 
             /**
@@ -34,6 +42,9 @@ define(
              * instance cannot be used after this.
              */
             destroy : function() {
+                this._super.destroy();
+                this._styling = null;
+                this._layout = null;
             }
         });
 

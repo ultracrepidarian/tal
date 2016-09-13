@@ -78,6 +78,35 @@ define(
             },
 
             /**
+             * Replaces all the element's attributes with those specified.
+             *
+             * @param {antie.subtitles.TimedTextAttributes} attributes
+             *        this element's attributes
+             * @public
+             */
+            setAttributes: function(attributes) {
+                if (typeof attributes === 'object' && attributes instanceof TimedTextAttributes) {
+                    this._attributes = attributes;
+                } else {
+                    throw new Error('TimedTextElement - setAttributes not given an instance of antie.subtitles.TimedTextAttributes, was ' + typeof attributes + ': ' + attributes);
+                }
+            },
+
+            /**
+             * Returns the value of an attribute. Convenience method - short for
+             * this.getAttributes().getAttribute(name)
+             *
+             * @param {String} name
+             *        The name of the attribute
+             *
+             * @returns {?any} the value of the named attribute, or null if it has not been set
+             * @public
+             */
+            getAttribute: function(name) {
+                return this._attributes.getAttribute(name);
+            },
+
+            /**
              * Sets this element's text content - text elements only.
              * @param {String} value this element's text content
              * @public
@@ -147,57 +176,6 @@ define(
             span: 'span',
             text: 'text',
             tt:   'tt'
-        };
-
-        /**
-         * The xml namespaces for TTML elements. As specified in
-         *
-         *   http://www.w3.org/TR/ttml2/
-         *   http://www.w3.org/TR/ttaf1-dfxp/
-         *   http://www.w3.org/TR/2010/CR-ttaf1-dfxp-20100223/
-         *
-         * @name antie.subtitles.TimedTextElement.NAMESPACE
-         * @enum {String}
-         * @readonly
-         */
-        TimedTextElement.NAMESPACE = {
-            xml: 'http://www.w3.org/XML/1998/namespace',   // This one is actually XML not TTML
-            tt:  'http://www.w3.org/ns/ttml',
-            ttp: 'http://www.w3.org/ns/ttml#parameter',
-            tts: 'http://www.w3.org/ns/ttml#styling',
-            ttm: 'http://www.w3.org/ns/ttml#metadata'
-        };
-
-        /**
-         * The xml namespaces for TTML elements. As specified in
-         *
-         *   http://www.w3.org/TR/2006/CR-ttaf1-dfxp-20061116
-         *
-         * @name antie.subtitles.TimedTextElement.NAMESPACE_2006CR
-         * @enum {String}
-         * @readonly
-         */
-        TimedTextElement.NAMESPACE_2006CR = {
-            tt:  'http://www.w3.org/2006/10/ttaf1',
-            ttp: 'http://www.w3.org/2006/10/ttaf1#parameter',
-            tts: 'http://www.w3.org/2006/10/ttaf1#style',
-            ttm: 'http://www.w3.org/2006/10/ttaf1#metadata'
-        };
-
-        /**
-         * The xml namespaces for TTML elements. As specified in
-         *
-         *   http://www.w3.org/TR/2006/WD-ttaf1-dfxp-20060427/
-         *
-         * @name antie.subtitles.TimedTextElement.NAMESPACE_2006WD
-         * @enum {String}
-         * @readonly
-         */
-        TimedTextElement.NAMESPACE_2006WD = {
-            tt:  'http://www.w3.org/2006/04/ttaf1',
-            ttp: 'http://www.w3.org/2006/04/ttaf1#parameter',
-            tts: 'http://www.w3.org/2006/04/ttaf1#style',
-            ttm: 'http://www.w3.org/2006/04/ttaf1#metadata'
         };
 
         return TimedTextElement;

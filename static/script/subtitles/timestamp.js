@@ -30,18 +30,20 @@ define(
             /**
              * Constructs a new timestamp instance.
              *
-             * @param {String} timeString The time as a string
-             * @param {Boolean} [strict=true] true - time must be formatted exactly as per the standard
-             *                                false - will attempt to parse a recognisable time
+             * @param {String} timeString
+             *        The time as a string
+             *
+             * @param {Number} [framerate=30]
+             *        The framerate to use when calculating times from SMPTE frames
              *
              * @constructor
              * @ignore
              */
-            init: function (timeString, strict) {
+            init: function (timeString, framerate) {
                 if (typeof timeString !== 'string') {
                     throw new TtmlParseError('Timestamp should be a string but was ' + typeof timeString + ': ' + timeString);
                 }
-                this._strict = (strict === true || strict === false) ? strict : true;
+                this._framerate = typeof framerate === 'number' && framerate > 0 ? framerate : 30;
                 this._seconds = this._parseTime(timeString);
             },
 
@@ -67,6 +69,12 @@ define(
                 match = /^(\d+(\.\d+)?)(h|m|s|ms)$/.exec(timeString);
                 if (match) {
                     return parseFloat(match[1]) * MULTIPLIER[match[3]];
+                }
+
+                match = /^(\d+):(\d\d):(\d\d):(\d\d)$/.exec(timeString);
+                if (match) {
+                    // TODO Cope with drop frames
+                    return parseInt(match[1])*MULTIPLIER.h + parseInt(match[2]*MULTIPLIER.m) + parseInt(match[3]) + parseInt(match[4]) / this._framerate;
                 }
 
                 throw new TtmlParseError('Invalid timestamp: ' + timeString);

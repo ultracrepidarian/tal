@@ -64,12 +64,12 @@ define(
              * @param {TimedTextElement} element
              *        The element to be added
              *
-             * @param {Number} time
+             * @param {Number} milliseconds
              *        The time in milliseconds
              * @private
              */
-            _addElementAtTime: function(element, time)  {
-                if (this._timePoints.length > 0 && this._timePoints[this._timePoints.length - 1].time === time) {
+            _addElementAtTime: function(element, milliseconds)  {
+                if (this._timePoints.length > 0 && this._timePoints[this._timePoints.length - 1].milliseconds === milliseconds) {
                     this._timePoints[this._timePoints.length - 1].active.add(element);
                 } else {
                     var active;
@@ -81,7 +81,8 @@ define(
 
                     active.add(element);
                     this._timePoints.push({
-                        'time': time,
+                        'milliseconds': milliseconds,
+                        'seconds': milliseconds / 1000,
                         'active': active
                     });
                 }
@@ -95,12 +96,12 @@ define(
              * @param {TimedTextElement} element
              *        The element to be removed
              *
-             * @param {Number} time
+             * @param {Number} milliseconds
              *        The time in milliseconds
              * @private
              */
-            _removeElementAtTime: function(element, time)  {
-                if (this._timePoints.length > 0 && this._timePoints[this._timePoints.length - 1].time === time) {
+            _removeElementAtTime: function(element, milliseconds)  {
+                if (this._timePoints.length > 0 && this._timePoints[this._timePoints.length - 1].milliseconds === milliseconds) {
                     this._timePoints[this._timePoints.length - 1].active.delete(element);
                 } else {
                     var active;
@@ -111,7 +112,8 @@ define(
                     }
                     active.delete(element);
                     this._timePoints.push({
-                        'time': time,
+                        'milliseconds': milliseconds,
+                        'seconds': milliseconds / 1000,
                         'active': active
                     });
                 }
@@ -151,7 +153,7 @@ define(
                     }
                 }
 
-                this._lastSeen = null;
+                this._lastSeen = 0;
             },
 
             /**
@@ -165,17 +167,21 @@ define(
                     return [];
                 }
 
-                var milliseconds = Math.round(seconds * 1000);
-                for (var i = 0; i < this._timePoints.length; i++) {
-                    if (milliseconds < this._timePoints[i].time) {
+                if (seconds < this._timePoints[this._lastSeen].seconds) {
+                    this._lastSeen = 0;
+                }
+                for (var i = this._lastSeen; i < this._timePoints.length; i++) {
+                    if (seconds < this._timePoints[i].seconds) {
                         if (i === 0) {
                             return [];
                         }
-                        return this._timePoints[i - 1].active.toArray();
+                        this._lastSeen = i - 1;
+                        return this._timePoints[this._lastSeen].active.toArray();
                     }
                 }
 
-                return this._timePoints[this._timePoints.length - 1].active.toArray();
+                this._lastSeen = this._timePoints.length - 1;
+                return this._timePoints[this._lastSeen].active.toArray();
             },
 
             /**

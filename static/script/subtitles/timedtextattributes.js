@@ -30,15 +30,15 @@ define(
              * @public
              */
             setAttribute: function(name, value) {
-                if (typeof name !== 'string' || !TimedTextAttributes.TYPE.hasOwnProperty(name)) {
-                    throw new Error('TimedTextAttributes.setAttribute unknown attribute name:' + name);
-                }
-
-                if (value) {
-                    if (!this._isMatchingType(value, TimedTextAttributes.TYPE[name])) {
-                        throw new Error('TimedTextAttributes.setAttribute attribute ' + name + '\'s value is the wrong type - ' + typeof value + ': ' + value);
-                    }
-                }
+                // if (typeof name !== 'string' || !TimedTextAttributes.TYPE.hasOwnProperty(name)) {
+                //     throw new Error('TimedTextAttributes.setAttribute unknown attribute name:' + name);
+                // }
+                //
+                // if (value) {
+                //     if (!this._isMatchingType(value, TimedTextAttributes.TYPE[name])) {
+                //         throw new Error('TimedTextAttributes.setAttribute attribute ' + name + '\'s value is the wrong type - ' + typeof value + ': ' + value);
+                //     }
+                // }
 
                 if (this._attributeMap[name]) {
                     throw new Error('TimedTextAttributes.setAttribute attempting to set attribute ' + name + '\'s value more than once');
@@ -57,10 +57,36 @@ define(
              * @public
              */
             getAttribute: function(name) {
-                if (typeof name !== 'string' || !TimedTextAttributes.TYPE.hasOwnProperty(name)) {
-                    throw new Error('TimedTextAttributes.setAttribute unknown attribute name:' + name);
+                var value = this._attributeMap[name] || null;
+                if (value) {
+                    return value;
                 }
-                return this._attributeMap[name] || null;
+
+                // Return default value if there is one
+                switch (name) {
+                case 'cellResolution':
+                    return {columns: 32, rows: 15};
+                case 'clockMode':
+                    return 'utc';
+                case 'dropMode':
+                    return 'nonDrop';
+                case 'frameRate':
+                    return 30;
+                case 'frameRateMultiplier':
+                    return {numerator: 1, denominator: 1};
+                case 'markerMode':
+                    return 'discontinuous';
+                case 'pixelAspectRatio':
+                    return {width: 1, height: 1};
+                case 'subFrameRate':
+                    return 1;
+                case 'tickRate':
+                    return this._attributeMap.frameRate ? this._attributeMap.frameRate * this.getAttribute('subFrameRate') : 1;
+                case 'timeBase':
+                    return 'media';
+                default:
+                    return value;
+                }
             },
 
             /**
@@ -75,9 +101,22 @@ define(
              * @private
              */
             _isMatchingType: function(attributeValue, attributeType) {
-                return (attributeValue instanceof attributeType);
+                if (typeof attributeType === 'object' && attributeType instanceof RegExp) {
+                    return attributeType.test(attributeValue);
+                } else {
+                    return (attributeValue instanceof attributeType);
+                }
             },
 
+            /**
+             * Returns the start/end time, rounded to the nearest millisecond, of
+             * the attributes' element, or null if the element has no begin/end
+             * times of its own (inherited times are ignored).
+             *
+             * @returns {{beginMilliseconds: Number, endMilliseconds: Number}}
+             *          the begin/end of the element's display interval
+             * @public
+             */
             getTimingInterval: function() {
                 if (!this.getAttribute('begin') && !this.getAttribute('end')) {
                     return null;
@@ -104,13 +143,18 @@ define(
 
         /**
          * @name antie.subtitles.TimedTextAttributes.TYPE
-         * @enum {(class|String)}
+         * @enum {(class|String|RegExp)}
          * @readonly
          */
         TimedTextAttributes.TYPE = {
             begin: Timestamp,
             end:   Timestamp,
-            dur:   Timestamp
+            dur:   Timestamp,
+            frameRate: /^\d+$/
+        };
+
+        TimedTextAttributes.NAMESPACE = {
+            frameRate: 'ttp'
         };
 
         return TimedTextAttributes;
