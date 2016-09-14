@@ -17,13 +17,14 @@ define(
          * @name antie.subtitles.TtmlNamespaces
          * @extends antie.Class
          *
-         * @param {string[]} [validNamespaces=['http://www.w3.org/ns/ttml']]
+         * @param {string[]} [validNamespaces=['http://www.w3.org/ns/ttml','http://www.w3.org/XML/1998/namespace']]
          *        Array of acceptable namespaces - acceptable values are any
          *        non-empty array of the following TTML namespace collections:
          *          'http://www.w3.org/ns/ttml',
          *          'http://www.w3.org/2006/10/ttaf1',
          *          'http://www.w3.org/2006/04/ttaf1'
          *        and the following individual namespaces from supplementary standards:
+         *          'http://www.w3.org/XML/1998/namespace',
          *          'http://www.w3.org/ns/ttml/profile/imsc1#styling',
          *          'http://www.w3.org/ns/ttml/profile/imsc1#parameter',
          *          'http://www.w3.org/ns/ttml/profile/imsc1#metadata',
@@ -43,7 +44,7 @@ define(
                     ttm: {}
                 };
                 if (!validNamespaces) {
-                    validNamespaces = [ TtmlNamespaces.TTML1.tt ];
+                    validNamespaces = [ TtmlNamespaces.TTML1.tt, TtmlNamespaces.XML.xml ];
                 }
 
                 if (!Array.isArray(validNamespaces)) {

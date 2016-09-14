@@ -52,6 +52,28 @@ require(
                             ' ttp:cellResolution="80 24"' +
                         '>' +
                         '<head>' +
+                            '<styling>' +
+                                '<style xml:id="backgroundStyle"' +
+                                    ' tts:backgroundColor="rgba(72,128,132,0.75)"' +
+                                    ' tts:displayAlign="after"' +
+                                    ' tts:extent="100% 48%"' +
+                                    ' tts:origin="0% 50%"' +
+                                    ' tts:fontFamily="Arial"' +
+                                    ' tts:fontSize="18px"' +
+                                    ' tts:fontStyle="normal"' +
+                                    ' tts:textAlign="center"' +
+                                ' />' +
+                                ' <style xml:id="speakerStyle"' +
+                                    ' tts:backgroundColor="transparent"' +
+                                    ' tts:color="#FFFFFF"' +
+                                    ' tts:textOutline="#000000 1px 1px"' +
+                                    ' style="backgroundStyle"' +
+                                ' />' +
+                            '</styling>' +
+                            '<layout>' +
+                                '<region xml:id="speaker" style="speakerStyle" tts:zIndex="1"/>' +
+                                '<region xml:id="background" style="backgroundStyle" tts:zIndex="0"/>' +
+                            '</layout>' +
                         '</head>' +
                         '<body>' +
                             '<div >' +
@@ -91,9 +113,72 @@ require(
                 expect(timedText.getAttribute('cellResolution')).toEqual({columns: 80, rows: 24});
             });
 
+            it('parses <tt><head> into a TimedTextHead', function() {
+                var timedText = ttmlParser.parse(ttmlDoc);
+                expect(timedText.getHead()).toEqual(jasmine.any(TimedTextHead));
+                expect(timedText.getHead().getNodeName()).toBe(TimedTextElement.NODE_NAME.head);
+            });
+
+            it('parses <tt><head><styling> into a TimedTextElement', function() {
+                var timedText = ttmlParser.parse(ttmlDoc);
+                expect(timedText.getHead().getChildren().length).toBe(2);  // The 2nd element is <layout>
+                expect(timedText.getHead().getChildren()[0]).toEqual(jasmine.any(TimedTextElement));
+                expect(timedText.getHead().getChildren()[0].getNodeName()).toBe(TimedTextElement.NODE_NAME.styling);
+            });
+
+            it('parses <tt><head><styling><style> into a TimedTextElement', function() {
+                var timedText = ttmlParser.parse(ttmlDoc);
+                var styles = timedText.getHead().getChildren()[0].getChildren();
+                expect(styles.length).toBe(2);
+
+                expect(styles[0]).toEqual(jasmine.any(TimedTextElement));
+                expect(styles[0].getNodeName()).toBe(TimedTextElement.NODE_NAME.style);
+
+                expect(styles[1]).toEqual(jasmine.any(TimedTextElement));
+                expect(styles[1].getNodeName()).toBe(TimedTextElement.NODE_NAME.style);
+            });
+
+            it('parses <tt><head><styling><style> attributes', function() {
+                var timedText = ttmlParser.parse(ttmlDoc);
+                var styles = timedText.getHead().getChildren()[0].getChildren();
+
+                expect(styles[0].getAttribute('id')).toBe('backgroundStyle');
+                expect(styles[0].getAttribute('backgroundColor')).toBe('rgba(72,128,132,0.75)');
+                expect(styles[0].getAttribute('color')).toBeNull();
+
+                expect(styles[1].getAttribute('id')).toBe('speakerStyle');
+                expect(styles[1].getAttribute('backgroundColor')).toBe('rgba(0,0,0,0)'); // 'transparent' mapped to CSS value
+                expect(styles[1].getAttribute('color')).toBe('#FFFFFF');
+            });
+
+            it('parses <tt><head><layout> into a TimedTextElement', function() {
+                var timedText = ttmlParser.parse(ttmlDoc);
+                expect(timedText.getHead().getChildren().length).toBe(2);  // The 1st element is <styling>
+                expect(timedText.getHead().getChildren()[1]).toEqual(jasmine.any(TimedTextElement));
+                expect(timedText.getHead().getChildren()[1].getNodeName()).toBe(TimedTextElement.NODE_NAME.layout);
+            });
+
+            it('parses <tt><head><layout><region> into a TimedTextElement', function() {
+                var timedText = ttmlParser.parse(ttmlDoc);
+                var styles = timedText.getHead().getChildren()[0].getChildren();
+                var regions = timedText.getHead().getChildren()[1].getChildren();
+
+                expect(regions.length).toBe(2);
+                expect(regions[0].getAttribute('id')).toBe('speaker');
+                expect(regions[0].getAttribute('style').length).toBe(1);  // Only references 1 style
+                expect(regions[0].getAttribute('style')[0]).toBe(styles[1]);
+                expect(regions[0].getAttribute('style')[0].getAttribute('id')).toBe('speakerStyle');
+
+                expect(regions[1].getAttribute('id')).toBe('background');
+                expect(regions[1].getAttribute('style').length).toBe(1); // Only references 1 style
+                expect(regions[1].getAttribute('style')[0]).toBe(styles[0]);
+                expect(regions[1].getAttribute('style')[0].getAttribute('id')).toBe('backgroundStyle');
+            });
+
             it('parses <tt><body> into a TimedTextBody', function() {
                 var timedText = ttmlParser.parse(ttmlDoc);
                 expect(timedText.getBody()).toEqual(jasmine.any(TimedTextBody));
+                expect(timedText.getBody().getNodeName()).toBe(TimedTextElement.NODE_NAME.body);
             });
 
             it('parses <tt><body><div> into a TimedTextElement', function() {
@@ -105,6 +190,7 @@ require(
 
             it('parses <tt><body><div><p> into a TimedTextElement', function() {
                 var timedText = ttmlParser.parse(ttmlDoc);
+                var regions = timedText.getHead().getChildren()[1].getChildren();
                 var paragraphs = timedText.getBody().getChildren()[0].getChildren();
                 expect(paragraphs.length).toBe(2);
 
@@ -115,6 +201,10 @@ require(
                 expect(paragraphs[0].getAttributes().getAttribute('end')).toEqual(jasmine.any(Timestamp));
                 expect(paragraphs[0].getAttributes().getAttribute('end').getMilliseconds()).toBe(5760);
                 expect(paragraphs[0].getAttributes().getAttribute('dur')).toBeNull();
+
+                expect(paragraphs[0].getAttribute('region').length).toBe(1);  // Only references 1 region
+                expect(paragraphs[0].getAttribute('region')[0]).toBe(regions[0]);
+                expect(paragraphs[0].getAttribute('region')[0].getAttribute('id')).toBe('speaker');
 
                 expect(paragraphs[1]).toEqual(jasmine.any(TimedTextElement));
                 expect(paragraphs[1].getNodeName()).toBe(TimedTextElement.NODE_NAME.p);
@@ -293,7 +383,7 @@ require(
                         '>' +
                         '<body>' +
                             '<div >' +
-                                '<p begin="00:00:02.000" end="00:00:05.760" region="speaker">' +
+                                '<p begin="00:00:02.000" end="00:00:05.760">' +
                                     '<span tts:color="white">Welcome to the beautiful Bisham</span><br/>' +
                                     '<span tts:color="white">Abbey. If you wander round the</span>' +
                                 '</p>' +
@@ -350,6 +440,28 @@ require(
                             ' ttp:cellResolution="80 24"' +
                         '>' +
                         '<head>' +
+                            '<styling>' +
+                                '<style xml:id="backgroundStyle"' +
+                                    ' tts:backgroundColor="rgba(128,128,128,200)"' +
+                                    ' tts:displayAlign="after"' +
+                                    ' tts:extent="100% 48%"' +
+                                    ' tts:origin="0% 50%"' +
+                                    ' tts:fontFamily="Arial"' +
+                                    ' tts:fontSize="18px"' +
+                                    ' tts:fontStyle="normal"' +
+                                    ' tts:textAlign="center"' +
+                                ' />' +
+                                ' <style xml:id="speakerStyle"' +
+                                    ' tts:backgroundColor="transparent"' +
+                                    ' tts:color="#FFFFFF"' +
+                                    ' tts:textOutline="#000000 1px 1px"' +
+                                    ' style="backgroundStyle"' +
+                                ' />' +
+                            '</styling>' +
+                            '<layout>' +
+                                '<region xml:id="speaker" style="speakerStyle" tts:zIndex="1"/>' +
+                                '<region xml:id="background" style="backgroundStyle" tts:zIndex="0"/>' +
+                            '</layout>' +
                         '</head>' +
                         '<body>' +
                             '<div >' +

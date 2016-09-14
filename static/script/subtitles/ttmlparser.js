@@ -17,6 +17,52 @@ define(
         'use strict';
 
         /**
+         * Private class containing xml:id values collected during parsing.
+         *
+         * @param {Function} report
+         *        Error reporting function
+         *
+         * @class
+         * @name antie.subtitles.TtmlParser._IdReferences
+         * @extends antie.Class
+         * @private
+         */
+        var _IdReferences = Class.extend(/** @lends antie.subtitles.TtmlParser._IdReferences.prototype */{
+            init: function(report) {
+                this._report = report;
+                this._references = {};
+            },
+
+            /**
+             * @param {String} id
+             *        The xml:id
+             *
+             * @param {antie.subtitles.TimedTextElement} element
+             *        The parsed object the xml:id refers to
+             */
+            setReference: function(id, element) {
+                if (this._references.hasOwnProperty(id)) {
+                    this._report('duplicate id: ' + id);
+                } else {
+                    this._references[id] = element;
+                }
+            },
+
+
+            /**
+             * Returns a {@link antie.subtitles.TimedTextElement} given its xml:id.
+             *
+             * @param {String} id
+             *        The xml:id being referenced
+             *
+             * @returns {antie.subtitles.TimedTextElement} the parsed object the xml:id refers to
+             */
+            getReference: function(id) {
+                return this._references[id];
+            }
+        });
+
+        /**
          * Parses TTML.
          *
          * @class
@@ -29,14 +75,20 @@ define(
              * Constructs a new parser instance.
              *
              * @constructor
+             * @ignore
              */
             init: function() {
                 this._ttmlNamespaces = new TtmlNamespaces();
                 this._timedTextAttributes = null;
+                this._styleReferences = null;
+                this._regionReferences = null;
             },
 
             /**
              * Parses a timestamp type attribute.
+             *
+             * @param {String} name
+             *        The attribute's name
              *
              * @param {Attr} timestampAttribute
              *        The XML attribute to be parsed
@@ -44,11 +96,12 @@ define(
              * @returns {antie.subtitles.Timestamp} the parsed timestamp
              * @private
              */
-            _parseTimestamp: function(timestampAttribute) {
+            _parseTimestamp: function(name, timestampAttribute) {
                 if (timestampAttribute) {
                     var timestampString = timestampAttribute.value;
                     if (typeof timestampString !== 'string') {
-                        throw new Error('TtmlParser._parseTimestamp timestampString is not a string, it is ' + typeof timestampString + ': ' + timestampString);
+                        this._report('TtmlParser._parseTimestamp timestampString is not a string, it is ' + typeof timestampString + ': ' + timestampString);
+                        return null;
                     }
 
                     return new Timestamp(timestampString, this._effectiveFrameRate);
@@ -58,18 +111,18 @@ define(
             },
 
             /**
-             * Parses all the attributes which take timestamps as a value.
+             * Parses all the attributes which are not in any namespace.
              *
              * @param {NamedNodeMap} attributes
              *        An "array-like" collection of XML attributes to search through
              *
              * @param {antie.subtitles.TimedTextAttributes} timedTextAttributes
+             * @private
              */
-            _parseTimestampAttributes: function(attributes, timedTextAttributes) {
+            _parseUnqualifiedAttributes: function(attributes, timedTextAttributes) {
                 for (var i = 0; i < attributes.length; i++) {
                     var attribute = attributes[i];
 
-                    // Timestamp values are not in any namespace
                     if (attribute && !attribute.namespaceURI) {
                         var name = attribute.localName || attribute .name;
 
@@ -78,7 +131,15 @@ define(
                         case 'begin':
                         case 'end':
                         case 'dur':
-                            timedTextAttributes.setAttribute(name, this._parseTimestamp(attribute));
+                            timedTextAttributes.setAttribute(name, this._parseTimestamp(name, attribute));
+                            break;
+
+                        case 'style':
+                            timedTextAttributes.setAttribute(name, this._parseIdReferenceAttribute(name, attribute.value, this._styleReferences));
+                            break;
+
+                        case 'region':
+                            timedTextAttributes.setAttribute(name, this._parseIdReferenceAttribute(name, attribute.value, this._regionReferences));
                             break;
 
                         default:
@@ -159,12 +220,194 @@ define(
             },
 
             /**
+             * @param {String} name
+             *        The name of the attribute
+             *
+             * @param {String} value
+             *        The value of the attribute
+             *
+             * @param {antie.subtitles.TtmlParser._IdReferences} references
+             *        References to xml:id parsed from the document so far
+             *
+             * @returns {?TimedTextElement[]} the element(s) refernced by value,
+             *                                or null if there are none
+             * @private
+             */
+            _parseIdReferenceAttribute: function(name, value, references) {
+                var refNames = value.split(/\s+/);
+                if (refNames.length === 0) {
+                    this._report(name + ' attribute is empty: ' + value);
+                    return null;
+                }
+
+                var refs = [];
+                for (var i = 0; i < refNames.length; i++) {
+                    if (refNames[i]) {
+                        var ref = references.getReference(refNames[i]);
+                        if (ref) {
+                            refs.push(ref);
+                        } else {
+                            this._report(name + ' attribute references xml:id "' + refNames[i] + '" but this does not exist in any earlier tag');
+                        }
+                    }
+                }
+
+                return refs.length > 0 ? refs : null;
+            },
+
+            /**
+             * Parses all the attributes in the xml namespace.
+             *
+             * @param {NamedNodeMap} attributes
+             *        An "array-like" collection of XML attributes to search through
+             *
+             * @param {antie.subtitles.TimedTextAttributes} timedTextAttributes
+             *        the attributes object that should receive the parsed attributes
+             */
+            _parseXmlAttributes: function(attributes, timedTextAttributes) {
+                for (var i = 0; i < attributes.length; i++) {
+                    var attribute = attributes[i];
+                    var name = attribute.localName || attribute .name;
+                    if (this._ttmlNamespaces.isCanonicalNamespace('xml', attribute.namespaceURI)) {
+                        var value;
+
+                        switch (name) {
+
+                        case 'id':
+                        case 'lang':
+                            value = attribute.value;
+                            break;
+
+                        case 'space':
+                            value = this._parseEnumeratedParameterAttribute(name, attribute.value, [ 'default', 'preserve' ]);
+                            break;
+                        }
+
+                        if (value) {
+                            timedTextAttributes.setAttribute(name, value);
+                        }
+                    }
+                }
+            },
+
+            _parseColour: function(name, value) {
+                if (/^#[0-9a-fA-F]{6}$/.test(value)) {
+                    return value;
+                } else if (/^#[0-9a-fA-F]{8}$/.test(value)) {
+                    return value.substring(0, 7);  // TODO support the full #RRGGBBAA string instead of just #RRGGBB
+                } else if (/^rgb\(\d+,\d+,\d+\)$/.test(value)) {
+                    return value;
+                }  else if (/^rgba\(\d+,\d+,\d+,(\d*\.)?\d+\)$/.test(value)) {
+                    return value;
+                } else if (value.toLowerCase() === 'transparent') {
+                    return 'rgba(0,0,0,0)';       // Munge this while 'transparent' has no CSS support
+                } else if (/^[a-zA-Z]+$/.test(value)) {  // Named colour?
+                    return value;
+                } else {
+                    return null;
+                }
+            },
+
+            _parseLength: function(name, value) {
+                if (/^(\+|-)?(\d*\.)?\d+(px|em|c|%)$/.test(value)) {
+                    return value;
+                } else {
+                    return null;
+                }
+            },
+
+            /**
+             * Parses all the attributes in the tts namespace.
+             *
+             * @param {NamedNodeMap} attributes
+             *        An "array-like" collection of XML attributes to search through
+             *
+             * @param {antie.subtitles.TimedTextAttributes} timedTextAttributes
+             *        the attributes object that should receive the parsed attributes
+             */
+            _parseStyleAttributes: function(attributes, timedTextAttributes) {
+                for (var i = 0; i < attributes.length; i++) {
+                    var attribute = attributes[i];
+                    var name = attribute.localName || attribute .name;
+                    if (attribute && this._ttmlNamespaces.isCanonicalNamespace('tts', attribute.namespaceURI)) {
+                        var value = null;
+                        var valueArray;
+
+                        switch (name) {
+
+                        case 'backgroundColor':
+                            value = this._parseColour(name, attribute.value);
+                            break;
+
+                        case 'color':
+                            value = this._parseColour(name, attribute.value);
+                            break;
+
+                        case 'direction':
+                            value = this._parseEnumeratedParameterAttribute(name, attribute.value, [ 'ltr', 'rtl' ]);
+                            break;
+
+                        case 'display':
+                            value = this._parseEnumeratedParameterAttribute(name, attribute.value, [ 'auto', 'none' ]);
+                            break;
+
+                        case 'displayAlign':
+                            value = this._parseEnumeratedParameterAttribute(name, attribute.value, [ 'before', 'center', 'after' ]);
+                            break;
+
+                        case 'extent':
+                            if (attribute.value === 'auto') {
+                                value = attribute.value;
+                            } else {
+                                valueArray = attribute.value.split(/\s+/);
+                                if (valueArray && valueArray.length === 2) {
+                                    if (this._parseLength(valueArray[0]) && this._parseLength(valueArray[1])) {
+                                        value = {width: valueArray[0], height: valueArray[1]};
+                                    }
+                                }
+                            }
+                            break;
+
+                        case 'fontFamily':
+                            value = attribute.value;
+                            break;
+
+                        case 'fontSize':
+                            valueArray = attribute.value.split(/\s+/);
+                            if (valueArray && valueArray.length === 2) {
+                                if (this._parseLength(valueArray[0]) && this._parseLength(valueArray[1])) {
+                                    value = {width: valueArray[0], height: valueArray[1]};
+                                }
+                            } else if (valueArray && valueArray.length === 1) {
+                                if (this._parseLength(valueArray[0])) {
+                                    value = {width: valueArray[0], height: valueArray[0]};
+                                }
+                            }
+                            break;
+
+                        case 'fontStyle':
+                            value = this._parseEnumeratedParameterAttribute(name, attribute.value, [ 'normal', 'italic', 'oblique' ]);
+                            break;
+
+                        // TODO Many more attributes to go
+
+                        }
+
+                        if (value) {
+                            timedTextAttributes.setAttribute(name, value);
+                        }
+                    }
+                }
+            },
+
+            /**
              * Parses all the attributes in the ttp namespace.
              *
              * @param {NamedNodeMap} attributes
              *        An "array-like" collection of XML attributes to search through
              *
              * @param {antie.subtitles.TimedTextAttributes} timedTextAttributes
+             *        the attributes object that should receive the parsed attributes
              */
             _parseParameterAttributes: function(attributes, timedTextAttributes) {
                 for (var i = 0; i < attributes.length; i++) {
@@ -250,6 +493,7 @@ define(
             /**
              * @param {Element} ttmlElement
              * @param {antie.subtitles.TimedTextAttributes} timedTextAttributes
+             *        the attributes object that should receive the parsed attributes
              * @private
              */
             _parseAttributes: function(ttmlElement, timedTextAttributes) {
@@ -260,24 +504,151 @@ define(
 
                 if (attributes) {
                     this._parseParameterAttributes(attributes, timedTextAttributes);
-                    this._parseTimestampAttributes(attributes, timedTextAttributes);
+                    this._parseStyleAttributes(attributes, timedTextAttributes);
+                    this._parseUnqualifiedAttributes(attributes, timedTextAttributes);
+                    this._parseXmlAttributes(attributes, timedTextAttributes);
                 }
             },
 
-            _parseStyling: function() {
+            /**
+             * Parses a TTML <styling> tag.
+             *
+             * @param {Element} ttmlStyleElement
+             *        styling tag extracted from an XMLDocument
+             *
+             * @param {Boolean} [retainIds=false]
+             *        If true then the style's xml:id should be saved, i.e. this
+             *        style element is part of the styling section in head where
+             *        styles are held if they are to be referenced by other tags.
+             *
+             * @returns {antie.subtitles.TimedTextElement} new instance parsed from ttmlHeadElement
+             * @private
+             */
+            _parseStyle: function(ttmlStyleElement, retainIds) {
+                var timedTextElement = new TimedTextElement(TimedTextElement.NODE_NAME.style);
+                this._parseAttributes(ttmlStyleElement, timedTextElement.getAttributes());
 
-            },
+                if (retainIds) {
+                    var id = timedTextElement.getAttribute('id');
+                    if (id) {
+                        this._styleReferences.setReference(id, timedTextElement);
+                    }
+                }
 
-            _parseLayout: function() {
-
+                return timedTextElement;
             },
 
             /**
-            * Parses a TTML <head> tag.
+             * Parses a TTML <styling> tag.
+             *
+             * @param {Element} ttmlStylingElement
+             *        styling tag extracted from an XMLDocument
+             *
+             * @returns {antie.subtitles.TimedTextElement} new instance parsed from ttmlStylingElement
+             * @private
+             */
+            _parseStyling: function(ttmlStylingElement) {
+                var nodeList = ttmlStylingElement.childNodes;
+                var children = [];
+
+                for (var i = 0; i < nodeList.length; i++) {
+                    var element = nodeList[i];
+                    if (element && this._ttmlNamespaces.isCanonicalNamespace('tt', element.namespaceURI)) {
+                        switch (element.nodeName) {
+
+                        case 'style':
+                            children.push(this._parseStyle(element, true));
+                            break;
+
+                        default:
+                            break;
+                        }
+                    }
+                }
+
+                var timedTextElement = new TimedTextElement(TimedTextElement.NODE_NAME.styling, children);
+                this._parseAttributes(ttmlStylingElement, timedTextElement.getAttributes());
+                return timedTextElement;
+            },
+
+            /**
+             * Parses a TTML <region> tag.
+             *
+             * @param {Element} ttmlRegionElement
+             *        region tag extracted from an XMLDocument
+             *
+             * @returns {antie.subtitles.TimedTextElement} new instance parsed from ttmlRegionElement
+             * @private
+             */
+            _parseRegion: function(ttmlRegionElement) {
+                var nodeList = ttmlRegionElement.childNodes;
+                var children = [];
+
+                for (var i = 0; i < nodeList.length; i++) {
+                    var element = nodeList[i];
+                    if (element && this._ttmlNamespaces.isCanonicalNamespace('tt', element.namespaceURI)) {
+                        switch (element.nodeName) {
+
+                        case 'style':
+                            children.push(this._parseStyle(element));
+                            break;
+
+                        default:
+                            break;
+                        }
+                    }
+                }
+
+                var timedTextElement = new TimedTextElement(TimedTextElement.NODE_NAME.region, children);
+                this._parseAttributes(ttmlRegionElement, timedTextElement.getAttributes());
+
+                var id = timedTextElement.getAttribute('id');
+                if (id) {
+                    this._regionReferences.setReference(id, timedTextElement);
+                }
+
+                return timedTextElement;
+            },
+
+            /**
+             * Parses a TTML <layout> tag.
+             *
+             * @param {Element} ttmlLayoutElement
+             *        layout tag extracted from an XMLDocument
+             *
+             * @returns {antie.subtitles.TimedTextElement} new instance parsed from ttmlLayoutElement
+             * @private
+             */
+            _parseLayout: function(ttmlLayoutElement) {
+                var nodeList = ttmlLayoutElement.childNodes;
+                var children = [];
+
+                for (var i = 0; i < nodeList.length; i++) {
+                    var element = nodeList[i];
+                    if (element && this._ttmlNamespaces.isCanonicalNamespace('tt', element.namespaceURI)) {
+                        switch (element.nodeName) {
+
+                        case 'region':
+                            children.push(this._parseRegion(element));
+                            break;
+
+                        default:
+                            break;
+                        }
+                    }
+                }
+
+                var timedTextElement = new TimedTextElement(TimedTextElement.NODE_NAME.layout, children);
+                this._parseAttributes(ttmlLayoutElement, timedTextElement.getAttributes());
+                return timedTextElement;
+            },
+
+            /**
+             * Parses a TTML <head> tag.
              * @param {Element} ttmlHeadElement
              *        head tag extracted from an XMLDocument
              *
-             * @returns {TimedTextHead} new instance parsed from ttmlHeadElement
+             * @returns {antie.subtitles.TimedTextHead} new instance parsed from ttmlHeadElement
              * @private
              */
             _parseHead: function(ttmlHeadElement) {
@@ -302,7 +673,7 @@ define(
                             break;
 
                         case 'layout':
-                            if (styling) {
+                            if (layout) {
                                 this._report('More than one <layout> element in <head>');
                             } else {
                                 layout = this._parseLayout(element);
@@ -316,15 +687,16 @@ define(
                 }
 
                 var timedTextHead = new TimedTextHead(styling, layout);
+                this._parseAttributes(ttmlHeadElement, timedTextHead.getAttributes());
                 return timedTextHead;
             },
 
             /**
-            * Parses a TTML <body> tag.
+             * Parses a TTML <body> tag.
              * @param {Element} ttmlBodyElement
              *        body tag extracted from an XMLDocument
              *
-             * @returns {TimedTextBody} new instance parsed from ttmlBodyElement
+             * @returns {antie.subtitles.TimedTextBody} new instance parsed from ttmlBodyElement
              * @private
              */
             _parseBody: function (ttmlBodyElement) {
@@ -338,7 +710,7 @@ define(
              * @param {Element} ttmlDivElement
              *        div tag extracted from an XMLDocument
              *
-             * @returns {TimedTextElement} new instance parsed from ttmlDivElement
+             * @returns {antie.subtitles.TimedTextElement} new instance parsed from ttmlDivElement
              * @private
              */
             _parseDiv: function (ttmlDivElement) {
@@ -352,7 +724,7 @@ define(
              * @param {Element} ttmlPElement
              *        div tag extracted from an XMLDocument
              *
-             * @returns {TimedTextElement} new instance parsed from ttmlPElement
+             * @returns {antie.subtitles.TimedTextElement} new instance parsed from ttmlPElement
              * @private
              */
             _parseParagraph: function (ttmlPElement) {
@@ -366,7 +738,7 @@ define(
              * @param {Element} ttmlSpanElement
              *        span tag extracted from an XMLDocument
              *
-             * @returns {TimedTextElement} new instance parsed from ttmlSpanElement
+             * @returns {antie.subtitles.TimedTextElement} new instance parsed from ttmlSpanElement
              * @private
              */
             _parseSpan: function (ttmlSpanElement) {
@@ -377,7 +749,7 @@ define(
 
             /**
              * Parses a TTML <br> tag.
-             * @returns {TimedTextElement} new instance
+             * @returns {antie.subtitles.TimedTextElement} new instance
              * @private
              */
             _parseLinebreak: function () {
@@ -389,7 +761,7 @@ define(
              * @param {Element} xmlTextElement
              *        span tag extracted from an XMLDocument
              *
-             * @returns {TimedTextElement} new instance
+             * @returns {antie.subtitles.TimedTextElement} new instance
              * @private
              */
             _parseText: function (xmlTextElement) {
@@ -463,7 +835,7 @@ define(
              * @param {Element} ttmlTtElement
              *        tt tag extracted from an XMLDocument
              *
-             * @returns {TimedTextElement} new instance parsed from ttmlTtElement
+             * @returns {antie.subtitles.TimedTextElement} new instance parsed from ttmlTtElement
              * @private
              */
             _parseTt: function (ttmlTtElement) {
@@ -523,7 +895,7 @@ define(
              * Returns a new timed text instance parsed from a TTML XML document.
              *
              * @param {XMLDocument} ttmlDoc The TTML source file parsed into an XML document
-             * @returns {TimedText} new timed text instance parsed from ttmlDoc
+             * @returns {antie.subtitles.TimedText} new timed text instance parsed from ttmlDoc
              */
             parse: function (ttmlDoc) {
 
@@ -534,6 +906,9 @@ define(
                 } else if (!(ttmlDoc instanceof XMLDocument)) {
                     throw new TtmlParseError('TTML document is not a valid XML document (type=' + typeof ttmlDoc + ')');
                 }
+
+                this._styleReferences = new _IdReferences(this._report);
+                this._regionReferences = new _IdReferences(this._report);
 
                 var ttElement = ttmlDoc.documentElement;
                 if (!ttElement || ttElement.nodeName !== 'tt') {

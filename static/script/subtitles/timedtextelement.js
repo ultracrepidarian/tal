@@ -168,14 +168,18 @@ define(
          * @readonly
          */
         TimedTextElement.NODE_NAME = {
-            body: 'body',
-            br:   'br',
-            div:  'div',
-            head: 'head',
-            p:    'p',
-            span: 'span',
-            text: 'text',
-            tt:   'tt'
+            body:    'body',
+            br:      'br',
+            div:     'div',
+            head:    'head',
+            layout:  'layout',
+            p:       'p',
+            region:  'region',
+            span:    'span',
+            style:   'style',
+            styling: 'styling',
+            text:    'text',
+            tt:      'tt'
         };
 
         return TimedTextElement;
