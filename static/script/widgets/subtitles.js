@@ -189,9 +189,9 @@ define(
                 case TimedTextElement.NODE_NAME.div:
                     return device.createContainer();
                 case TimedTextElement.NODE_NAME.p:
-                    return device.createParagraph();
+                    return device.createParagraph(null, ['subtitlesParagraphElement']);
                 case TimedTextElement.NODE_NAME.span:
-                    return device.createSpan();
+                    return device.createSpan(null, ['subtitlesSpanElement']);
                 case TimedTextElement.NODE_NAME.text:
                     return device.createTextNode(element.getText());
                 default:

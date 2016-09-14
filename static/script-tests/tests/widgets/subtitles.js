@@ -353,10 +353,10 @@ require(
                 expect(mockBrowserDevice.createContainer).toHaveBeenCalled();
 
                 subtitles._createElement(mockParagraphElement);
-                expect(mockBrowserDevice.createParagraph).toHaveBeenCalled();
+                expect(mockBrowserDevice.createParagraph).toHaveBeenCalledWith(null, ['subtitlesParagraphElement']);
 
                 subtitles._createElement(mockSpanElement);
-                expect(mockBrowserDevice.createSpan).toHaveBeenCalled();
+                expect(mockBrowserDevice.createSpan).toHaveBeenCalledWith(null, ['subtitlesSpanElement']);
 
                 subtitles._createElement(mockTextElement);
                 expect(mockBrowserDevice.createTextNode).toHaveBeenCalledWith('I see dead people');
