@@ -37,6 +37,14 @@ define(
                 this._super(TimedTextElement.NODE_NAME.head, children);
             },
 
+            getStyling: function() {
+                return this._styling;
+            },
+
+            getLayout: function() {
+                return this._layout;
+            },
+
             /**
              * Cleans out this instance ready for garbage collection.  This
              * instance cannot be used after this.

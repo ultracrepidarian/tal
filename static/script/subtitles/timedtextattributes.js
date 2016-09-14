@@ -45,6 +45,7 @@ define(
                 }
 
                 this._attributeMap[name] = value;
+
             },
 
             /**
@@ -57,8 +58,8 @@ define(
              * @public
              */
             getAttribute: function(name) {
-                var value = this._attributeMap[name] || null;
-                if (value) {
+                var value = this._attributeMap[name];
+                if (value !== undefined && value !== null) {
                     return value;
                 }
 
@@ -84,8 +85,10 @@ define(
                     return this._attributeMap.frameRate ? this._attributeMap.frameRate * this.getAttribute('subFrameRate') : 1;
                 case 'timeBase':
                     return 'media';
+                case 'timeContainer':
+                    return 'par';
                 default:
-                    return value;
+                    return null;
                 }
             },
 

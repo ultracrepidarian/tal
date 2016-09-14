@@ -498,6 +498,157 @@ require(
                 expect(paragraphs[1].getAttributes().getAttribute('dur')).toBeNull();
             });
 
+            it('parses all the parameter/ttp attributes on <tt>', function() {
+                var ttmlDoc = new DOMParser().parseFromString(
+                    '<?xml version="1.0" encoding="UTF-8"?>' +
+                    '<tt' +
+                            ' xmlns="http://www.w3.org/ns/ttml"' +
+                            ' xmlns:ttp="http://www.w3.org/ns/ttml#parameter"' +
+                            ' xmlns:tts="http://www.w3.org/ns/ttml#styling"' +
+                            ' xmlns:ttm="http://www.w3.org/ns/ttml#metadata"' +
+                            ' xml:lang="eng"' +
+                            ' xml:space="default"' +
+                            ' ttp:profile="http://www.w3.org/ns/ttml#profile-dfxp"' +
+                            ' ttp:timeBase="smpte"' +
+                            ' ttp:frameRate="30"' +
+                            ' ttp:frameRateMultiplier="1000 1001"' +
+                            ' ttp:dropMode="dropNTSC"' +
+                            ' ttp:markerMode="continuous"' +
+                            ' ttp:clockMode="local"' +
+                            ' ttp:cellResolution="80 24"' +
+                            ' ttp:pixelAspectRatio="11  10"' +
+                            ' ttp:subFrameRate="2"' +
+                            ' ttp:tickRate="60"' +
+                        '>' +
+                    '</tt>',
+
+                    'text/xml'
+                );
+
+                // Method under test
+                var timedText = ttmlParser.parse(ttmlDoc);
+
+                expect(timedText.getAttribute('lang')).toBe('eng');
+                expect(timedText.getAttribute('space')).toBe('default');
+                expect(timedText.getAttribute('profile')).toBe('http://www.w3.org/ns/ttml#profile-dfxp');
+                expect(timedText.getAttribute('timeBase')).toBe('smpte');
+                expect(timedText.getAttribute('frameRate')).toBe(30);
+                expect(timedText.getAttribute('frameRateMultiplier')).toEqual({numerator: 1000, denominator: 1001});
+                expect(timedText.getAttribute('dropMode')).toBe('dropNTSC');
+                expect(timedText.getAttribute('markerMode')).toBe('continuous');
+                expect(timedText.getAttribute('clockMode')).toBe('local');
+                expect(timedText.getAttribute('cellResolution')).toEqual({columns: 80, rows: 24});
+                expect(timedText.getAttribute('pixelAspectRatio')).toEqual({width: 11, height: 10});
+                expect(timedText.getAttribute('subFrameRate')).toBe(2);
+                expect(timedText.getAttribute('tickRate')).toBe(60);
+            });
+
+            it('parses all the styling/tts attributes on <style>', function() {
+
+                var ttmlDoc = new DOMParser().parseFromString(
+                    '<?xml version="1.0" encoding="UTF-8"?>' +
+                    '<tt' +
+                            ' xmlns="http://www.w3.org/ns/ttml"' +
+                            ' xmlns:ttp="http://www.w3.org/ns/ttml#parameter"' +
+                            ' xmlns:tts="http://www.w3.org/ns/ttml#styling"' +
+                            ' xmlns:ttm="http://www.w3.org/ns/ttml#metadata"' +
+                            ' xml:lang="en-GB"' +
+                            ' ttp:timeBase="media"' +
+                            ' ttp:frameRate="25"' +
+                        '>' +
+                        '<head>' +
+                            '<styling>' +
+                                '<style xml:id="backgroundStyle"' +
+                                    ' tts:backgroundColor="rgba(72,128,132,0.75)"' +
+                                    ' tts:direction="ltr"' +
+                                    ' tts:display="auto"' +
+                                    ' tts:displayAlign="before"' +
+                                    ' tts:extent="100% 48%"' +
+                                    ' tts:fontFamily="Arial"' +
+                                    ' tts:fontSize="18px"' +
+                                    ' tts:fontStyle="normal"' +
+                                    ' tts:fontWeight="bold"' +
+                                    ' tts:lineHeight="1.5em"' +
+                                    ' tts:opacity="1.0"' +
+                                    ' tts:origin="0% 50%"' +
+                                    ' tts:overflow="hidden"' +
+                                    ' tts:padding="64px 36px"' +
+                                    ' tts:showBackground="whenActive"' +
+                                    ' tts:textAlign="center"' +
+                                    ' tts:textDecoration="noUnderline lineThrough noOverline"' +
+                                    ' tts:textOutline="black 1px"' +
+                                    ' tts:unicodeBidi="bidiOverride"' +
+                                    ' tts:visibility="visible"' +
+                                    ' tts:wrapOption="noWrap"' +
+                                    ' tts:writingMode="lrtb"' +
+                                    ' tts:zIndex="0"' +
+                                ' />' +
+                                ' <style xml:id="speakerStyle"' +
+                                    ' tts:backgroundColor="transparent"' +
+                                    ' tts:color="#FFFFFF"' +
+                                    ' tts:textOutline="#000000 1px 1px"' +
+                                    ' style="backgroundStyle"' +
+                                ' />' +
+                            '</styling>' +
+                            '<layout>' +
+                                '<region xml:id="speaker" style="speakerStyle" tts:zIndex="1"/>' +
+                                '<region xml:id="background" style="backgroundStyle" tts:zIndex="0"/>' +
+                            '</layout>' +
+                        '</head>' +
+                        '<body>' +
+                            '<div >' +
+                                '<p begin="00:00:02.000" end="00:00:05.760" region="speaker">' +
+                                    '<span tts:color="white">Welcome to the beautiful Bisham</span><br/>' +
+                                    '<span tts:color="white">Abbey. If you wander round the</span>' +
+                                '</p>' +
+                                '<p begin="00:00:05.800" end="00:00:07.720" region="speaker">grounds</p>' +
+                            '</div>' +
+                        '</body>' +
+                    '</tt>',
+
+                    'text/xml'
+                );
+
+                // Method under test
+                var timedText = ttmlParser.parse(ttmlDoc);
+
+                var styling = timedText.getHead().getStyling();
+                expect(styling.getChildren().length).toBe(2);
+
+                var backgroundStyle = styling.getChildren()[0];
+                expect(backgroundStyle.getAttribute('id')).toBe('backgroundStyle');
+                expect(backgroundStyle.getAttribute('backgroundColor')).toBe('rgba(72,128,132,0.75)');
+                expect(backgroundStyle.getAttribute('displayAlign')).toBe('before');
+                expect(backgroundStyle.getAttribute('direction')).toBe('ltr');
+                expect(backgroundStyle.getAttribute('display')).toBe('auto');
+                expect(backgroundStyle.getAttribute('extent')).toEqual({width: '100%', height: '48%'});
+                expect(backgroundStyle.getAttribute('fontFamily')).toBe('Arial');
+                expect(backgroundStyle.getAttribute('fontSize')).toEqual({width: '18px', height: '18px'});
+                expect(backgroundStyle.getAttribute('fontStyle')).toBe('normal');
+                expect(backgroundStyle.getAttribute('fontWeight')).toBe('bold');
+                expect(backgroundStyle.getAttribute('lineHeight')).toBe('1.5em');
+                expect(backgroundStyle.getAttribute('opacity')).toBeCloseTo(1.0, 1);
+                expect(backgroundStyle.getAttribute('origin')).toEqual({width: '0%', height: '50%'});
+                expect(backgroundStyle.getAttribute('overflow')).toBe('hidden');
+                expect(backgroundStyle.getAttribute('padding')).toEqual(['64px', '36px']);
+                expect(backgroundStyle.getAttribute('showBackground')).toBe('whenActive');
+                expect(backgroundStyle.getAttribute('textAlign')).toBe('center');
+                expect(backgroundStyle.getAttribute('textDecoration')).toEqual(['noUnderline', 'lineThrough', 'noOverline']);
+                expect(backgroundStyle.getAttribute('textOutline')).toEqual({color: 'black', outlineThickness: '1px', blurRadius: null});
+                expect(backgroundStyle.getAttribute('unicodeBidi')).toBe('bidiOverride');
+                expect(backgroundStyle.getAttribute('visibility')).toBe('visible');
+                expect(backgroundStyle.getAttribute('wrapOption')).toBe('noWrap');
+                expect(backgroundStyle.getAttribute('writingMode')).toBe('lrtb');
+                expect(backgroundStyle.getAttribute('zIndex')).toBe(0);
+
+                var speakerStyle = styling.getChildren()[1];
+                expect(speakerStyle.getAttribute('id')).toBe('speakerStyle');
+                expect(speakerStyle.getAttribute('backgroundColor')).toBe('rgba(0,0,0,0)'); // transparent
+                expect(speakerStyle.getAttribute('color')).toBe('#FFFFFF');
+                expect(speakerStyle.getAttribute('textOutline')).toEqual({color: '#000000', outlineThickness: '1px', blurRadius: '1px'});
+                expect(speakerStyle.getAttribute('style')[0]).toBe(backgroundStyle);
+            });
+
         });
     }
 );

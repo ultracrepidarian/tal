@@ -28,6 +28,10 @@ define(
          * @private
          */
         var _IdReferences = Class.extend(/** @lends antie.subtitles.TtmlParser._IdReferences.prototype */{
+            /**
+             * @constructor
+             * @ignore
+             */
             init: function(report) {
                 this._report = report;
                 this._references = {};
@@ -125,25 +129,34 @@ define(
 
                     if (attribute && !attribute.namespaceURI) {
                         var name = attribute.localName || attribute .name;
+                        var value = null;
 
                         switch (name) {
 
                         case 'begin':
                         case 'end':
                         case 'dur':
-                            timedTextAttributes.setAttribute(name, this._parseTimestamp(name, attribute));
+                            value = this._parseTimestamp(name, attribute);
+                            break;
+
+                        case 'timeContainer':
+                            value = this._parseEnumeratedAttribute(name, attribute.value, [ 'par', 'seq' ]);
                             break;
 
                         case 'style':
-                            timedTextAttributes.setAttribute(name, this._parseIdReferenceAttribute(name, attribute.value, this._styleReferences));
+                            value = this._parseIdReferenceAttribute(name, attribute.value, this._styleReferences);
                             break;
 
                         case 'region':
-                            timedTextAttributes.setAttribute(name, this._parseIdReferenceAttribute(name, attribute.value, this._regionReferences));
+                            value = this._parseIdReferenceAttribute(name, attribute.value, this._regionReferences);
                             break;
 
                         default:
                             break;
+                        }
+
+                        if (value) {
+                            timedTextAttributes.setAttribute(name, value);
                         }
                     }
                 }
@@ -208,7 +221,7 @@ define(
              * @returns {?String} the value of the attribute, if valid,
              *                    null if not
              */
-            _parseEnumeratedParameterAttribute: function(name, value, enumeration) {
+            _parseEnumeratedAttribute: function(name, value, enumeration) {
                 for (var i = 0; i < enumeration.length; i++) {
                     if (value === enumeration[i]) {
                         return value;
@@ -247,6 +260,7 @@ define(
                         if (ref) {
                             refs.push(ref);
                         } else {
+                            // TODO Is this good enough, or can we reference tags further down the document?
                             this._report(name + ' attribute references xml:id "' + refNames[i] + '" but this does not exist in any earlier tag');
                         }
                     }
@@ -279,7 +293,7 @@ define(
                             break;
 
                         case 'space':
-                            value = this._parseEnumeratedParameterAttribute(name, attribute.value, [ 'default', 'preserve' ]);
+                            value = this._parseEnumeratedAttribute(name, attribute.value, [ 'default', 'preserve' ]);
                             break;
                         }
 
@@ -308,7 +322,7 @@ define(
                 }
             },
 
-            _parseLength: function(name, value) {
+            _parseLength: function(value) {
                 if (/^(\+|-)?(\d*\.)?\d+(px|em|c|%)$/.test(value)) {
                     return value;
                 } else {
@@ -344,15 +358,15 @@ define(
                             break;
 
                         case 'direction':
-                            value = this._parseEnumeratedParameterAttribute(name, attribute.value, [ 'ltr', 'rtl' ]);
+                            value = this._parseEnumeratedAttribute(name, attribute.value, [ 'ltr', 'rtl' ]);
                             break;
 
                         case 'display':
-                            value = this._parseEnumeratedParameterAttribute(name, attribute.value, [ 'auto', 'none' ]);
+                            value = this._parseEnumeratedAttribute(name, attribute.value, [ 'auto', 'none' ]);
                             break;
 
                         case 'displayAlign':
-                            value = this._parseEnumeratedParameterAttribute(name, attribute.value, [ 'before', 'center', 'after' ]);
+                            value = this._parseEnumeratedAttribute(name, attribute.value, [ 'before', 'center', 'after' ]);
                             break;
 
                         case 'extent':
@@ -386,14 +400,146 @@ define(
                             break;
 
                         case 'fontStyle':
-                            value = this._parseEnumeratedParameterAttribute(name, attribute.value, [ 'normal', 'italic', 'oblique' ]);
+                            value = this._parseEnumeratedAttribute(name, attribute.value, [ 'normal', 'italic', 'oblique' ]);
                             break;
 
-                        // TODO Many more attributes to go
+                        case 'fontWeight':
+                            value = this._parseEnumeratedAttribute(name, attribute.value, [ 'normal', 'bold' ]);
+                            break;
+
+                        case 'lineHeight':
+                            value = attribute.value === 'normal' ? 'normal' : this._parseLength(attribute.value);
+                            break;
+
+                        case 'opacity':
+                            value = parseFloat(attribute.value);
+                            break;
+
+                        case 'origin':
+                            if (attribute.value === 'auto') {
+                                value = attribute.value;
+                            } else {
+                                valueArray = attribute.value.split(/\s+/);
+                                if (valueArray && valueArray.length === 2) {
+                                    if (this._parseLength(valueArray[0]) && this._parseLength(valueArray[1])) {
+                                        value = {width: valueArray[0], height: valueArray[1]};
+                                    }
+                                }
+                            }
+                            break;
+
+                        case 'overflow':
+                            value = this._parseEnumeratedAttribute(name, attribute.value, [ 'visible', 'hidden' ]);
+                            break;
+
+                        case 'padding':
+                            valueArray = attribute.value.split(/\s+/);
+                            if (valueArray && valueArray.length > 0 && valueArray.length <= 4) {
+                                value = valueArray;
+                                for (var j = 0; j < valueArray.length; j++) {
+                                    if (!this._parseLength(valueArray[j])) {
+                                        value = null;      // Parsing here is just to protect against injection attacks
+                                    }
+                                }
+                            }
+                            break;
+
+                        case 'showBackground':
+                            value = this._parseEnumeratedAttribute(name, attribute.value, [ 'always', 'whenActive' ]);
+                            break;
+
+                        case 'textAlign':
+                            value = this._parseEnumeratedAttribute(name, attribute.value, [ 'left', 'center', 'right', 'start', 'end' ]);
+                            break;
+
+                        case 'textDecoration':
+                            if (attribute.value === 'none') {
+                                value = 'none';
+                            } else {
+                                valueArray = attribute.value.split(/\s+/);
+                                if (valueArray && valueArray.length > 0) {
+                                    value = valueArray;
+                                    for (var k = 0; k < valueArray.length; k++) {
+                                        if (!this._parseEnumeratedAttribute(name, valueArray[k], [ 'underline', 'noUnderline', 'lineThrough', 'noLineThrough', 'overline', 'noOverline' ])) {
+                                            value = null;      // Parsing here is just to protect against injection attacks
+                                        }
+                                    }
+                                }
+                            }
+                            break;
+
+                        case 'textOutline':
+                            // An optional colour, a tickness and an optional blur radius
+                            if (attribute.value === 'none') {
+                                value = 'none';
+                            } else {
+
+                                valueArray = attribute.value.split(/\s+/);
+                                if (valueArray && valueArray.length > 0 && valueArray.length <= 3) {
+                                    value = {
+                                        color: null,
+                                        outlineThickness: null,
+                                        blurRadius: null
+                                    };
+
+                                    for (var m = 0; m < valueArray.length; m++) {
+                                        // The first element might be an optional colour
+                                        if (m === 0) {
+                                            var colour = this._parseColour(name, valueArray[m]);
+                                            if (colour) {
+                                                value.color = colour;
+                                                continue;
+                                            } else if (valueArray.length === 3) {  // It really should have been a colour
+                                                value = null;
+                                                break;
+                                            }
+                                        }
+
+                                        if (this._parseLength(valueArray[m])) {
+                                            if (value.outlineThickness === null) {
+                                                value.outlineThickness = valueArray[m];
+                                            } else {
+                                                value.blurRadius = valueArray[m];
+                                            }
+                                        } else {
+                                            value = null;
+                                            break;
+                                        }
+                                    }
+                                }
+                            }
+                            break;
+
+                        case 'unicodeBidi':
+                            value = this._parseEnumeratedAttribute(name, attribute.value, [ 'normal', 'embed', 'bidiOverride' ]);
+                            break;
+
+                        case 'visibility':
+                            value = this._parseEnumeratedAttribute(name, attribute.value, [ 'visible', 'hidden' ]);
+                            break;
+
+                        case 'wrapOption':
+                            value = this._parseEnumeratedAttribute(name, attribute.value, [ 'wrap', 'noWrap' ]);
+                            break;
+
+                        case 'writingMode':
+                            value = this._parseEnumeratedAttribute(name, attribute.value, [ 'lrtb', 'rltb', 'tbrl', 'tblr', 'lr', 'rl', 'tb' ]);
+                            break;
+
+                        case 'zIndex':
+                            if (attribute.value === 'auto') {
+                                value = 'auto';
+                            } else if (/^(\+|-)?\d+$/.test(attribute.value)) {
+                                value = parseInt(attribute.value);
+                            }
+                            break;
+
+                        default:
+                            break;
 
                         }
 
-                        if (value) {
+                        if (value || value === 0) {
                             timedTextAttributes.setAttribute(name, value);
                         }
                     }
@@ -427,11 +573,11 @@ define(
                             break;
 
                         case 'clockMode':
-                            value = this._parseEnumeratedParameterAttribute(name, attribute.value, [ 'local', 'gps', 'utc' ]);
+                            value = this._parseEnumeratedAttribute(name, attribute.value, [ 'local', 'gps', 'utc' ]);
                             break;
 
                         case 'dropMode':
-                            value = this._parseEnumeratedParameterAttribute(name, attribute.value, [ 'dropNTSC', 'dropPAL', 'nonDrop' ]);
+                            value = this._parseEnumeratedAttribute(name, attribute.value, [ 'dropNTSC', 'dropPAL', 'nonDrop' ]);
                             break;
 
                         case 'frameRate':
@@ -446,7 +592,7 @@ define(
                             break;
 
                         case 'markerMode':
-                            value = this._parseEnumeratedParameterAttribute(name, attribute.value, [ 'continuous', 'discontinuous' ]);
+                            value = this._parseEnumeratedAttribute(name, attribute.value, [ 'continuous', 'discontinuous' ]);
                             break;
 
                         case 'pixelAspectRatio':
@@ -469,7 +615,7 @@ define(
                             break;
 
                         case 'timeBase':
-                            value = this._parseEnumeratedParameterAttribute(name, attribute.value, [ 'media', 'smpte', 'clock' ]);
+                            value = this._parseEnumeratedAttribute(name, attribute.value, [ 'media', 'smpte', 'clock' ]);
                             break;
                         }
 
