@@ -83,6 +83,7 @@ define(
              * Stops displaying the captions and clears the interval timer
              */
             stop: function () {
+                this._activeElements = [];
                 this._removeCaptions();
 
                 if(this._updateInterval){

@@ -171,6 +171,7 @@ require(
             it('will clear the update timeout if it is set', function() {
                 var subtitles = new Subtitles('id', mockTimedText, mockGetMediaTimeCallback);
                 subtitles._updateInterval = 10;
+                subtitles._activeElements = mockActiveElements;
                 spyOn(subtitles, '_removeCaptions');
 
                 spyOn(window, 'clearInterval');
@@ -178,6 +179,7 @@ require(
                 subtitles.stop();
 
                 expect(subtitles._updateInterval).toEqual(null);
+                expect(subtitles._activeElements).toEqual([]);
                 expect(subtitles._removeCaptions).toHaveBeenCalled();
                 expect(window.clearInterval).toHaveBeenCalled();
             });
