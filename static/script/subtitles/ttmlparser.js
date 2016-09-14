@@ -297,7 +297,7 @@ define(
                             if (styling) {
                                 this._report('More than one <styling> element in <head>');
                             } else {
-                                styling = this._parsStyling(element);
+                                styling = this._parseStyling(element);
                             }
                             break;
 
@@ -305,7 +305,7 @@ define(
                             if (styling) {
                                 this._report('More than one <layout> element in <head>');
                             } else {
-                                layout = this._parsLayout(element);
+                                layout = this._parseLayout(element);
                             }
                             break;
 
