@@ -76,7 +76,7 @@ define(
                 this.update();
 
                 if(!this._updateInterval){
-                    this._updateInterval = setInterval(this.update.bind(this), 750);
+                    this._updateInterval = setInterval(this.update.bind(this), 200);
                 }
             },
             /**

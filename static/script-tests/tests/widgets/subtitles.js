@@ -143,7 +143,7 @@ require(
                 subtitles.start();
 
                 expect(subtitles._updateInterval).toBe(1);
-                expect(window.setInterval).toHaveBeenCalledWith(jasmine.any(Function), 750);
+                expect(window.setInterval).toHaveBeenCalledWith(jasmine.any(Function), 200);
 
                 // check the timeout is set to call the update function
                 expect(subtitles.update).toHaveBeenCalled();
