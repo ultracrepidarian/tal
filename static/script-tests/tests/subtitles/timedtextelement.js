@@ -34,22 +34,28 @@ require(
                 expect(el.getParent()).toBe(null);
             });
             
-//            it('throws an error if the the parent supplied to the constructor is not a TimedTextElement', function() {
-//                var invalidParentNumber = 1234;       
-//    			expect(function() {
-//                    var el = new TimedTextElement(TimedTextElement.NODE_NAME.p, invalidParentNumber);
-//    			}).toThrowError("TimedTextElement - parent should be a TimedTextElement but was: number. Value: 1234");
-//    			
-//                var invalidParentString = "I am a string";
-//    			expect(function() {
-//                    var el = new TimedTextElement(TimedTextElement.NODE_NAME.p, invalidParentString);
-//    			}).toThrowError("TimedTextElement - parent should be a TimedTextElement but was: string. Value: I am a string");
-//    			
-//                var invalidParentBoolean = true;
-//    			expect(function() {
-//                    var el = new TimedTextElement(TimedTextElement.NODE_NAME.p, invalidParentBoolean);
-//    			}).toThrowError("TimedTextElement - parent should be a TimedTextElement but was: boolean. Value: true");
-//            });
+            it('throws an error if the the parent supplied to the constructor is not a TimedTextElement', function() {
+                try {
+                    var invalidParentNumber = 1234;
+                    new TimedTextElement(TimedTextElement.NODE_NAME.p, invalidParentNumber);
+                } catch (e) {
+                    expect(e.message).toBe('TimedTextElement - parent should be a TimedTextElement but was: number. Value: 1234');
+                }
+                
+                try {
+                    var invalidParentString = 'I am a string';
+                    new TimedTextElement(TimedTextElement.NODE_NAME.p, invalidParentString);
+                } catch (e) {
+                    expect(e.message).toBe('TimedTextElement - parent should be a TimedTextElement but was: string. Value: I am a string');
+                }
+                 
+                try {
+                    var invalidParentBoolean = true;
+                    new TimedTextElement(TimedTextElement.NODE_NAME.p, invalidParentBoolean);
+                } catch (e) {
+                    expect(e.message).toBe('TimedTextElement - parent should be a TimedTextElement but was: boolean. Value: true');
+                }
+            });
 
             it('returns the parent supplied to the constructor', function() {
                 var parent = new TimedTextElement(TimedTextElement.NODE_NAME.text);
@@ -67,22 +73,25 @@ require(
                 expect(el.getChildren()).toEqual([]);
             });
             
-//            it('throws an error if the the children supplied to the constructor are not in an array', function() {
-//                var parent = new TimedTextElement(TimedTextElement.NODE_NAME.div);
-//
-//                var invalidChildrenSolo = new TimedTextElement(TimedTextElement.NODE_NAME.text);
-//    			expect(function() {
-//                    var el = new TimedTextElement(TimedTextElement.NODE_NAME.p, parent, invalidChildrenSolo);
-//    			}).toThrowError("TimedTextElement - children should be an array but was: object. Value: [object Object]");
-//    			
-//                var invalidChildrenObject = {
-//                        new TimedTextElement(TimedTextElement.NODE_NAME.br),
-//                        new TimedTextElement(TimedTextElement.NODE_NAME.text)
-//                    };
-//    			expect(function() {
-//                    var el = new TimedTextElement(TimedTextElement.NODE_NAME.p, parent, invalidChildrenObject);
-//    			}).toThrowError("TimedTextElement - children should be an array but was: object. Value: [object Object]");  
-//            });
+            it('throws an error if the the children supplied to the constructor are not in an array', function() {
+                var parent = new TimedTextElement(TimedTextElement.NODE_NAME.div);
+                
+                try {
+                    var invalidChildrenSolo = new TimedTextElement(TimedTextElement.NODE_NAME.text);
+                    
+                    new TimedTextElement(TimedTextElement.NODE_NAME.p, parent, invalidChildrenSolo);
+                } catch (e) {
+                    expect(e.message).toBe('TimedTextElement - children should be an array but was: object. Value: [object Object]');
+                }
+                
+                try {
+                    var invalidChildrenString = 'I am a string';
+                    
+                    new TimedTextElement(TimedTextElement.NODE_NAME.p, parent, invalidChildrenString);
+                } catch (e) {
+                    expect(e.message).toBe('TimedTextElement - children should be an array but was: string. Value: I am a string');
+                }
+            });
 
             it('returns the children supplied to the constructor', function() {
                 var parent = new TimedTextElement(TimedTextElement.NODE_NAME.div);
