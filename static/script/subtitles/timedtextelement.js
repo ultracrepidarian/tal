@@ -27,28 +27,17 @@ define(
              * @param {antie.subtitles.TimedTextElement.NODE_NAME} nodeName
              *        the name of the node this element represents
              *
-             * @param {antie.subtitles.TimedTextElement} [parent]
-             *        the parent of this element
-             *
              * @param {antie.subtitles.TimedTextElement[]} [children]
              *        the children of this element
              *
              * @constructor
              * @ignore
              */
-            init: function (nodeName, parent, children) {
+            init: function (nodeName, children) {
                 if (!TimedTextElement.NODE_NAME.hasOwnProperty(nodeName)) {
                     throw new Error('TimedTextElement - Unrecognised node name: ' + nodeName);
                 }
                 this._nodeName = nodeName;
-                
-                if (parent instanceof TimedTextElement) {
-                    this._parent = parent;
-                } else if (!parent) {
-                    this._parent = null;
-                } else {
-                    throw new Error('TimedTextElement - parent should be a TimedTextElement but was: ' + typeof parent + '. Value: ' + parent);
-                }
 
                 if (Array.isArray(children)) {
                     this._children = children;
@@ -58,6 +47,7 @@ define(
                     throw new Error('TimedTextElement - children should be an array but was: ' + typeof children + '. Value: ' + children);
                 }
 
+                this._parent = null;
                 this._text = null;
                 this._attributes = new TimedTextAttributes();
             },
@@ -72,8 +62,24 @@ define(
             },
             
             /**
+             * Sets the element's parent
+             * 
+             * @param {antie.subtitles.TimeTextElement} parent
+             *        the element's parent
+             * 
+             * @public
+             */
+            setParent: function(parent) {
+                if (parent instanceof TimedTextElement) {
+                    this._parent = parent;
+                } else {
+                    throw new Error('TimedTextElement - parent should be a TimedTextElement but was: ' + typeof parent + '. Value: ' + parent);
+                }
+            },
+            
+            /**
              * Returns the element's parent
-             * @returns {antie.subtitles.TimeTextElement} The element's parent
+             * @returns {antie.subtitles.TimeTextElement} the element's parent
              * @public
              */
             getParent: function() {

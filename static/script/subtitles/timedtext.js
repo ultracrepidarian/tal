@@ -27,13 +27,10 @@ define(
              *        
              * @param {antie.subtitles.timedtextbody} body 
              *        the parsed <body> tag
-             *        
-             * @param {antie.subtitles.timedtextelement} [parent]
-             *        the parent of the element
              * 
              * @constructor
              */
-            init: function (head, body, parent) {
+            init: function (head, body) {
                 this._head = head;
                 this._body = body;
 
@@ -44,7 +41,7 @@ define(
                 if (body) {
                     children.push(body);
                 }
-                this._super(TimedTextElement.NODE_NAME.tt, parent, children);
+                this._super(TimedTextElement.NODE_NAME.tt, children);
             },
 
             /**

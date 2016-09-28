@@ -13,16 +13,14 @@ require(
                 expect(el.getNodeName()).toBe(TimedTextElement.NODE_NAME.body);
             });
 
-            it('sets its parent and children', function() {
-                var parent = new TimedTextElement(TimedTextElement.NODE_NAME.div);
-
+            it('sets its children', function() {
                 var children = [
                     new TimedTextElement(TimedTextElement.NODE_NAME.div),
                     new TimedTextElement(TimedTextElement.NODE_NAME.div)
                 ];
-                var el = new TimedTextBody(parent, children);
+                
+                var el = new TimedTextBody(children);
 
-                expect(el.getParent()).toEqual(parent);
                 expect(el.getChildren()).toEqual(children);
             });
         });

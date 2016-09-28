@@ -23,7 +23,7 @@ define(
              * @constructor
              * @ignore
              */
-            init: function (styling, layout, parent) {
+            init: function (styling, layout) {
                 this._styling = styling;
                 this._layout = layout;
 
@@ -34,7 +34,7 @@ define(
                 if (layout) {
                     children.push(layout);
                 }
-                this._super(TimedTextElement.NODE_NAME.head, parent, children);
+                this._super(TimedTextElement.NODE_NAME.head, children);
             },
 
             getStyling: function() {
