@@ -1034,6 +1034,15 @@ define(
                 var timedText = new TimedText(head, body);
                 timedText.setAttributes(this._timedTextAttributes);
                 timedText.initialiseActiveElements();
+                
+                if (head){
+                    head.setParent(timedText);
+                }
+                
+                if (body){
+                    body.setParent(timedText);
+                }
+                
                 return timedText;
             },
 
@@ -1044,7 +1053,6 @@ define(
              * @returns {antie.subtitles.TimedText} new timed text instance parsed from ttmlDoc
              */
             parse: function (ttmlDoc) {
-
                 var logger = RuntimeContext.getDevice().getLogger();
 
                 if (!ttmlDoc) {
