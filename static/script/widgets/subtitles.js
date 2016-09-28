@@ -188,6 +188,10 @@ define(
                 var device = this.getCurrentApplication().getDevice();
                 var newElement;
 
+                if(!timedTextElement || !timedTextElement.getNodeName){
+                    return;
+                }
+
                 switch(timedTextElement.getNodeName()){
                 case TimedTextElement.NODE_NAME.br:
                     newElement = device.createLineBreak();
@@ -205,12 +209,13 @@ define(
                     newElement = device.createTextNode(timedTextElement.getText());
                     break;
                 default:
-                    newElement = null;
-                    return newElement;
+                    return;
                 }
 
                 for (var style in Subtitles.SUPPORTED_STYLES){
                     if (Subtitles.SUPPORTED_STYLES.hasOwnProperty(style)){
+                        // if the supported attribute is set on the TimedTextElement then set
+                        // it also on the new HTML element
                         var attributeValue = timedTextElement.getAttribute(style);
                         if(attributeValue){
                             this._setStyleAttributeOnElement(newElement, Subtitles.SUPPORTED_STYLES[style], attributeValue);
@@ -219,6 +224,14 @@ define(
                 }
             },
 
+            /**
+             * set the value of a named styled attribute of an HTMLElement
+             *
+             * @param {HTMLElement} element the HTML element to set the styling on
+             * @param {String} attribute the name of the attribute to set i.e. "backgroundColour"
+             * @param {String} value the value to set the named attribute to
+             *
+             */
             _setStyleAttributeOnElement: function(element, attribute, value){
                 if(element && element.style && value){
                     element.style[attribute] = value;

@@ -380,6 +380,13 @@ require(
             it('createElement function will call through to the device to create the correct elements, without any styling', function() {
                 var subtitles = new Subtitles('id', mockTimedText, mockGetMediaTimeCallback);
                 spyOn(subtitles, '_setStyleAttributeOnElement');
+
+                expect(subtitles._createElement(null)).toEqual(null);
+            });
+
+            it('createElement function will call through to the device to create the correct elements, without any styling', function() {
+                var subtitles = new Subtitles('id', mockTimedText, mockGetMediaTimeCallback);
+                spyOn(subtitles, '_setStyleAttributeOnElement');
                 subtitles.outputElement = mockOutputElement;
 
                 mockLineBreakElement.getAttribute.andReturn('styleValue');
