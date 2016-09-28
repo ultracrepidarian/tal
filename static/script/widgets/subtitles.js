@@ -40,8 +40,8 @@ define(
          * @class
          * @extends antie.widgets.Widget
          * @param {String} [id] The unique ID of the widget. If excluded, a temporary internal ID will be used (but not included in any output).
-         * @param {antie.subtitles.TimedText} media Media widget which will be playing the content that the captions are associated with.
-         * @param {antie.widgets.Media} media Media widget which will be playing the content that the captions are associated with.
+         * @param {antie.subtitles.TimedText} timedText the object containing ttml information
+         * @param {Function} getMediaTimeCallback a function that will return the current playpoint of the media in seconds
         */
         var Subtitles = Widget.extend(/** @lends antie.widgets.Subtitles.prototype */ {
             /**
