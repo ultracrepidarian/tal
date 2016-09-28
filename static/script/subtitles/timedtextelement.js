@@ -1,6 +1,7 @@
 /**
  * @fileOverview An element in a timed text hierarchy
  * @author ultracrepidarian
+ * @author gsmithu
  */
 define(
     'antie/subtitles/timedtextelement',
@@ -26,24 +27,35 @@ define(
              * @param {antie.subtitles.TimedTextElement.NODE_NAME} nodeName
              *        the name of the node this element represents
              *
-             * @param {antie.subtitles.TimedTextElement[]} children
+             * @param {antie.subtitles.TimedTextElement} [parent]
+             *        the parent of this element
+             *
+             * @param {antie.subtitles.TimedTextElement[]} [children]
              *        the children of this element
              *
              * @constructor
              * @ignore
              */
-            init: function (nodeName, children) {
+            init: function (nodeName, parent, children) {
                 if (!TimedTextElement.NODE_NAME.hasOwnProperty(nodeName)) {
                     throw new Error('TimedTextElement - Unrecognised node name: ' + nodeName);
                 }
                 this._nodeName = nodeName;
+                
+                if (parent instanceof TimedTextElement) {
+                    this._parent = parent;
+                } else if (!parent) {
+                    this._parent = null;
+                } else {
+                    throw new Error('TimedTextElement - parent should be a TimedTextElement but was: ' + typeof parent + '. Value: ' + parent);
+                }
 
                 if (Array.isArray(children)) {
                     this._children = children;
                 } else if (!children) {
                     this._children = [];
                 } else {
-                    throw new Error('TimedTextElement - children should be an array but was ' + typeof children);
+                    throw new Error('TimedTextElement - children should be an array but was: ' + typeof children + '. Value: ' + children);
                 }
 
                 this._text = null;
@@ -58,10 +70,19 @@ define(
             getNodeName: function() {
                 return this._nodeName;
             },
+            
+            /**
+             * Returns the element's parent
+             * @returns {antie.subtitles.TimeTextElement} The element's parent
+             * @public
+             */
+            getParent: function() {
+                return this._parent;
+            },
 
             /**
              * Returns a copy of the element's children.
-             * @returns {TimeTextElement[]} An array of this element's children
+             * @returns {antie.subtitles.TimeTextElement[]} An array of this element's children
              * @public
              */
             getChildren: function() {

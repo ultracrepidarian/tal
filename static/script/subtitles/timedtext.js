@@ -22,11 +22,18 @@ define(
             /**
              * Constructs a new timed text instance from a TTML XML document.
              *
-             * @param {TimedTextHead} head the parsed <head> tag
-             * @param {TimedTextBody} body the parsed <body> tag
+             * @param {antie.subtitles.timedtexthead} head 
+             *        the parsed <head> tag
+             *        
+             * @param {antie.subtitles.timedtextbody} body 
+             *        the parsed <body> tag
+             *        
+             * @param {antie.subtitles.timedtextelement} [parent]
+             *        the parent of the element
+             * 
              * @constructor
              */
-            init: function (head, body) {
+            init: function (head, body, parent) {
                 this._head = head;
                 this._body = body;
 
@@ -37,7 +44,7 @@ define(
                 if (body) {
                     children.push(body);
                 }
-                this._super(TimedTextElement.NODE_NAME.tt, children);
+                this._super(TimedTextElement.NODE_NAME.tt, parent, children);
             },
 
             /**

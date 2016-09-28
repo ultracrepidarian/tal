@@ -20,13 +20,17 @@ define(
         var TimedTextBody = TimedTextElement.extend(/** @lends antie.subtitles.TimedTextBody.prototype */ {
 
             /**
+             * 
+             * @param {antie.subtitles.timedtextelement} [parent]
+             *        the parent of the element
+             * 
              * @param {antie.subtitles.TimedTextElement[]} children
              *        The children of this element
              *
              * @constructor
              */
-            init: function (children) {
-                this._super(TimedTextElement.NODE_NAME.body, children);
+            init: function (parent, children) {
+                this._super(TimedTextElement.NODE_NAME.body, parent, children);
             },
 
             /**
