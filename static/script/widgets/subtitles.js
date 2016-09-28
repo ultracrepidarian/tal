@@ -216,7 +216,7 @@ define(
                     if (Subtitles.SUPPORTED_STYLES.hasOwnProperty(style)){
                         // if the supported attribute is set on the TimedTextElement then set
                         // it also on the new HTML element
-                        var attributeValue = timedTextElement.getAttribute(style);
+                        var attributeValue = timedTextElement.getAttribute(Subtitles.SUPPORTED_STYLES[style]);
                         if(attributeValue){
                             this._setStyleAttributeOnElement(newElement, Subtitles.SUPPORTED_STYLES[style], attributeValue);
                         }
@@ -284,9 +284,12 @@ define(
         });
 
         Subtitles.SUPPORTED_STYLES = {
-            COLOR: 'color',
-            BACKGROUND_COLOR: 'backgroundColor',
-            FONT_SIZE: 'fontSize'
+            COLOR               : 'color',
+            BACKGROUND_COLOR    : 'backgroundColor',
+            FONT_SIZE           : 'fontSize',
+            TEXT_OUTLINE        : 'textOutline',
+            FONT                : 'fontStyle',
+            FONT_FAMILY         : 'fontFamily'
         };
 
         return Subtitles;

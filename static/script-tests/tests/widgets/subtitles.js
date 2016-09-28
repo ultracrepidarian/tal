@@ -392,42 +392,56 @@ require(
                 mockLineBreakElement.getAttribute.andReturn('styleValue');
                 subtitles._createElement(mockLineBreakElement);
                 expect(mockBrowserDevice.createLineBreak).toHaveBeenCalled();
-                expect(subtitles._setStyleAttributeOnElement).toHaveBeenCalledWith(mockHTMLElement,'color','styleValue');
-                expect(subtitles._setStyleAttributeOnElement).toHaveBeenCalledWith(mockHTMLElement,'backgroundColor','styleValue');
-                expect(subtitles._setStyleAttributeOnElement).toHaveBeenCalledWith(mockHTMLElement,'fontSize','styleValue');
                 subtitles._setStyleAttributeOnElement.reset();
+                mockLineBreakElement.getAttribute.reset();
 
                 mockDivElement.getAttribute.andReturn('styleValue');
                 subtitles._createElement(mockDivElement);
                 expect(mockBrowserDevice.createContainer).toHaveBeenCalled();
-                expect(subtitles._setStyleAttributeOnElement).toHaveBeenCalledWith(mockHTMLElement,'color','styleValue');
-                expect(subtitles._setStyleAttributeOnElement).toHaveBeenCalledWith(mockHTMLElement,'backgroundColor','styleValue');
-                expect(subtitles._setStyleAttributeOnElement).toHaveBeenCalledWith(mockHTMLElement,'fontSize','styleValue');
                 subtitles._setStyleAttributeOnElement.reset();
+                mockLineBreakElement.getAttribute.reset();
 
                 mockParagraphElement.getAttribute.andReturn('styleValue');
                 subtitles._createElement(mockParagraphElement);
                 expect(mockBrowserDevice.createParagraph).toHaveBeenCalledWith(null, ['subtitlesParagraphElement']);
-                expect(subtitles._setStyleAttributeOnElement).toHaveBeenCalledWith(mockHTMLElement,'color','styleValue');
-                expect(subtitles._setStyleAttributeOnElement).toHaveBeenCalledWith(mockHTMLElement,'backgroundColor','styleValue');
-                expect(subtitles._setStyleAttributeOnElement).toHaveBeenCalledWith(mockHTMLElement,'fontSize','styleValue');
                 subtitles._setStyleAttributeOnElement.reset();
+                mockLineBreakElement.getAttribute.reset();
 
                 mockSpanElement.getAttribute.andReturn('styleValue');
                 subtitles._createElement(mockSpanElement);
                 expect(mockBrowserDevice.createSpan).toHaveBeenCalledWith(null, ['subtitlesSpanElement']);
-                expect(subtitles._setStyleAttributeOnElement).toHaveBeenCalledWith(mockHTMLElement,'color','styleValue');
-                expect(subtitles._setStyleAttributeOnElement).toHaveBeenCalledWith(mockHTMLElement,'backgroundColor','styleValue');
-                expect(subtitles._setStyleAttributeOnElement).toHaveBeenCalledWith(mockHTMLElement,'fontSize','styleValue');
                 subtitles._setStyleAttributeOnElement.reset();
+                mockLineBreakElement.getAttribute.reset();
 
                 mockTextElement.getAttribute.andReturn('styleValue');
                 subtitles._createElement(mockTextElement);
                 expect(mockBrowserDevice.createTextNode).toHaveBeenCalledWith('I see dead people');
+                subtitles._setStyleAttributeOnElement.reset();
+                mockLineBreakElement.getAttribute.reset();
+            });
+
+            it('createElement function will set the styles on the new element according to which attributes are supported and set on the TTElement', function() {
+                var subtitles = new Subtitles('id', mockTimedText, mockGetMediaTimeCallback);
+                spyOn(subtitles, '_setStyleAttributeOnElement');
+                subtitles.outputElement = mockOutputElement;
+
+                mockLineBreakElement.getAttribute.andReturn('styleValue');
+
+                subtitles._createElement(mockLineBreakElement);
+
+                expect(mockLineBreakElement.getAttribute).toHaveBeenCalledWith('color');
+                expect(mockLineBreakElement.getAttribute).toHaveBeenCalledWith('backgroundColor');
+                expect(mockLineBreakElement.getAttribute).toHaveBeenCalledWith('fontSize');
+                expect(mockLineBreakElement.getAttribute).toHaveBeenCalledWith('textOutline');
+                expect(mockLineBreakElement.getAttribute).toHaveBeenCalledWith('fontStyle');
+                expect(mockLineBreakElement.getAttribute).toHaveBeenCalledWith('fontFamily');
+
                 expect(subtitles._setStyleAttributeOnElement).toHaveBeenCalledWith(mockHTMLElement,'color','styleValue');
                 expect(subtitles._setStyleAttributeOnElement).toHaveBeenCalledWith(mockHTMLElement,'backgroundColor','styleValue');
                 expect(subtitles._setStyleAttributeOnElement).toHaveBeenCalledWith(mockHTMLElement,'fontSize','styleValue');
-                subtitles._setStyleAttributeOnElement.reset();
+                expect(subtitles._setStyleAttributeOnElement).toHaveBeenCalledWith(mockHTMLElement,'textOutline','styleValue');
+                expect(subtitles._setStyleAttributeOnElement).toHaveBeenCalledWith(mockHTMLElement,'fontStyle','styleValue');
+                expect(subtitles._setStyleAttributeOnElement).toHaveBeenCalledWith(mockHTMLElement,'fontFamily','styleValue');
             });
 
             it('can set the style on an element', function() {
