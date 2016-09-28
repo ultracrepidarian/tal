@@ -48,14 +48,19 @@ require(
 
                 // set up the mock timedtext elements
                 mockLineBreakElement = Object.create(TimedTextElement.prototype);
+                spyOn(mockLineBreakElement, 'getAttribute').andReturn(null);
                 spyOn(mockLineBreakElement, 'getNodeName').andReturn(TimedTextElement.NODE_NAME.br);
                 mockDivElement = Object.create(TimedTextElement.prototype);
+                spyOn(mockDivElement, 'getAttribute').andReturn(null);
                 spyOn(mockDivElement, 'getNodeName').andReturn(TimedTextElement.NODE_NAME.div);
                 mockParagraphElement = Object.create(TimedTextElement.prototype);
+                spyOn(mockParagraphElement, 'getAttribute').andReturn(null);
                 spyOn(mockParagraphElement, 'getNodeName').andReturn(TimedTextElement.NODE_NAME.p);
                 mockSpanElement = Object.create(TimedTextElement.prototype);
+                spyOn(mockSpanElement, 'getAttribute').andReturn(null);
                 spyOn(mockSpanElement, 'getNodeName').andReturn(TimedTextElement.NODE_NAME.span);
                 mockTextElement = Object.create(TimedTextElement.prototype);
+                spyOn(mockTextElement, 'getAttribute').andReturn(null);
                 spyOn(mockTextElement, 'getNodeName').andReturn(TimedTextElement.NODE_NAME.text);
                 spyOn(mockTextElement, 'getText').andReturn('I see dead people');
 
@@ -84,12 +89,11 @@ require(
                 mockPElement2 = Object.create(TimedTextElement.prototype);
                 spyOn(mockPElement2, 'getChildren').andReturn([mockTextElement2, mockTextElement3]);
 
-                spyOn(mockBrowserDevice, 'createContainer').andReturn(mockContainer);
-                spyOn(mockBrowserDevice, 'createLineBreak');
-                spyOn(mockBrowserDevice, 'createParagraph');
-                spyOn(mockBrowserDevice, 'createLabel');
-                spyOn(mockBrowserDevice, 'createSpan');
-                spyOn(mockBrowserDevice, 'createTextNode');
+                spyOn(mockBrowserDevice, 'createContainer').andReturn(mockHTMLElement);
+                spyOn(mockBrowserDevice, 'createLineBreak').andReturn(mockHTMLElement);
+                spyOn(mockBrowserDevice, 'createParagraph').andReturn(mockHTMLElement);
+                spyOn(mockBrowserDevice, 'createSpan').andReturn(mockHTMLElement);
+                spyOn(mockBrowserDevice, 'createTextNode').andReturn(mockHTMLElement);
 
                 spyOn(mockBrowserDevice, 'showElement');
                 spyOn(mockBrowserDevice, 'hideElement');
@@ -120,19 +124,18 @@ require(
                 var outputElement = subtitles.render(mockBrowserDevice);
 
                 expect(mockBrowserDevice.createContainer).toHaveBeenCalledWith('id', ['subtitlesContainer']);
-                expect(outputElement).toBe(mockContainer);
+                expect(outputElement).toBe(mockHTMLElement);
             });
 
             it('wont render a new outputDevice if one exists already', function() {
                 var subtitles = new Subtitles('id', mockTimedText, mockGetMediaTimeCallback);
 
-                var secondMockContainer = Object.create(Container.prototype);
-                subtitles.outputElement = secondMockContainer;
+                subtitles.outputElement = mockContainer;
 
                 var outputElement = subtitles.render(mockBrowserDevice);
 
                 expect(mockBrowserDevice.createContainer).not.toHaveBeenCalled();
-                expect(outputElement).toBe(secondMockContainer);
+                expect(outputElement).toBe(mockContainer);
             });
 
             it('will set an interval to call the update function once start is called', function() {
@@ -257,8 +260,6 @@ require(
 
                 expect(mockBrowserDevice.appendChildElement.calls.length).toBe(0);
                 expect(mockBrowserDevice.appendChildElement).not.toHaveBeenCalled();
-
-                expect(mockBrowserDevice.createLabel).not.toHaveBeenCalled();
             });
 
             it('_addCaptions will add create and add a single active element to the widget', function() {
@@ -345,25 +346,119 @@ require(
                 expect(subtitles._arraysEqual(array3, array4)).toEqual(true);
             });
 
-            it('createElement function will call through to the device to create the correct elements', function() {
+            it('createElement function will call through to the device to create the correct elements, without any styling', function() {
                 var subtitles = new Subtitles('id', mockTimedText, mockGetMediaTimeCallback);
+                spyOn(subtitles, '_setStyleAttributeOnElement');
+
+                expect(mockBrowserDevice.createLineBreak).not.toHaveBeenCalled();
+                expect(mockBrowserDevice.createContainer).not.toHaveBeenCalled();
+                expect(mockBrowserDevice.createParagraph).not.toHaveBeenCalled();
+                expect(mockBrowserDevice.createSpan).not.toHaveBeenCalled();
+                expect(mockBrowserDevice.createTextNode).not.toHaveBeenCalled();
 
                 subtitles._createElement(mockLineBreakElement);
                 expect(mockBrowserDevice.createLineBreak).toHaveBeenCalled();
+                expect(subtitles._setStyleAttributeOnElement).not.toHaveBeenCalled();
 
                 subtitles._createElement(mockDivElement);
                 expect(mockBrowserDevice.createContainer).toHaveBeenCalled();
+                expect(subtitles._setStyleAttributeOnElement).not.toHaveBeenCalled();
 
                 subtitles._createElement(mockParagraphElement);
                 expect(mockBrowserDevice.createParagraph).toHaveBeenCalledWith(null, ['subtitlesParagraphElement']);
+                expect(subtitles._setStyleAttributeOnElement).not.toHaveBeenCalled();
 
                 subtitles._createElement(mockSpanElement);
                 expect(mockBrowserDevice.createSpan).toHaveBeenCalledWith(null, ['subtitlesSpanElement']);
+                expect(subtitles._setStyleAttributeOnElement).not.toHaveBeenCalled();
 
                 subtitles._createElement(mockTextElement);
                 expect(mockBrowserDevice.createTextNode).toHaveBeenCalledWith('I see dead people');
+                expect(subtitles._setStyleAttributeOnElement).not.toHaveBeenCalled();
             });
 
+            it('createElement function will call through to the device to create the correct elements, without any styling', function() {
+                var subtitles = new Subtitles('id', mockTimedText, mockGetMediaTimeCallback);
+                spyOn(subtitles, '_setStyleAttributeOnElement');
+                subtitles.outputElement = mockOutputElement;
+
+                mockLineBreakElement.getAttribute.andReturn('styleValue');
+                subtitles._createElement(mockLineBreakElement);
+                expect(mockBrowserDevice.createLineBreak).toHaveBeenCalled();
+                expect(subtitles._setStyleAttributeOnElement).toHaveBeenCalledWith(mockHTMLElement,'color','styleValue');
+                expect(subtitles._setStyleAttributeOnElement).toHaveBeenCalledWith(mockHTMLElement,'backgroundColor','styleValue');
+                expect(subtitles._setStyleAttributeOnElement).toHaveBeenCalledWith(mockHTMLElement,'fontSize','styleValue');
+                subtitles._setStyleAttributeOnElement.reset();
+
+                mockDivElement.getAttribute.andReturn('styleValue');
+                subtitles._createElement(mockDivElement);
+                expect(mockBrowserDevice.createContainer).toHaveBeenCalled();
+                expect(subtitles._setStyleAttributeOnElement).toHaveBeenCalledWith(mockHTMLElement,'color','styleValue');
+                expect(subtitles._setStyleAttributeOnElement).toHaveBeenCalledWith(mockHTMLElement,'backgroundColor','styleValue');
+                expect(subtitles._setStyleAttributeOnElement).toHaveBeenCalledWith(mockHTMLElement,'fontSize','styleValue');
+                subtitles._setStyleAttributeOnElement.reset();
+
+                mockParagraphElement.getAttribute.andReturn('styleValue');
+                subtitles._createElement(mockParagraphElement);
+                expect(mockBrowserDevice.createParagraph).toHaveBeenCalledWith(null, ['subtitlesParagraphElement']);
+                expect(subtitles._setStyleAttributeOnElement).toHaveBeenCalledWith(mockHTMLElement,'color','styleValue');
+                expect(subtitles._setStyleAttributeOnElement).toHaveBeenCalledWith(mockHTMLElement,'backgroundColor','styleValue');
+                expect(subtitles._setStyleAttributeOnElement).toHaveBeenCalledWith(mockHTMLElement,'fontSize','styleValue');
+                subtitles._setStyleAttributeOnElement.reset();
+
+                mockSpanElement.getAttribute.andReturn('styleValue');
+                subtitles._createElement(mockSpanElement);
+                expect(mockBrowserDevice.createSpan).toHaveBeenCalledWith(null, ['subtitlesSpanElement']);
+                expect(subtitles._setStyleAttributeOnElement).toHaveBeenCalledWith(mockHTMLElement,'color','styleValue');
+                expect(subtitles._setStyleAttributeOnElement).toHaveBeenCalledWith(mockHTMLElement,'backgroundColor','styleValue');
+                expect(subtitles._setStyleAttributeOnElement).toHaveBeenCalledWith(mockHTMLElement,'fontSize','styleValue');
+                subtitles._setStyleAttributeOnElement.reset();
+
+                mockTextElement.getAttribute.andReturn('styleValue');
+                subtitles._createElement(mockTextElement);
+                expect(mockBrowserDevice.createTextNode).toHaveBeenCalledWith('I see dead people');
+                expect(subtitles._setStyleAttributeOnElement).toHaveBeenCalledWith(mockHTMLElement,'color','styleValue');
+                expect(subtitles._setStyleAttributeOnElement).toHaveBeenCalledWith(mockHTMLElement,'backgroundColor','styleValue');
+                expect(subtitles._setStyleAttributeOnElement).toHaveBeenCalledWith(mockHTMLElement,'fontSize','styleValue');
+                subtitles._setStyleAttributeOnElement.reset();
+            });
+
+            it('can set the style on an element', function() {
+                var subtitles = new Subtitles('id', mockTimedText, mockGetMediaTimeCallback);
+
+                var mockElement = {
+                    style: {}
+                };
+
+                subtitles._setStyleAttributeOnElement(mockElement, 'AttributeName', 'AttributeValue');
+
+                expect(mockElement.style['AttributeName']).toEqual('AttributeValue');
+            });
+
+            it('will not set the style on an element if it has no style', function() {
+                var subtitles = new Subtitles('id', mockTimedText, mockGetMediaTimeCallback);
+
+                var mockElement = {
+                    style: undefined
+                };
+
+                subtitles._setStyleAttributeOnElement(mockElement, 'AttributeName', 'AttributeValue');
+
+                expect(mockElement.style).toEqual(undefined);
+            });
+
+            it('will not set the style on an element if it has no AttributeValue', function() {
+                var subtitles = new Subtitles('id', mockTimedText, mockGetMediaTimeCallback);
+
+                var mockElement = {
+                    style: {}
+                };
+
+                subtitles._setStyleAttributeOnElement(mockElement, 'AttributeName', null);
+
+                expect(mockElement.style).toEqual({});
+                expect(mockElement.style.AttributeName).toEqual(undefined);
+            });
 
             it('createElementTree function will recurse through the active elements children and create the nodes with 4 levels', function() {
                 var subtitles = new Subtitles('id', mockTimedText, mockGetMediaTimeCallback);

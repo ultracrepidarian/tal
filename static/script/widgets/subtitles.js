@@ -184,21 +184,44 @@ define(
              *                         an HTMLNode for
              * @returns {HTMLElement} the basic HTML element
              */
-            _createElement: function(element){
+            _createElement: function(timedTextElement){
                 var device = this.getCurrentApplication().getDevice();
-                switch(element.getNodeName()){
+                var newElement;
+
+                switch(timedTextElement.getNodeName()){
                 case TimedTextElement.NODE_NAME.br:
-                    return device.createLineBreak();
+                    newElement = device.createLineBreak();
+                    break;
                 case TimedTextElement.NODE_NAME.div:
-                    return device.createContainer();
+                    newElement = device.createContainer();
+                    break;
                 case TimedTextElement.NODE_NAME.p:
-                    return device.createParagraph(null, ['subtitlesParagraphElement']);
+                    newElement = device.createParagraph(null, ['subtitlesParagraphElement']);
+                    break;
                 case TimedTextElement.NODE_NAME.span:
-                    return device.createSpan(null, ['subtitlesSpanElement']);
+                    newElement = device.createSpan(null, ['subtitlesSpanElement']);
+                    break;
                 case TimedTextElement.NODE_NAME.text:
-                    return device.createTextNode(element.getText());
+                    newElement = device.createTextNode(timedTextElement.getText());
+                    break;
                 default:
-                    return null;
+                    newElement = null;
+                    return newElement;
+                }
+
+                for (var style in Subtitles.SUPPORTED_STYLES){
+                    if (Subtitles.SUPPORTED_STYLES.hasOwnProperty(style)){
+                        var attributeValue = timedTextElement.getAttribute(style);
+                        if(attributeValue){
+                            this._setStyleAttributeOnElement(newElement, Subtitles.SUPPORTED_STYLES[style], attributeValue);
+                        }
+                    }
+                }
+            },
+
+            _setStyleAttributeOnElement: function(element, attribute, value){
+                if(element && element.style && value){
+                    element.style[attribute] = value;
                 }
             },
 
@@ -246,6 +269,12 @@ define(
                 this._activeElements = null;
             }
         });
+
+        Subtitles.SUPPORTED_STYLES = {
+            COLOR: 'color',
+            BACKGROUND_COLOR: 'backgroundColor',
+            FONT_SIZE: 'fontSize'
+        };
 
         return Subtitles;
     }
