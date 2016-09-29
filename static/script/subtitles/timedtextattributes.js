@@ -7,6 +7,153 @@ define(
     function(Class, Timestamp) {
         'use strict';
 
+        var descriptors = {
+            backgroundColor: {
+                inheritable: false,
+                style:       true,
+                default:     'transparent',
+                appliesTo:   [ 'body', 'div', 'p', 'region', 'span' ]
+            },
+            color: {
+                inheritable: true,
+                style:       true,
+                default:     'white',  // TODO What should the default be?
+                appliesTo:   [ 'span' ]
+            },
+            direction: {
+                inheritable: true,
+                style:       true,
+                default:     'ltr',
+                appliesTo:   [ 'p', 'span' ]
+            },
+            display: {
+                inheritable: false,
+                style:       true,
+                default:     'auto',
+                appliesTo:   [ 'body', 'div', 'p', 'region', 'span' ]
+            },
+            displayAlign: {
+                inheritable: false,
+                style:       true,
+                default:     'before',
+                appliesTo:   [ 'region' ]
+            },
+            extent: {
+                inheritable: false,
+                style:       true,
+                default:     'auto',
+                appliesTo:   [ 'tt', 'region' ]
+            },
+            fontFamily: {
+                inheritable: true,
+                style:       true,
+                default:     'default',
+                appliesTo:   [ 'span' ]
+            },
+            fontSize: {
+                inheritable: true,
+                style:       true,
+                default:     '1c',
+                appliesTo:   [ 'span' ]
+            },
+            fontStyle: {
+                inheritable: true,
+                style:       true,
+                default:     'normal',
+                appliesTo:   [ 'span' ]
+            },
+            fontWeight: {
+                inheritable: true,
+                style:       true,
+                default:     'normal',
+                appliesTo:   [ 'span' ]
+            },
+            lineHeight: {
+                inheritable: true,
+                style:       true,
+                default:     'normal',
+                appliesTo:   [ 'p' ]
+            },
+            opacity: {
+                inheritable: false,
+                style:       true,
+                default:     1.0,
+                appliesTo:   [ 'region' ]
+            },
+            origin: {
+                inheritable: false,
+                style:       true,
+                default:     'auto',
+                appliesTo:   [ 'region' ]
+            },
+            overflow: {
+                inheritable: false,
+                style:       true,
+                default:     'hidden',
+                appliesTo:   [ 'region' ]
+            },
+            padding: {
+                inheritable: false,
+                style:       true,
+                default:     '0px',
+                appliesTo:   [ 'region' ]
+            },
+            showBackground: {
+                inheritable: false,
+                style:       true,
+                default:     'always',
+                appliesTo:   [ 'region' ]
+            },
+            textAlign: {
+                inheritable: true,
+                style:       true,
+                default:     'start',
+                appliesTo:   [ 'p' ]
+            },
+            textDecoration: {
+                inheritable: true,
+                style:       true,
+                default:     'none',
+                appliesTo:   [ 'span' ]
+            },
+            textOutline: {
+                inheritable: true,
+                style:       true,
+                default:     'none',
+                appliesTo:   [ 'span' ]
+            },
+            unicodeBidi: {
+                inheritable: false,
+                style:       true,
+                default:     'normal',
+                appliesTo:   [ 'p', 'span' ]
+            },
+            visibility: {
+                inheritable: true,
+                style:       true,
+                default:     'visible',
+                appliesTo:   [ 'body', 'div', 'p', 'region', 'span' ]
+            },
+            wrapOption: {
+                inheritable: true,
+                style:       true,
+                default:     'wrap',
+                appliesTo:   [ 'span' ]
+            },
+            writingMode: {
+                inheritable: false,
+                style:       true,
+                default:     'lrtb',
+                appliesTo:   [ 'region' ]
+            },
+            zIndex: {
+                inheritable: false,
+                style:       true,
+                default:     'auto',
+                appliesTo:   [ 'region' ]
+            }
+        };
+
         /**
          * Attribute values.
          *
@@ -61,6 +208,13 @@ define(
                 var value = this._attributeMap[name];
                 if (value !== undefined && value !== null) {
                     return value;
+                } else if (this.isStyleAttribute(name) && this._attributeMap.style) {
+                    for (var i = 0; i < this._attributeMap.style.length; i++) {
+                        value = this._attributeMap.style[i].getAttribute(name);
+                        if (value !== undefined && value !== null) {
+                            return value;
+                        }
+                    }
                 }
 
                 // Return default value if there is one
@@ -93,6 +247,79 @@ define(
             },
 
             /**
+             * Returns the default value for an attribute.
+             *
+             * @param {String} name
+             *        The name of the attribute
+             *
+             * @returns {?any} the dault value for the named attribute, or null if it has none
+             * @public
+             */
+            getDefault: function(name) {
+                if (descriptors.hasOwnProperty(name)) {
+                    return descriptors[name].default;
+                } else {
+                    return false;
+                }
+            },
+
+            /**
+             * Checks if an attribute can be inherited from an element's parent.
+             *
+             * @param {String} name
+             *        The name of the attribute
+             *
+             * @returns {Boolean} true if the named attribute can be inherited,
+             *                    false if not
+             * @public
+             */
+            isInheritable: function(name) {
+                if (descriptors.hasOwnProperty(name)) {
+                    return descriptors[name].inheritable;
+                } else {
+                    return false;
+                }
+            },
+
+            /**
+             * Checks if an attribute's value can be obtained from a <style> element if
+             * one is referenced.
+             *
+             * @param {String} name
+             *        The name of the attribute
+             *
+             * @returns {Boolean} true if the named attribute's value can be obtained from a referenced <style> element,
+             *                    false if not
+             * @public
+             */
+            isStyleAttribute: function(name) {
+                if (descriptors.hasOwnProperty(name)) {
+                    return descriptors[name].style;
+                } else {
+                    return false;
+                }
+            },
+
+            /**
+             * Returns the list of element types the named attribute applies to.
+             *
+             * @param {String} name
+             *        The name of the attribute
+             *
+             * @returns {String[]} list of element types the named attribute applies to
+             * @public
+             */
+            appliesTo: function(name) {
+                if (descriptors.hasOwnProperty(name)) {
+                    return descriptors[name].appliesTo;
+                } else {
+                    return [];
+                }
+            },
+
+            /**
+             * Checks an attribute's value is of the correct type.
+             *
              * @param {any} attributeValue
              *        The value of the attribute to be checked
              *

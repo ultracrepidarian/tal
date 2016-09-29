@@ -242,7 +242,7 @@ define(
              * @param {antie.subtitles.TtmlParser._IdReferences} references
              *        References to xml:id parsed from the document so far
              *
-             * @returns {?TimedTextElement[]} the element(s) refernced by value,
+             * @returns {?TimedTextElement[]} the element(s) referenced by value,
              *                                or null if there are none
              * @private
              */
@@ -260,7 +260,7 @@ define(
                         if (ref) {
                             refs.push(ref);
                         } else {
-                            // TODO Is this good enough, or can we reference tags further down the document?
+                            // TODO Is this good enough, or should we be able to reference tags further down the document too?
                             this._report(name + ' attribute references xml:id "' + refNames[i] + '" but this does not exist in any earlier tag');
                         }
                     }
@@ -1034,15 +1034,15 @@ define(
                 var timedText = new TimedText(head, body);
                 timedText.setAttributes(this._timedTextAttributes);
                 timedText.initialiseActiveElements();
-                
+
                 if (head){
                     head.setParent(timedText);
                 }
-                
+
                 if (body){
                     body.setParent(timedText);
                 }
-                
+
                 return timedText;
             },
 
