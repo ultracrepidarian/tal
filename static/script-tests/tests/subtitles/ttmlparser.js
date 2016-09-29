@@ -204,6 +204,7 @@ require(
                 expect(timedText.getHead().getChildren().length).toBe(2);  // The 2nd element is <layout>
                 expect(timedText.getHead().getChildren()[0]).toEqual(jasmine.any(TimedTextElement));
                 expect(timedText.getHead().getChildren()[0].getNodeName()).toBe(TimedTextElement.NODE_NAME.styling);
+                expect(timedText.getHead().getParent()).toBe(timedText);
             });
 
             it('parses <tt><head><styling><style> into a TimedTextElement', function() {
@@ -216,6 +217,8 @@ require(
 
                 expect(styles[1]).toEqual(jasmine.any(TimedTextElement));
                 expect(styles[1].getNodeName()).toBe(TimedTextElement.NODE_NAME.style);
+                
+                expect(timedText.getHead().getParent()).toBe(timedText);
             });
 
             it('parses <tt><head><styling><style> attributes', function() {
@@ -229,6 +232,8 @@ require(
                 expect(styles[1].getAttribute('id')).toBe('speakerStyle');
                 expect(styles[1].getAttribute('backgroundColor')).toBe('rgba(0,0,0,0)'); // 'transparent' mapped to CSS value
                 expect(styles[1].getAttribute('color')).toBe('#FFFFFF');
+                
+                expect(timedText.getHead().getParent()).toBe(timedText);
             });
 
             it('parses <tt><head><layout> into a TimedTextElement', function() {
@@ -254,6 +259,8 @@ require(
                 expect(regions[1].getAttribute('style').length).toBe(1); // Only references 1 style
                 expect(regions[1].getAttribute('style')[0]).toBe(styles[0]);
                 expect(regions[1].getAttribute('style')[0].getAttribute('id')).toBe('backgroundStyle');
+                
+                expect(timedText.getHead().getParent()).toBe(timedText);
             });
             
             it('can handle no <head>', function() {
@@ -272,16 +279,26 @@ require(
 
             it('parses <tt><body><div> into a TimedTextElement', function() {
                 var timedText = ttmlParser.parse(ttmlDoc);
-                expect(timedText.getBody().getChildren().length).toBe(1);
-                expect(timedText.getBody().getChildren()[0]).toEqual(jasmine.any(TimedTextElement));
-                expect(timedText.getBody().getChildren()[0].getNodeName()).toBe(TimedTextElement.NODE_NAME.div);
-                expect(timedText.getBody().getParent()).toBe(timedText);
+                var body = timedText.getBody();
+                expect(body.getChildren().length).toBe(1);
+                
+                var div = body.getChildren()[0];
+                expect(div).toEqual(jasmine.any(TimedTextElement));
+                expect(div.getNodeName()).toBe(TimedTextElement.NODE_NAME.div);
+                
+                expect(div.getParent()).toBe(body);
+                expect(body.getParent()).toBe(timedText);
             });
 
             it('parses <tt><body><div><p> into a TimedTextElement', function() {
                 var timedText = ttmlParser.parse(ttmlDoc);
-                var regions = timedText.getHead().getChildren()[1].getChildren();
-                var paragraphs = timedText.getBody().getChildren()[0].getChildren();
+                var head = timedText.getHead();
+                var body = timedText.getBody();
+                var layout = head.getChildren()[1];
+                var div = body.getChildren()[0];
+                
+                var regions = layout.getChildren();
+                var paragraphs = div.getChildren();
                 expect(paragraphs.length).toBe(2);
 
                 expect(paragraphs[0]).toEqual(jasmine.any(TimedTextElement));
@@ -303,23 +320,39 @@ require(
                 expect(paragraphs[1].getAttributes().getAttribute('end')).toEqual(jasmine.any(Timestamp));
                 expect(paragraphs[1].getAttributes().getAttribute('end').getMilliseconds()).toBe(7720);
                 expect(paragraphs[1].getAttributes().getAttribute('dur')).toBeNull();
+                
+                expect(regions[0].getParent()).toBe(null);
+                expect(paragraphs[0].getParent()).toBe(div);
+                expect(paragraphs[1].getParent()).toBe(div);
+                expect(div.getParent()).toBe(body);
+                expect(head.getParent()).toBe(timedText);
+                expect(body.getParent()).toBe(timedText);
             });
 
             it('parses <tt><body><div><p>text</p> into text on a TimedTextElement', function() {
                 var timedText = ttmlParser.parse(ttmlDoc);
-                var paragraphs = timedText.getBody().getChildren()[0].getChildren();
-                var textElements = paragraphs[1].getChildren();
+                var body = timedText.getBody();
+                var div = body.getChildren()[0];
+                var paragraph = div.getChildren()[1];
+                var textElements = paragraph.getChildren();
 
                 expect(textElements.length).toBe(1);
                 expect(textElements[0]).toEqual(jasmine.any(TimedTextElement));
                 expect(textElements[0].getNodeName()).toBe(TimedTextElement.NODE_NAME.text);
                 expect(textElements[0].getText()).toBe('grounds');
+                
+                expect(textElements[0].getParent()).toBe(paragraph);
+                expect(paragraph.getParent()).toBe(div);
+                expect(div.getParent()).toBe(body);
+                expect(body.getParent()).toBe(timedText);
             });
 
             it('parses <tt><body><div><p><span> and <br> into TimedTextElements', function() {
                 var timedText = ttmlParser.parse(ttmlDoc);
-                var paragraphs = timedText.getBody().getChildren()[0].getChildren();
-                var spansAndBr = paragraphs[0].getChildren();
+                var body = timedText.getBody();
+                var div = body.getChildren()[0];
+                var paragraph = div.getChildren()[0];
+                var spansAndBr = paragraph.getChildren();
                 expect(spansAndBr.length).toBe(3);
 
                 expect(spansAndBr[0]).toEqual(jasmine.any(TimedTextElement));
@@ -330,18 +363,33 @@ require(
 
                 expect(spansAndBr[2]).toEqual(jasmine.any(TimedTextElement));
                 expect(spansAndBr[2].getNodeName()).toBe(TimedTextElement.NODE_NAME.span);
+                
+                expect(spansAndBr[0].getParent()).toBe(paragraph);
+                expect(spansAndBr[1].getParent()).toBe(paragraph);
+                expect(spansAndBr[2].getParent()).toBe(paragraph);
+                expect(paragraph.getParent()).toBe(div);
+                expect(div.getParent()).toBe(body);
+                expect(body.getParent()).toBe(timedText);
             });
 
             it('parses <tt><body><div><p><span>text</span> into text on a TimedTextElement', function() {
                 var timedText = ttmlParser.parse(ttmlDoc);
-                var paragraphs = timedText.getBody().getChildren()[0].getChildren();
-                var spansAndBr = paragraphs[0].getChildren();
-                var textElements = spansAndBr[0].getChildren();
+                var body = timedText.getBody();
+                var div = body.getChildren()[0];
+                var paragraph = div.getChildren()[0];
+                var span = paragraph.getChildren()[0];
+                var textElements = span.getChildren();
 
                 expect(textElements.length).toBe(1);
                 expect(textElements[0]).toEqual(jasmine.any(TimedTextElement));
                 expect(textElements[0].getNodeName()).toBe(TimedTextElement.NODE_NAME.text);
                 expect(textElements[0].getText()).toBe('Welcome to the beautiful Bisham');
+                
+                expect(textElements[0].getParent()).toBe(span);
+                expect(span.getParent()).toBe(paragraph);
+                expect(paragraph.getParent()).toBe(div);
+                expect(div.getParent()).toBe(body);
+                expect(body.getParent()).toBe(timedText);
             });
             
             it('can handle no <body>', function() {
@@ -404,13 +452,15 @@ require(
 //                    ttmlParser.parse();
 //                }).toThrowError(TtmlParseError, 'TTML document is missing');   // Jasmine 2.0
 
+                var errorThrown = false;
                 try {
                     ttmlParser.parse();
-                    expect('Error not thrown').toBe('Error thrown');  // Fail the test (in the absence of the Jasmine 2.4 fail() method)
                 } catch (e) {
                     expect(e.message).toBe('TTML document is missing');
                     expect(e).toEqual(jasmine.any(TtmlParseError));
+                    errorThrown = true;
                 }
+                expect(errorThrown).toBe(true); //fail the test if we didn't throw an error
             });
 
             it('throws TtmlParseError if TTML document is the wrong datatype', function() {
@@ -419,13 +469,15 @@ require(
 //                    ttmlParser.parse(function(){});
 //                }).toThrowError(TtmlParseError, 'TTML document is not a valid XML document (type=function)');   // Jasmine 2.0
 
+                var errorThrown = false;
                 try {
                     ttmlParser.parse(function(){});
-                    expect('Error not thrown').toBe('Error thrown');  // Fail the test (in the absence of the Jasmine 2.4 fail() method)
                 } catch (e) {
                     expect(e.message).toBe('TTML document is not a valid XML document (type=function)');
                     expect(e).toEqual(jasmine.any(TtmlParseError));
+                    errorThrown = true;
                 }
+                expect(errorThrown).toBe(true); //fail the test if we didn't throw an error
             });
 
             it('throws TtmlParseError if document (top level) element is missing', function() {
@@ -439,13 +491,15 @@ require(
 //                    ttmlParser.parse(noRoot);
 //                }).toThrowError(TtmlParseError, 'TTML document root element is not <tt> - it was: null');   // Jasmine 2.0
 
+                var errorThrown = false;
                 try {
                     ttmlParser.parse(noRoot);
-                    expect('Error not thrown').toBe('Error thrown');  // Fail the test (in the absence of the Jasmine 2.4 fail() method)
                 } catch (e) {
                     expect(e.message).toBe('TTML document root element is not <tt> - it was: null');
                     expect(e).toEqual(jasmine.any(TtmlParseError));
+                    errorThrown = true;
                 }
+                expect(errorThrown).toBe(true); //fail the test if we didn't throw an error
             });
 
             it('throws TtmlParseError if document (top level) element is not <tt>', function() {
@@ -459,13 +513,15 @@ require(
 //                    ttmlParser.parse(notTt);
 //                }).toThrowError(TtmlParseError, 'TTML document root element is not <tt> - it was: <gibberish>');   // Jasmine 2.0
 
+                var errorThrown = false;
                 try {
                     ttmlParser.parse(notTt);
-                    expect('Error not thrown').toBe('Error thrown');  // Fail the test (in the absence of the Jasmine 2.4 fail() method)
                 } catch (e) {
                     expect(e.message).toBe('TTML document root element is not <tt> - it was: <gibberish>');
                     expect(e).toEqual(jasmine.any(TtmlParseError));
+                    errorThrown = true;
                 }
+                expect(errorThrown).toBe(true); //fail the test if we didn't throw an error
             });
 
             it('will not instantiate a new timedTextHead if<head> tag is missing from the top level document', function() {
