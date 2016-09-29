@@ -35,29 +35,40 @@ require(
             });
             
             it('throws an error if the the object supplied to the parent setter is not a TimedTextElement', function() {
-                try {
-                    var invalidParentNumber = 1234;
-                    var el = new TimedTextElement(TimedTextElement.NODE_NAME.p);
+                var el = new TimedTextElement(TimedTextElement.NODE_NAME.p);
+                
+                //number
+                var errorThrown = false;
+                var invalidParentNumber = 1234;
+                try {                    
                     el.setParent(invalidParentNumber);
                 } catch (e) {
                     expect(e.message).toBe('TimedTextElement - parent should be a TimedTextElement but was: number. Value: 1234');
+                    errorThrown = true;
                 }
+                expect(errorThrown).toBe(true); //fail the test if we didn't throw an error
                 
+                //string
+                errorThrown = false;
+                var invalidParentString = 'I am a string';
                 try {
-                    var invalidParentString = 'I am a string';
-                    el = new TimedTextElement(TimedTextElement.NODE_NAME.p);
                     el.setParent(invalidParentString);
                 } catch (e) {
                     expect(e.message).toBe('TimedTextElement - parent should be a TimedTextElement but was: string. Value: I am a string');
+                    errorThrown = true;
                 }
+                expect(errorThrown).toBe(true); //fail the test if we didn't throw an error
                  
+                //boolean
+                errorThrown = false;
+                var invalidParentBoolean = true;
                 try {
-                    var invalidParentBoolean = true;
-                    el = new TimedTextElement(TimedTextElement.NODE_NAME.p);
                     el.setParent(invalidParentBoolean);
                 } catch (e) {
                     expect(e.message).toBe('TimedTextElement - parent should be a TimedTextElement but was: boolean. Value: true');
+                    errorThrown = true;
                 }
+                expect(errorThrown).toBe(true); //fail the test if we didn't throw an error
             });
 
             it('returns the parent if it was set', function() {
@@ -76,21 +87,27 @@ require(
             });
             
             it('throws an error if the the children supplied to the constructor are not in an array', function() {
+                //timedtextelement not in array
+                var errorThrown = false;
+                var invalidChildrenSolo = new TimedTextElement(TimedTextElement.NODE_NAME.text);
                 try {
-                    var invalidChildrenSolo = new TimedTextElement(TimedTextElement.NODE_NAME.text);
-                    
                     new TimedTextElement(TimedTextElement.NODE_NAME.p, invalidChildrenSolo);
                 } catch (e) {
                     expect(e.message).toBe('TimedTextElement - children should be an array but was: object. Value: [object Object]');
+                    errorThrown = true;
                 }
+                expect(errorThrown).toBe(true); //fail the test if we didn't throw an error
                 
+                //string
+                errorThrown = false;
+                var invalidChildrenString = 'I am a string';
                 try {
-                    var invalidChildrenString = 'I am a string';
-                    
                     new TimedTextElement(TimedTextElement.NODE_NAME.p, invalidChildrenString);
                 } catch (e) {
                     expect(e.message).toBe('TimedTextElement - children should be an array but was: string. Value: I am a string');
+                    errorThrown = true;
                 }
+                expect(errorThrown).toBe(true); //fail the test if we didn't throw an error
             });
 
             it('returns the children supplied to the constructor', function() {
