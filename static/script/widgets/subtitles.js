@@ -284,12 +284,30 @@ define(
         });
 
         Subtitles.SUPPORTED_STYLES = {
-            COLOR               : 'color',
             BACKGROUND_COLOR    : 'backgroundColor',
+            COLOR               : 'color',
+            DIRECTION           : 'direction',
+            DISPLAY             : 'display',
+            DISPLAY_ALIGN       : 'displayAlign',
+            EXTENT              : 'extent',
+            FONT_FAMILY         : 'fontFamily',
             FONT_SIZE           : 'fontSize',
+            FONT_STYLE          : 'fontStyle',
+            FONT_WEIGHT         : 'fontWeight',
+            LINE_HEIGHT         : 'lineHeight',
+            OPACITY             : 'opacity',
+            ORIGIN              : 'origin',
+            OVERFLOW            : 'overflow',
+            PADDING             : 'padding',
+            SHOW_BACKGROUND     : 'showBackground',
+            TEXT_ALINE          : 'textAlign',
+            TEXT_DECORATION     : 'textDecoration',
             TEXT_OUTLINE        : 'textOutline',
-            FONT                : 'fontStyle',
-            FONT_FAMILY         : 'fontFamily'
+            UNICODE_BIDI        : 'unicodeBidi',
+            VISIBILITY          : 'visibility',
+            WRAP_OPTION         : 'wrapOption',
+            WRITING_MODE        : 'writingMode',
+            Z_INDEX             : 'zIndex'
         };
 
         return Subtitles;
