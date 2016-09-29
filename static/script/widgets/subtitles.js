@@ -145,8 +145,6 @@ define(
                 for(var i = 0; i < activeElements.length; i++){
                     var element = this._createElementTree(activeElements[i]);
                     device.appendChildElement(this.outputElement, element);
-                    // append a line break after each active element
-                    device.appendChildElement(this.outputElement, device.createLineBreak());
                 }
             },
 

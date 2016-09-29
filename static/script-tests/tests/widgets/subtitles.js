@@ -272,7 +272,7 @@ require(
                 subtitles._addCaptions(mockActiveElements);
 
                 expect(subtitles._createElementTree).toHaveBeenCalledWith(mockPElement1);
-                expect(mockBrowserDevice.appendChildElement.calls.length).toBe(2);
+                expect(mockBrowserDevice.appendChildElement.calls.length).toBe(1);
                 expect(mockBrowserDevice.appendChildElement).toHaveBeenCalledWith(mockOutputElement, mockHTMLElement);
 
             });
@@ -286,7 +286,7 @@ require(
 
                 subtitles._addCaptions(mockActiveElements);
 
-                expect(mockBrowserDevice.appendChildElement.calls.length).toBe(4);
+                expect(mockBrowserDevice.appendChildElement.calls.length).toBe(2);
                 expect(mockBrowserDevice.appendChildElement).toHaveBeenCalledWith(mockOutputElement, mockHTMLElement);
                 expect(mockBrowserDevice.appendChildElement).toHaveBeenCalledWith(mockOutputElement, mockHTMLElement);
 
