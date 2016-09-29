@@ -22,12 +22,12 @@ define(
             /**
              * Constructs a new timed text instance from a TTML XML document.
              *
-             * @param {antie.subtitles.timedtexthead} head 
+             * @param {antie.subtitles.timedtexthead} head
              *        the parsed <head> tag
-             *        
-             * @param {antie.subtitles.timedtextbody} body 
+             *
+             * @param {antie.subtitles.timedtextbody} body
              *        the parsed <body> tag
-             * 
+             *
              * @constructor
              */
             init: function (head, body) {

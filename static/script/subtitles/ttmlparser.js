@@ -846,9 +846,7 @@ define(
              * @private
              */
             _parseBody: function (ttmlBodyElement) {
-                var children = this._parseMixedContent(ttmlBodyElement.childNodes);
-                var timedTextBody = new TimedTextBody(children);
-                this._setChildrensParent(children, timedTextBody);
+                var timedTextBody = new TimedTextBody(this._parseMixedContent(ttmlBodyElement.childNodes));
                 this._parseAttributes(ttmlBodyElement, timedTextBody.getAttributes());
                 return timedTextBody;
             },
@@ -862,9 +860,7 @@ define(
              * @private
              */
             _parseDiv: function (ttmlDivElement) {
-                var children = this._parseMixedContent(ttmlDivElement.childNodes);
-                var timedTextElement = new TimedTextElement(TimedTextElement.NODE_NAME.div, children);
-                this._setChildrensParent(children, timedTextElement);
+                var timedTextElement = new TimedTextElement(TimedTextElement.NODE_NAME.div, this._parseMixedContent(ttmlDivElement.childNodes));
                 this._parseAttributes(ttmlDivElement, timedTextElement.getAttributes());
                 return timedTextElement;
             },
@@ -878,9 +874,7 @@ define(
              * @private
              */
             _parseParagraph: function (ttmlPElement) {
-                var children = this._parseMixedContent(ttmlPElement.childNodes);
-                var timedTextElement = new TimedTextElement(TimedTextElement.NODE_NAME.p, children);
-                this._setChildrensParent(children, timedTextElement);
+                var timedTextElement = new TimedTextElement(TimedTextElement.NODE_NAME.p, this._parseMixedContent(ttmlPElement.childNodes));
                 this._parseAttributes(ttmlPElement, timedTextElement.getAttributes());
                 return timedTextElement;
             },
@@ -894,9 +888,7 @@ define(
              * @private
              */
             _parseSpan: function (ttmlSpanElement) {
-                var children = this._parseMixedContent(ttmlSpanElement.childNodes);
-                var timedTextElement = new TimedTextElement(TimedTextElement.NODE_NAME.span, children);
-                this._setChildrensParent(children, timedTextElement);
+                var timedTextElement = new TimedTextElement(TimedTextElement.NODE_NAME.span, this._parseMixedContent(ttmlSpanElement.childNodes));
                 this._parseAttributes(ttmlSpanElement, timedTextElement.getAttributes());
                 return timedTextElement;
             },
@@ -924,25 +916,6 @@ define(
                 return textElement;
             },
             
-            /**
-             * Sets the parent of the children elements to be the element
-             *
-             * @param {TimedTextElement[]} children
-             *        the children of the element
-             *        
-             * @param {TimedTextElement} parent
-             *        the element, i.e. the parent of the children
-             *        
-             * @private
-             */
-            _setChildrensParent: function (children, parent) {
-                children.forEach(
-                        function(child) {
-                            child.setParent(parent);
-                        }
-                    );
-            },
-
             /**
              * Parses the XML "mixed content" common to many elements.
              *
@@ -1061,14 +1034,6 @@ define(
                 var timedText = new TimedText(head, body);
                 timedText.setAttributes(this._timedTextAttributes);
                 timedText.initialiseActiveElements();
-
-                if (head){
-                    head.setParent(timedText);
-                }
-
-                if (body){
-                    body.setParent(timedText);
-                }
 
                 return timedText;
             },

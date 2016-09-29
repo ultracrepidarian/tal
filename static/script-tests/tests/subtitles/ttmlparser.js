@@ -90,7 +90,7 @@ require(
 
                     'text/xml'
                 );
-                
+
                 ttmlNoHeadDoc = new DOMParser().parseFromString(
                         '<?xml version="1.0" encoding="UTF-8"?>' +
                         '<tt' +
@@ -110,18 +110,18 @@ require(
                             '>' +
                             '<body>' +
                                 '<div >' +
-                                    '<p begin="00:00:02.000" end="00:00:05.760" region="speaker">' +
+                                    '<p begin="00:00:02.000" end="00:00:05.760">' +
                                         '<span tts:color="white">Welcome to the beautiful Bisham</span><br/>' +
                                         '<span tts:color="white">Abbey. If you wander round the</span>' +
                                     '</p>' +
-                                    '<p begin="00:00:05.800" end="00:00:07.720" region="speaker">grounds</p>' +
+                                    '<p begin="00:00:05.800" end="00:00:07.720">grounds</p>' +
                                 '</div>' +
                             '</body>' +
                         '</tt>',
 
                         'text/xml'
                     );
-                
+
                 ttmlNoBodyDoc = new DOMParser().parseFromString(
                         '<?xml version="1.0" encoding="UTF-8"?>' +
                         '<tt' +
@@ -217,7 +217,7 @@ require(
 
                 expect(styles[1]).toEqual(jasmine.any(TimedTextElement));
                 expect(styles[1].getNodeName()).toBe(TimedTextElement.NODE_NAME.style);
-                
+
                 expect(timedText.getHead().getParent()).toBe(timedText);
             });
 
@@ -232,7 +232,7 @@ require(
                 expect(styles[1].getAttribute('id')).toBe('speakerStyle');
                 expect(styles[1].getAttribute('backgroundColor')).toBe('rgba(0,0,0,0)'); // 'transparent' mapped to CSS value
                 expect(styles[1].getAttribute('color')).toBe('#FFFFFF');
-                
+
                 expect(timedText.getHead().getParent()).toBe(timedText);
             });
 
@@ -259,10 +259,10 @@ require(
                 expect(regions[1].getAttribute('style').length).toBe(1); // Only references 1 style
                 expect(regions[1].getAttribute('style')[0]).toBe(styles[0]);
                 expect(regions[1].getAttribute('style')[0].getAttribute('id')).toBe('backgroundStyle');
-                
+
                 expect(timedText.getHead().getParent()).toBe(timedText);
             });
-            
+
             it('can handle no <head>', function() {
                 var timedText = ttmlParser.parse(ttmlNoHeadDoc);
                 expect(timedText.getBody()).toEqual(jasmine.any(TimedTextBody));
@@ -281,13 +281,20 @@ require(
                 var timedText = ttmlParser.parse(ttmlDoc);
                 var body = timedText.getBody();
                 expect(body.getChildren().length).toBe(1);
-                
+
                 var div = body.getChildren()[0];
                 expect(div).toEqual(jasmine.any(TimedTextElement));
                 expect(div.getNodeName()).toBe(TimedTextElement.NODE_NAME.div);
-                
+
                 expect(div.getParent()).toBe(body);
                 expect(body.getParent()).toBe(timedText);
+            });
+
+            it('can handle no <body>', function() {
+                var timedText = ttmlParser.parse(ttmlNoBodyDoc);
+                expect(timedText.getHead()).toEqual(jasmine.any(TimedTextHead));
+                expect(timedText.getHead().getNodeName()).toBe(TimedTextElement.NODE_NAME.head);
+                expect(timedText.getHead().getParent()).toBe(timedText);
             });
 
             it('parses <tt><body><div><p> into a TimedTextElement', function() {
@@ -296,7 +303,7 @@ require(
                 var body = timedText.getBody();
                 var layout = head.getChildren()[1];
                 var div = body.getChildren()[0];
-                
+
                 var regions = layout.getChildren();
                 var paragraphs = div.getChildren();
                 expect(paragraphs.length).toBe(2);
@@ -320,8 +327,7 @@ require(
                 expect(paragraphs[1].getAttributes().getAttribute('end')).toEqual(jasmine.any(Timestamp));
                 expect(paragraphs[1].getAttributes().getAttribute('end').getMilliseconds()).toBe(7720);
                 expect(paragraphs[1].getAttributes().getAttribute('dur')).toBeNull();
-                
-                expect(regions[0].getParent()).toBe(null);
+
                 expect(paragraphs[0].getParent()).toBe(div);
                 expect(paragraphs[1].getParent()).toBe(div);
                 expect(div.getParent()).toBe(body);
@@ -340,7 +346,7 @@ require(
                 expect(textElements[0]).toEqual(jasmine.any(TimedTextElement));
                 expect(textElements[0].getNodeName()).toBe(TimedTextElement.NODE_NAME.text);
                 expect(textElements[0].getText()).toBe('grounds');
-                
+
                 expect(textElements[0].getParent()).toBe(paragraph);
                 expect(paragraph.getParent()).toBe(div);
                 expect(div.getParent()).toBe(body);
@@ -363,7 +369,7 @@ require(
 
                 expect(spansAndBr[2]).toEqual(jasmine.any(TimedTextElement));
                 expect(spansAndBr[2].getNodeName()).toBe(TimedTextElement.NODE_NAME.span);
-                
+
                 expect(spansAndBr[0].getParent()).toBe(paragraph);
                 expect(spansAndBr[1].getParent()).toBe(paragraph);
                 expect(spansAndBr[2].getParent()).toBe(paragraph);
@@ -384,19 +390,12 @@ require(
                 expect(textElements[0]).toEqual(jasmine.any(TimedTextElement));
                 expect(textElements[0].getNodeName()).toBe(TimedTextElement.NODE_NAME.text);
                 expect(textElements[0].getText()).toBe('Welcome to the beautiful Bisham');
-                
+
                 expect(textElements[0].getParent()).toBe(span);
                 expect(span.getParent()).toBe(paragraph);
                 expect(paragraph.getParent()).toBe(div);
                 expect(div.getParent()).toBe(body);
                 expect(body.getParent()).toBe(timedText);
-            });
-            
-            it('can handle no <body>', function() {
-                var timedText = ttmlParser.parse(ttmlNoBodyDoc);
-                expect(timedText.getHead()).toEqual(jasmine.any(TimedTextHead));
-                expect(timedText.getHead().getNodeName()).toBe(TimedTextElement.NODE_NAME.head);
-                expect(timedText.getHead().getParent()).toBe(timedText);
             });
 
             it('finds all timing points', function() {
