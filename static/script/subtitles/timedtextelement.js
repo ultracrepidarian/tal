@@ -61,13 +61,13 @@ define(
             getNodeName: function() {
                 return this._nodeName;
             },
-            
+
             /**
              * Sets the element's parent
-             * 
+             *
              * @param {antie.subtitles.TimeTextElement} parent
              *        the element's parent
-             * 
+             *
              * @public
              */
             setParent: function(parent) {
@@ -77,7 +77,7 @@ define(
                     throw new Error('TimedTextElement - parent should be a TimedTextElement but was: ' + typeof parent + '. Value: ' + parent);
                 }
             },
-            
+
             /**
              * Returns the element's parent
              * @returns {antie.subtitles.TimeTextElement} the element's parent
@@ -174,17 +174,18 @@ define(
                     return timingPoints;
                 }
             },
-            
+
             /**
              * Sets the parent of the children elements to be itself
-             *        
+             *
              * @private
              */
             _setParentOfChildren: function () {
                 this._children.forEach(
                         function(child) {
                             child.setParent(this);
-                        }
+                        },
+                        this
                     );
             },
 
