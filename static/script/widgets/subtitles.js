@@ -222,6 +222,8 @@ define(
                         }
                     }
                 }
+
+                return newElement;
             },
 
             /**

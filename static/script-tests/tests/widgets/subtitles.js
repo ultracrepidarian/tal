@@ -356,23 +356,23 @@ require(
                 expect(mockBrowserDevice.createSpan).not.toHaveBeenCalled();
                 expect(mockBrowserDevice.createTextNode).not.toHaveBeenCalled();
 
-                subtitles._createElement(mockLineBreakElement);
+                expect(subtitles._createElement(mockLineBreakElement)).toEqual(mockHTMLElement);
                 expect(mockBrowserDevice.createLineBreak).toHaveBeenCalled();
                 expect(subtitles._setStyleAttributeOnElement).not.toHaveBeenCalled();
 
-                subtitles._createElement(mockDivElement);
+                expect(subtitles._createElement(mockDivElement)).toEqual(mockHTMLElement);
                 expect(mockBrowserDevice.createContainer).toHaveBeenCalled();
                 expect(subtitles._setStyleAttributeOnElement).not.toHaveBeenCalled();
 
-                subtitles._createElement(mockParagraphElement);
+                expect(subtitles._createElement(mockParagraphElement)).toEqual(mockHTMLElement);
                 expect(mockBrowserDevice.createParagraph).toHaveBeenCalledWith(null, ['subtitlesParagraphElement']);
                 expect(subtitles._setStyleAttributeOnElement).not.toHaveBeenCalled();
 
-                subtitles._createElement(mockSpanElement);
+                expect(subtitles._createElement(mockSpanElement)).toEqual(mockHTMLElement);
                 expect(mockBrowserDevice.createSpan).toHaveBeenCalledWith(null, ['subtitlesSpanElement']);
                 expect(subtitles._setStyleAttributeOnElement).not.toHaveBeenCalled();
 
-                subtitles._createElement(mockTextElement);
+                expect(subtitles._createElement(mockTextElement)).toEqual(mockHTMLElement);
                 expect(mockBrowserDevice.createTextNode).toHaveBeenCalledWith('I see dead people');
                 expect(subtitles._setStyleAttributeOnElement).not.toHaveBeenCalled();
             });
