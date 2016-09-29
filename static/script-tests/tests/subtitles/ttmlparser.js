@@ -262,13 +262,6 @@ require(
                 
                 expect(timedText.getHead().getParent()).toBe(timedText);
             });
-            
-            it('can handle no <head>', function() {
-                var timedText = ttmlParser.parse(ttmlNoHeadDoc);
-                expect(timedText.getBody()).toEqual(jasmine.any(TimedTextBody));
-                expect(timedText.getBody().getNodeName()).toBe(TimedTextElement.NODE_NAME.body);
-                expect(timedText.getBody().getParent()).toBe(timedText);
-            });
 
             it('parses <tt><body> into a TimedTextBody', function() {
                 var timedText = ttmlParser.parse(ttmlDoc);
@@ -390,13 +383,6 @@ require(
                 expect(paragraph.getParent()).toBe(div);
                 expect(div.getParent()).toBe(body);
                 expect(body.getParent()).toBe(timedText);
-            });
-            
-            it('can handle no <body>', function() {
-                var timedText = ttmlParser.parse(ttmlNoBodyDoc);
-                expect(timedText.getHead()).toEqual(jasmine.any(TimedTextHead));
-                expect(timedText.getHead().getNodeName()).toBe(TimedTextElement.NODE_NAME.head);
-                expect(timedText.getHead().getParent()).toBe(timedText);
             });
 
             it('finds all timing points', function() {

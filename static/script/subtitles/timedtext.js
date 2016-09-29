@@ -36,9 +36,11 @@ define(
 
                 var children = [];
                 if (head) {
+                	head.setParent(this);
                     children.push(head);
                 }
                 if (body) {
+                	body.setParent(this);
                     children.push(body);
                 }
                 this._super(TimedTextElement.NODE_NAME.tt, children);

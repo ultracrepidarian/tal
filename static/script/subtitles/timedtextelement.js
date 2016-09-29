@@ -41,6 +41,7 @@ define(
 
                 if (Array.isArray(children)) {
                     this._children = children;
+                    this._setParentOfChildren();
                 } else if (!children) {
                     this._children = [];
                 } else {
@@ -173,7 +174,19 @@ define(
                     return timingPoints;
                 }
             },
-
+            
+            /**
+             * Sets the parent of the children elements to be itself
+             *        
+             * @private
+             */
+            _setParentOfChildren: function () {
+                this._children.forEach(
+                        function(child) {
+                            child.setParent(this);
+                        }
+                    );
+            },
 
             /**
              * Cleans out this instance ready for garbage collection.  This
