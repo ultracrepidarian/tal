@@ -307,7 +307,7 @@ define(
             OVERFLOW            : 'overflow',
             PADDING             : 'padding',
             SHOW_BACKGROUND     : 'showBackground',
-            TEXT_ALINE          : 'textAlign',
+            TEXT_ALIGN          : 'textAlign',
             TEXT_DECORATION     : 'textDecoration',
             TEXT_OUTLINE        : 'textOutline',
             UNICODE_BIDI        : 'unicodeBidi',
