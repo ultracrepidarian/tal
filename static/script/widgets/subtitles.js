@@ -190,6 +190,7 @@ define(
                     return;
                 }
 
+                // create the element itself
                 switch(timedTextElement.getNodeName()){
                 case TimedTextElement.NODE_NAME.br:
                     newElement = device.createLineBreak();
@@ -210,13 +211,19 @@ define(
                     return;
                 }
 
+                // add the styling
                 for (var style in Subtitles.SUPPORTED_STYLES){
                     if (Subtitles.SUPPORTED_STYLES.hasOwnProperty(style)){
                         // if the supported attribute is set on the TimedTextElement then set
                         // it also on the new HTML element
                         var attributeValue = timedTextElement.getAttribute(Subtitles.SUPPORTED_STYLES[style]);
                         if(attributeValue){
-                            this._setStyleAttributeOnElement(newElement, Subtitles.SUPPORTED_STYLES[style], attributeValue);
+                            if(style === 'FONT_SIZE'){
+                                // the fontSize value is an object with {width:.. height..}
+                                this._setStyleAttributeOnElement(newElement, Subtitles.SUPPORTED_STYLES[style], attributeValue.height);
+                            } else {
+                                this._setStyleAttributeOnElement(newElement, Subtitles.SUPPORTED_STYLES[style], attributeValue);
+                            }
                         }
                     }
                 }
@@ -228,7 +235,7 @@ define(
              * set the value of a named styled attribute of an HTMLElement
              *
              * @param {HTMLElement} element the HTML element to set the styling on
-             * @param {String} attribute the name of the attribute to set i.e. "backgroundColour"
+             * @param {String} attribute the name of the attribute to set i.e. 'backgroundColour'
              * @param {String} value the value to set the named attribute to
              *
              */

@@ -425,7 +425,14 @@ require(
                 spyOn(subtitles, '_setStyleAttributeOnElement');
                 subtitles.outputElement = mockOutputElement;
 
-                mockLineBreakElement.getAttribute.andReturn('styleValue');
+                mockLineBreakElement.getAttribute.andCallFake(function(attributeName){
+                    switch(attributeName){
+                    case Subtitles.SUPPORTED_STYLES.FONT_SIZE:
+                        return {height: '10px', width: '12px'};
+                    default:
+                        return 'styleValue';
+                    }
+                });
 
                 subtitles._createElement(mockLineBreakElement);
 
@@ -438,11 +445,12 @@ require(
 
                 expect(subtitles._setStyleAttributeOnElement).toHaveBeenCalledWith(mockHTMLElement,'color','styleValue');
                 expect(subtitles._setStyleAttributeOnElement).toHaveBeenCalledWith(mockHTMLElement,'backgroundColor','styleValue');
-                expect(subtitles._setStyleAttributeOnElement).toHaveBeenCalledWith(mockHTMLElement,'fontSize','styleValue');
+                expect(subtitles._setStyleAttributeOnElement).toHaveBeenCalledWith(mockHTMLElement,'fontSize','10px');
                 expect(subtitles._setStyleAttributeOnElement).toHaveBeenCalledWith(mockHTMLElement,'textOutline','styleValue');
                 expect(subtitles._setStyleAttributeOnElement).toHaveBeenCalledWith(mockHTMLElement,'fontStyle','styleValue');
                 expect(subtitles._setStyleAttributeOnElement).toHaveBeenCalledWith(mockHTMLElement,'fontFamily','styleValue');
             });
+
 
             it('can set the style on an element', function() {
                 var subtitles = new Subtitles('id', mockTimedText, mockGetMediaTimeCallback);
