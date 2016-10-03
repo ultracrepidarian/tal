@@ -58,7 +58,7 @@ require(
                                 '<style xml:id="backgroundStyle"' +
                                     ' tts:backgroundColor="rgba(72,128,132,0.75)"' +
                                     ' tts:displayAlign="after"' +
-                                    ' tts:extent="100% 48%"' +
+                                    ' tts:extent="100% 50%"' +
                                     ' tts:origin="0% 50%"' +
                                     ' tts:fontFamily="Arial"' +
                                     ' tts:fontSize="18px"' +
@@ -144,7 +144,7 @@ require(
                                     '<style xml:id="backgroundStyle"' +
                                         ' tts:backgroundColor="rgba(72,128,132,0.75)"' +
                                         ' tts:displayAlign="after"' +
-                                        ' tts:extent="100% 48%"' +
+                                        ' tts:extent="100% 50%"' +
                                         ' tts:origin="0% 50%"' +
                                         ' tts:fontFamily="Arial"' +
                                         ' tts:fontSize="18px"' +
@@ -596,7 +596,7 @@ require(
                                 '<style xml:id="backgroundStyle"' +
                                     ' tts:backgroundColor="rgba(128,128,128,200)"' +
                                     ' tts:displayAlign="after"' +
-                                    ' tts:extent="100% 48%"' +
+                                    ' tts:extent="100% 50%"' +
                                     ' tts:origin="0% 50%"' +
                                     ' tts:fontFamily="Arial"' +
                                     ' tts:fontSize="18px"' +
@@ -715,7 +715,7 @@ require(
                                     ' tts:direction="ltr"' +
                                     ' tts:display="auto"' +
                                     ' tts:displayAlign="before"' +
-                                    ' tts:extent="100% 48%"' +
+                                    ' tts:extent="100% 50%"' +
                                     ' tts:fontFamily="Arial"' +
                                     ' tts:fontSize="18px"' +
                                     ' tts:fontStyle="normal"' +
@@ -773,7 +773,7 @@ require(
                 expect(backgroundStyle.getAttribute('displayAlign')).toBe('before');
                 expect(backgroundStyle.getAttribute('direction')).toBe('ltr');
                 expect(backgroundStyle.getAttribute('display')).toBe('auto');
-                expect(backgroundStyle.getAttribute('extent')).toEqual({width: '100%', height: '48%'});
+                expect(backgroundStyle.getAttribute('extent')).toEqual({width: '100%', height: '50%'});
                 expect(backgroundStyle.getAttribute('fontFamily')).toBe('Arial');
                 expect(backgroundStyle.getAttribute('fontSize')).toEqual({width: '18px', height: '18px'});
                 expect(backgroundStyle.getAttribute('fontStyle')).toBe('normal');
@@ -799,6 +799,76 @@ require(
                 expect(speakerStyle.getAttribute('color')).toBe('#FFFFFF');
                 expect(speakerStyle.getAttribute('textOutline')).toEqual({color: '#000000', outlineThickness: '1px', blurRadius: '1px'});
                 expect(speakerStyle.getAttribute('style')[0]).toBe(backgroundStyle);
+            });
+
+            it('resolves refernces to style attributes via style tag references and inheritance', function() {
+                var ttmlDocStyle = new DOMParser().parseFromString(
+                    '<?xml version="1.0" encoding="UTF-8"?>' +
+                    '<tt' +
+                            ' xmlns="http://www.w3.org/ns/ttml"' +
+                            ' xmlns:ttp="http://www.w3.org/ns/ttml#parameter"' +
+                            ' xmlns:tts="http://www.w3.org/ns/ttml#styling"' +
+                            ' xmlns:ttm="http://www.w3.org/ns/ttml#metadata"' +
+                            ' xml:lang="eng"' +
+                            ' ttp:profile="http://www.w3.org/ns/ttml#profile-dfxp"' +
+                            ' ttp:timeBase="smpte"' +
+                            ' ttp:frameRate="30"' +
+                            ' ttp:frameRateMultiplier="1000 1001"' +   // Typical value for NTSC: 30*(1000/1001) ~= 29.97 fps
+                            ' ttp:dropMode="dropNTSC"' +
+                            ' ttp:markerMode="continuous"' +
+                            ' ttp:clockMode="local"' +
+                            ' ttp:cellResolution="80 24"' +
+                        '>' +
+                        '<head>' +
+                            '<styling>' +
+                                '<style xml:id="backgroundStyle"' +
+                                    ' tts:backgroundColor="rgba(128,128,128,200)"' +
+                                    ' tts:displayAlign="after"' +
+                                    ' tts:fontFamily="Arial"' +
+                                    ' tts:fontSize="18px"' +
+                                    ' tts:fontStyle="normal"' +
+                                    ' tts:textAlign="center"' +
+                                ' />' +
+                                ' <style xml:id="speakerStyle"' +
+                                    ' tts:backgroundColor="transparent"' +
+                                    ' tts:color="#FFFFFF"' +
+                                    ' tts:textOutline="#000000 1px 1px"' +
+                                    ' style="backgroundStyle"' +
+                                ' />' +
+                            '</styling>' +
+                            '<layout>' +
+                                '<region xml:id="speaker" style="speakerStyle" tts:zIndex="1"/>' +
+                                '<region xml:id="background" style="backgroundStyle" tts:zIndex="0"/>' +
+                            '</layout>' +
+                        '</head>' +
+                        '<body>' +
+                            '<div tts:wrapOption="noWrap" fontFamily="sansSerif" tts:color="rgba(128,127,0,1.0)">' +
+                                '<p begin="00:00:02:02" end="00:00:05:12" region="speaker">' +
+                                    '<span tts:color="white">Welcome to the beautiful Bisham</span><br/>' +
+                                    '<span tts:color="white" style="speakerStyle">Abbey. If you wander round the</span>' +
+                                '</p>' +
+                                '<p begin="00:00:05:13" end="00:00:07:29" region="speaker">grounds</p>' +
+                            '</div>' +
+                        '</body>' +
+                    '</tt>',
+
+                    'text/xml'
+                );
+
+                // Method under test
+                var timedText = ttmlParser.parse(ttmlDocStyle);
+
+                var body = timedText.getBody();
+                var div = body.getChildren()[0];
+                var paragraph = div.getChildren()[0];
+                var span = paragraph.getChildren()[2]; // 2nd span
+
+                expect(span).toEqual(jasmine.any(TimedTextElement));
+                expect(span.getNodeName()).toBe(TimedTextElement.NODE_NAME.span);
+
+                expect(span.getAttribute('wrapOption')).toBe('noWrap'); // Inherited from parent div
+                expect(span.getAttribute('fontFamily')).toBe('Arial');  // Not inherited from parent div, as it's specified on an (indirectly) referenced style tag
+                expect(span.getAttribute('color')).toBe('white');       // Not inherited from parent div or referenced style, as it is specified inline
             });
 
         });

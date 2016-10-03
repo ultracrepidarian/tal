@@ -45,6 +45,10 @@ define(
              *        The parsed object the xml:id refers to
              */
             setReference: function(id, element) {
+                if (typeof element !== 'object' || !(element instanceof TimedTextElement)) {
+                    throw new Error('setReference: element should be of type antie.subtitles.TimedTextElement, but was ' + typeof element + ': ' + element);
+                }
+
                 if (this._references.hasOwnProperty(id)) {
                     this._report('duplicate id: ' + id);
                 } else {
@@ -83,9 +87,13 @@ define(
              */
             init: function() {
                 this._ttmlNamespaces = new TtmlNamespaces();
-                this._timedTextAttributes = null;
                 this._styleReferences = null;
                 this._regionReferences = null;
+
+                // Set a default effective framerate, just in case we wind up parsing timestamp
+                // attributes in the <tt> tag, before the framerate itself has been parsed.
+                // There shouldn't be any, but we cannot depend upon it.
+                this._effectiveFrameRate = 30;
             },
 
             /**
@@ -915,7 +923,7 @@ define(
                 textElement.setText(xmlTextElement.textContent);
                 return textElement;
             },
-            
+
             /**
              * Parses the XML "mixed content" common to many elements.
              *
@@ -987,10 +995,46 @@ define(
             _parseTt: function (ttmlTtElement) {
                 // var lang = ttmlTtElement.getAttributeNS(TimedTextElement.NAMESPACE.xml, 'lang');
 
-                this._timedTextAttributes = new TimedTextAttributes();
-                this._parseAttributes(ttmlTtElement, this._timedTextAttributes);
-                var frameRate = this._timedTextAttributes.getAttribute('frameRate');
-                var framRateMultiplier = this._timedTextAttributes.getAttribute('frameRateMultiplier');
+                var frameRate;
+                var timedTextAttributes = new TimedTextAttributes();
+                this._parseAttributes(ttmlTtElement, timedTextAttributes);
+
+                if (!timedTextAttributes.getAttribute('tickRate')) {
+                    frameRate = timedTextAttributes.getAttribute('frameRate');
+                    if (frameRate) {
+                        var subFrameRate = timedTextAttributes.getAttribute('subFrameRate') || timedTextAttributes.getDefault('subFrameRate');
+                        timedTextAttributes.setAttribute('tickRate', frameRate * subFrameRate);
+                    } else {
+                        timedTextAttributes.setAttribute('tickRate', timedTextAttributes.getDefault('tickRate'));
+                    }
+                }
+
+                // This array literal gives ESLint a headache. No indentation will satisfy it. We always get one of:
+                //   Expected indentation of 20 space characters but found 16
+                //   Expected indentation of 16 space characters but found 20
+                /* eslint-disable indent */
+                [
+                    'cellResolution',
+                    'clockMode',
+                    'dropMode',
+                    'frameRate',
+                    'frameRateMultiplier',
+                    'markerMode',
+                    'pixelAspectRatio',
+                    'profile',
+                    'subFrameRate',
+                    'timeBase'
+                ].forEach(
+                    /* eslint-enable indent */
+                    function(name) {
+                        if (!timedTextAttributes.getAttribute(name)) {
+                            timedTextAttributes.setAttribute(name, timedTextAttributes.getDefault(name));
+                        }
+                    },
+                    this
+                );
+                frameRate = timedTextAttributes.getAttribute('frameRate');
+                var framRateMultiplier = timedTextAttributes.getAttribute('frameRateMultiplier');
                 this._effectiveFrameRate = frameRate * framRateMultiplier.numerator / framRateMultiplier.denominator;
 
                 var children = ttmlTtElement.childNodes;
@@ -1032,7 +1076,7 @@ define(
                 }
 
                 var timedText = new TimedText(head, body);
-                timedText.setAttributes(this._timedTextAttributes);
+                timedText.setAttributes(timedTextAttributes);
                 timedText.initialiseActiveElements();
 
                 return timedText;

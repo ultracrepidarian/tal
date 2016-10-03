@@ -14,6 +14,18 @@ define(
                 default:     'transparent',
                 appliesTo:   [ 'body', 'div', 'p', 'region', 'span' ]
             },
+            cellResolution: {
+                inheritable: false,
+                style:       false,
+                default:     {columns: 32, rows: 15},
+                appliesTo:   [ 'tt' ]
+            },
+            clockMode: {
+                inheritable: false,
+                style:       false,
+                default:     'utc',
+                appliesTo:   [ 'tt' ]
+            },
             color: {
                 inheritable: true,
                 style:       true,
@@ -37,6 +49,12 @@ define(
                 style:       true,
                 default:     'before',
                 appliesTo:   [ 'region' ]
+            },
+            dropMode: {
+                inheritable: false,
+                style:       false,
+                default:     'nonDrop',
+                appliesTo:   [ 'tt' ]
             },
             extent: {
                 inheritable: false,
@@ -62,17 +80,58 @@ define(
                 default:     'normal',
                 appliesTo:   [ 'span' ]
             },
+            frameRate: {
+                inheritable: false,
+                style:       false,
+                default:     30,
+                appliesTo:   [ 'tt' ]
+            },
+            frameRateMultiplier: {
+                inheritable: false,
+                style:       false,
+                default:     {numerator: 1, denominator: 1},
+                appliesTo:   [ 'tt' ]
+            },
             fontWeight: {
                 inheritable: true,
                 style:       true,
                 default:     'normal',
                 appliesTo:   [ 'span' ]
             },
+            id: {
+                inheritable: false,
+                style:       false,
+                default:     null,
+                appliesTo:   [
+                    'tt',
+                    'body', 'div', 'p', 'span', 'br',
+                    'head', 'layout', 'region', 'styling', 'style',
+                    'metadata', 'actor', 'agent', 'copyright', 'desc', 'name', 'title',
+                    /* parameters */ 'profile', 'features', 'feature', 'extensions', 'extension'
+                ]
+            },
+            lang: {
+                inheritable: false,
+                style:       false,
+                default:     '',
+                appliesTo:   [
+                    'tt',
+                    'body', 'div', 'p', 'span', 'br',
+                    'head', 'layout', 'region', 'styling', 'style',
+                    'metadata', 'actor', 'agent', 'copyright', 'desc', 'name', 'title'
+                ]
+            },
             lineHeight: {
                 inheritable: true,
                 style:       true,
                 default:     'normal',
                 appliesTo:   [ 'p' ]
+            },
+            markerMode: {
+                inheritable: false,
+                style:       false,
+                default:     'discontinuous',
+                appliesTo:   [ 'tt' ]
             },
             opacity: {
                 inheritable: false,
@@ -98,11 +157,52 @@ define(
                 default:     '0px',
                 appliesTo:   [ 'region' ]
             },
+            pixelAspectRatio: {
+                inheritable: false,
+                style:       false,
+                default:     {width: 1, height: 1},
+                appliesTo:   [ 'tt' ]
+            },
+            profile: {
+                inheritable: false,
+                style:       false,
+                default:     null,
+                appliesTo:   [ 'tt' ]
+            },
+            region: {
+                inheritable: false,
+                style:       false,
+                default:     null,
+                appliesTo:   [ 'body', 'div', 'p', 'span' ]
+            },
             showBackground: {
                 inheritable: false,
                 style:       true,
                 default:     'always',
                 appliesTo:   [ 'region' ]
+            },
+            space: {
+                inheritable: false,
+                style:       false,
+                default:     'default',
+                appliesTo:   [
+                    'tt',
+                    'body', 'div', 'p', 'span', 'br',
+                    'head', 'layout', 'region', 'styling', 'style',
+                    'metadata', 'actor', 'agent', 'copyright', 'desc', 'name', 'title'
+                ]
+            },
+            style: {
+                inheritable: false,
+                style:       false,
+                default:     null,
+                appliesTo:   [ 'body', 'div', 'p' , 'region', 'span', 'style' ]
+            },
+            subFrameRate: {
+                inheritable: false,
+                style:       false,
+                default:     1,
+                appliesTo:   [ 'tt' ]
             },
             textAlign: {
                 inheritable: true,
@@ -121,6 +221,18 @@ define(
                 style:       true,
                 default:     'none',
                 appliesTo:   [ 'span' ]
+            },
+            tickRate: {
+                inheritable: false,
+                style:       false,
+                default:     1,   // The default is actually specified in terms of other parameter values, and is dealt with in the parser
+                appliesTo:   [ 'tt' ]
+            },
+            timeBase: {
+                inheritable: false,
+                style:       false,
+                default:     'media',
+                appliesTo:   [ 'tt' ]
             },
             unicodeBidi: {
                 inheritable: false,
@@ -209,41 +321,17 @@ define(
                 if (value !== undefined && value !== null) {
                     return value;
                 } else if (this.isStyleAttribute(name) && this._attributeMap.style) {
-                    for (var i = 0; i < this._attributeMap.style.length; i++) {
-                        value = this._attributeMap.style[i].getAttribute(name);
+                    var styleElements = this._attributeMap.style;
+                    for (var i = 0; i < styleElements.length; i++) {
+                        // Just get the value from the <style> tag's attributes (don't try to climb the inheritance hierarchy again)
+                        value = styleElements[i].getAttributes().getAttribute(name);
                         if (value !== undefined && value !== null) {
                             return value;
                         }
                     }
                 }
 
-                // Return default value if there is one
-                switch (name) {
-                case 'cellResolution':
-                    return {columns: 32, rows: 15};
-                case 'clockMode':
-                    return 'utc';
-                case 'dropMode':
-                    return 'nonDrop';
-                case 'frameRate':
-                    return 30;
-                case 'frameRateMultiplier':
-                    return {numerator: 1, denominator: 1};
-                case 'markerMode':
-                    return 'discontinuous';
-                case 'pixelAspectRatio':
-                    return {width: 1, height: 1};
-                case 'subFrameRate':
-                    return 1;
-                case 'tickRate':
-                    return this._attributeMap.frameRate ? this._attributeMap.frameRate * this.getAttribute('subFrameRate') : 1;
-                case 'timeBase':
-                    return 'media';
-                case 'timeContainer':
-                    return 'par';
-                default:
-                    return null;
-                }
+                return null;
             },
 
             /**
@@ -298,6 +386,37 @@ define(
                 } else {
                     return false;
                 }
+            },
+
+            /**
+             * Checks whether an attribute is applicable to a specified element.
+             *
+             * @param {String} name
+             *        The name of the attribute
+             *
+             * @param {String} elementType
+             *        The element type to be checked
+             *
+             * @returns {Boolean} true if the named attribute is applicable to elementType,
+             *                    false if not
+             * @public
+             */
+            isApplicableTo: function(name, elementType) {
+                if (descriptors.hasOwnProperty(name)) {
+                    var appliesTo = descriptors[name].appliesTo;
+                    for (var i = 0; i < appliesTo.length; i++) {
+                        if (appliesTo[i] === elementType) {
+                            return true;
+                        }
+                    }
+
+                    // All tts attributes should be returned from a style element
+                    if (elementType === 'style' && descriptors[name].style) {
+                        return true;
+                    }
+                }
+
+                return false;
             },
 
             /**

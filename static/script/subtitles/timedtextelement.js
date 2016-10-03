@@ -71,7 +71,7 @@ define(
              * @public
              */
             setParent: function(parent) {
-                if (parent instanceof TimedTextElement) {
+                if (typeof parent === 'object' && parent instanceof TimedTextElement) {
                     this._parent = parent;
                 } else {
                     throw new Error('TimedTextElement - parent should be a TimedTextElement but was: ' + typeof parent + '. Value: ' + parent);
@@ -121,8 +121,34 @@ define(
             },
 
             /**
-             * Returns the value of an attribute. Convenience method - short for
-             * this.getAttributes().getAttribute(name)
+             * Returns the value of an attribute, whether it's applicable to this
+             * element type or not.  If it's an inheriable attribute then it
+             * will also be searched for on this element's ancestors if it is not
+             * present on this element.
+             *
+             * @param {String} name
+             *        The name of the attribute
+             *
+             * @returns {?any} the value of the named attribute, or null if it has not been set
+             * @private
+             */
+            _getAttributeValue: function(name) {
+                var value = this._attributes.getAttribute(name);
+
+                if (value !== null && value !== undefined) {
+                    return value;
+                } else if (this._parent && this._attributes.isInheritable(name)) {
+                    return this._parent._getAttributeValue(name);
+                } else {
+                    return value;
+                }
+            },
+
+            /**
+             * Returns the value of an attribute.  Will only return values applicable
+             * to this element's type.  If it's an inheriable attribute then it
+             * will also be searched for on this element's ancestors if it is not
+             * present on this element.
              *
              * @param {String} name
              *        The name of the attribute
@@ -131,7 +157,11 @@ define(
              * @public
              */
             getAttribute: function(name) {
-                return this._attributes.getAttribute(name);
+                if (this._attributes.isApplicableTo(name, this._nodeName)) {
+                    return this._getAttributeValue(name);
+                } else {
+                    return null;
+                }
             },
 
             /**

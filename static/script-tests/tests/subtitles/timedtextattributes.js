@@ -1,9 +1,10 @@
 require(
     [
         'antie/subtitles/timedtextattributes',
+        'antie/subtitles/timedtextelement',
         'antie/subtitles/timestamp'
     ],
-    function(TimedTextAttributes, Timestamp) {
+    function(TimedTextAttributes, TimedTextElement, Timestamp) {
         'use strict';
 
         describe('antie.subtitles.TimedTextAttributes', function() {
@@ -83,61 +84,70 @@ require(
             });
 
             it('will choose inline tts attribute value from element if there is one', function() {
-                var style00Attributes = new TimedTextAttributes();
-                var style0Attributes = new TimedTextAttributes();
-                style0Attributes.setAttribute('style', [ style00Attributes ]);
-                var style1Attributes = new TimedTextAttributes();
+                var style00 = new TimedTextElement(TimedTextElement.NODE_NAME.style);
+                var style0 = new TimedTextElement(TimedTextElement.NODE_NAME.style);
+                style0.getAttributes().setAttribute('style', [ style00 ]);
+                var style1 = new TimedTextElement(TimedTextElement.NODE_NAME.style);
                 var attributes = new TimedTextAttributes();
-                attributes.setAttribute('style', [ style0Attributes, style1Attributes ]);
+                attributes.setAttribute('style', [ style0, style1 ]);
 
-                style00Attributes.setAttribute('backgroundColor', 'rgba(128,0,56,0.3)');
-                style0Attributes.setAttribute('backgroundColor', '#FFEE00');
-                style1Attributes.setAttribute('backgroundColor', '#0000FE');
+                style00.getAttributes().setAttribute('backgroundColor', 'rgba(128,0,56,0.3)');
+                style0.getAttributes().setAttribute('backgroundColor', '#FFEE00');
+                style1.getAttributes().setAttribute('backgroundColor', '#0000FE');
                 attributes.setAttribute('backgroundColor', 'red');
 
                 expect(attributes.getAttribute('backgroundColor')).toBe('red');
             });
 
             it('will choose tts attribute value from first referenced style if there is no inline attribute', function() {
-                var style00Attributes = new TimedTextAttributes();
-                var style0Attributes = new TimedTextAttributes();
-                style0Attributes.setAttribute('style', [ style00Attributes ]);
-                var style1Attributes = new TimedTextAttributes();
+                var style00 = new TimedTextElement(TimedTextElement.NODE_NAME.style);
+                var style0 = new TimedTextElement(TimedTextElement.NODE_NAME.style);
+                style0.getAttributes().setAttribute('style', [ style00 ]);
+                var style1 = new TimedTextElement(TimedTextElement.NODE_NAME.style);
                 var attributes = new TimedTextAttributes();
-                attributes.setAttribute('style', [ style0Attributes, style1Attributes ]);
+                attributes.setAttribute('style', [ style0, style1 ]);
 
-                style00Attributes.setAttribute('backgroundColor', 'rgba(128,0,56,0.3)');
-                style0Attributes.setAttribute('backgroundColor', '#FFEE00');
-                style1Attributes.setAttribute('backgroundColor', '#0000FE');
+                style00.getAttributes().setAttribute('backgroundColor', 'rgba(128,0,56,0.3)');
+                style0.getAttributes().setAttribute('backgroundColor', '#FFEE00');
+                style1.getAttributes().setAttribute('backgroundColor', '#0000FE');
 
                 expect(attributes.getAttribute('backgroundColor')).toBe('#FFEE00');
             });
 
             it('will choose tts attribute value depth-first from referenced style until found', function() {
-                var style00Attributes = new TimedTextAttributes();
-                var style0Attributes = new TimedTextAttributes();
-                style0Attributes.setAttribute('style', [ style00Attributes ]);
-                var style1Attributes = new TimedTextAttributes();
+                var style00 = new TimedTextElement(TimedTextElement.NODE_NAME.style);
+                var style0 = new TimedTextElement(TimedTextElement.NODE_NAME.style);
+                style0.getAttributes().setAttribute('style', [ style00 ]);
+                var style1 = new TimedTextElement(TimedTextElement.NODE_NAME.style);
                 var attributes = new TimedTextAttributes();
-                attributes.setAttribute('style', [ style0Attributes, style1Attributes ]);
+                attributes.setAttribute('style', [ style0, style1 ]);
 
-                style00Attributes.setAttribute('backgroundColor', 'rgba(128,0,56,0.3)');
-                style1Attributes.setAttribute('backgroundColor', '#0000FE');
+                style00.getAttributes().setAttribute('backgroundColor', 'rgba(128,0,56,0.3)');
+                style1.getAttributes().setAttribute('backgroundColor', '#0000FE');
 
                 expect(attributes.getAttribute('backgroundColor')).toBe('rgba(128,0,56,0.3)');
             });
 
             it('will choose tts attribute value from next referenced style if not found depth-first in 1st one', function() {
-                var style00Attributes = new TimedTextAttributes();
-                var style0Attributes = new TimedTextAttributes();
-                style0Attributes.setAttribute('style', [ style00Attributes ]);
-                var style1Attributes = new TimedTextAttributes();
+                var style00 = new TimedTextElement(TimedTextElement.NODE_NAME.style);
+                var style0 = new TimedTextElement(TimedTextElement.NODE_NAME.style);
+                style0.getAttributes().setAttribute('style', [ style00 ]);
+                var style1 = new TimedTextElement(TimedTextElement.NODE_NAME.style);
                 var attributes = new TimedTextAttributes();
-                attributes.setAttribute('style', [ style0Attributes, style1Attributes ]);
+                attributes.setAttribute('style', [ style0, style1 ]);
 
-                style1Attributes.setAttribute('backgroundColor', '#0000FE');
+                style1.getAttributes().setAttribute('backgroundColor', '#0000FE');
 
                 expect(attributes.getAttribute('backgroundColor')).toBe('#0000FE');
+            });
+
+            it('is applicable to tags listed in appliesTo', function() {
+                var attributes = new TimedTextAttributes();
+                expect(attributes.appliesTo('direction')).toEqual([ 'p', 'span' ]);
+                expect(attributes.isApplicableTo('direction', 'p')).toBe(true);
+                expect(attributes.isApplicableTo('direction', 'span')).toBe(true);
+                expect(attributes.isApplicableTo('direction', 'div')).toBe(false);
+                expect(attributes.isApplicableTo('direction', 'tt')).toBe(false);
             });
 
             it('knows all about tts:backgroundColor attribute', function() {
