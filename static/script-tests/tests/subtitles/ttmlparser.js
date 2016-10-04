@@ -56,7 +56,7 @@ require(
                         '<head>' +
                             '<styling>' +
                                 '<style xml:id="backgroundStyle"' +
-                                    ' tts:backgroundColor="rgba(72,128,132,0.75)"' +
+                                    ' tts:backgroundColor="rgba(72,128,132,191)"' +
                                     ' tts:displayAlign="after"' +
                                     ' tts:extent="100% 50%"' +
                                     ' tts:origin="0% 50%"' +
@@ -230,7 +230,7 @@ require(
                 expect(styles[0].getAttribute('color')).toBeNull();
 
                 expect(styles[1].getAttribute('id')).toBe('speakerStyle');
-                expect(styles[1].getAttribute('backgroundColor')).toBe('rgba(0,0,0,0)'); // 'transparent' mapped to CSS value
+                expect(styles[1].getAttribute('backgroundColor')).toBe('rgba(0,0,0,0.0)'); // 'transparent' mapped to CSS value
                 expect(styles[1].getAttribute('color')).toBe('#FFFFFF');
 
                 expect(timedText.getHead().getParent()).toBe(timedText);
@@ -396,6 +396,15 @@ require(
                 expect(paragraph.getParent()).toBe(div);
                 expect(div.getParent()).toBe(body);
                 expect(body.getParent()).toBe(timedText);
+            });
+
+            it('parses recognised colours into CSS3 equivalents', function() {
+                expect(ttmlParser._parseColour('#FFEE00')).toBe('#FFEE00');
+                expect(ttmlParser._parseColour('#FFEE007F')).toBe('rgba(255,238,0,0.50)');
+                expect(ttmlParser._parseColour('rgb(45,96,216)')).toBe('rgb(45,96,216)');
+                expect(ttmlParser._parseColour('rgba(45,96,216,128)')).toBe('rgba(45,96,216,0.50)');
+                expect(ttmlParser._parseColour('transparent')).toBe('rgba(0,0,0,0.0)');
+                expect(ttmlParser._parseColour('red')).toBe('red');
             });
 
             it('finds all timing points', function() {
@@ -711,7 +720,7 @@ require(
                         '<head>' +
                             '<styling>' +
                                 '<style xml:id="backgroundStyle"' +
-                                    ' tts:backgroundColor="rgba(72,128,132,0.75)"' +
+                                    ' tts:backgroundColor="rgba(72,128,132,191)"' +
                                     ' tts:direction="ltr"' +
                                     ' tts:display="auto"' +
                                     ' tts:displayAlign="before"' +
@@ -780,7 +789,7 @@ require(
                 expect(backgroundStyle.getAttribute('fontWeight')).toBe('bold');
                 expect(backgroundStyle.getAttribute('lineHeight')).toBe('1.5em');
                 expect(backgroundStyle.getAttribute('opacity')).toBeCloseTo(1.0, 1);
-                expect(backgroundStyle.getAttribute('origin')).toEqual({width: '0%', height: '50%'});
+                expect(backgroundStyle.getAttribute('origin')).toEqual({left: '0%', top: '50%'});
                 expect(backgroundStyle.getAttribute('overflow')).toBe('hidden');
                 expect(backgroundStyle.getAttribute('padding')).toEqual(['64px', '36px']);
                 expect(backgroundStyle.getAttribute('showBackground')).toBe('whenActive');
@@ -795,7 +804,7 @@ require(
 
                 var speakerStyle = styling.getChildren()[1];
                 expect(speakerStyle.getAttribute('id')).toBe('speakerStyle');
-                expect(speakerStyle.getAttribute('backgroundColor')).toBe('rgba(0,0,0,0)'); // transparent
+                expect(speakerStyle.getAttribute('backgroundColor')).toBe('rgba(0,0,0,0.0)'); // transparent
                 expect(speakerStyle.getAttribute('color')).toBe('#FFFFFF');
                 expect(speakerStyle.getAttribute('textOutline')).toEqual({color: '#000000', outlineThickness: '1px', blurRadius: '1px'});
                 expect(speakerStyle.getAttribute('style')[0]).toBe(backgroundStyle);
@@ -842,9 +851,9 @@ require(
                             '</layout>' +
                         '</head>' +
                         '<body>' +
-                            '<div tts:wrapOption="noWrap" fontFamily="sansSerif" tts:color="rgba(128,127,0,1.0)">' +
+                            '<div tts:wrapOption="noWrap" tts:fontFamily="sansSerif" tts:color="rgba(128,127,0,127)">' +
                                 '<p begin="00:00:02:02" end="00:00:05:12" region="speaker">' +
-                                    '<span tts:color="white">Welcome to the beautiful Bisham</span><br/>' +
+                                    '<span>Welcome to the beautiful Bisham</span><br/>' +
                                     '<span tts:color="white" style="speakerStyle">Abbey. If you wander round the</span>' +
                                 '</p>' +
                                 '<p begin="00:00:05:13" end="00:00:07:29" region="speaker">grounds</p>' +
@@ -861,14 +870,95 @@ require(
                 var body = timedText.getBody();
                 var div = body.getChildren()[0];
                 var paragraph = div.getChildren()[0];
-                var span = paragraph.getChildren()[2]; // 2nd span
+                var span0 = paragraph.getChildren()[0]; // 2nd span
+                var span1 = paragraph.getChildren()[2]; // 2nd span
 
-                expect(span).toEqual(jasmine.any(TimedTextElement));
-                expect(span.getNodeName()).toBe(TimedTextElement.NODE_NAME.span);
+                expect(span0.getNodeName()).toBe(TimedTextElement.NODE_NAME.span);
+                expect(span1.getNodeName()).toBe(TimedTextElement.NODE_NAME.span);
 
-                expect(span.getAttribute('wrapOption')).toBe('noWrap'); // Inherited from parent div
-                expect(span.getAttribute('fontFamily')).toBe('Arial');  // Not inherited from parent div, as it's specified on an (indirectly) referenced style tag
-                expect(span.getAttribute('color')).toBe('white');       // Not inherited from parent div or referenced style, as it is specified inline
+                expect(span0.getAttribute('wrapOption')).toBe('noWrap');         // Inherited from parent div
+                expect(span0.getAttribute('fontFamily')).toBe('sansSerif');      // Inherited from parent div
+                expect(span0.getAttribute('color')).toBe('rgba(128,127,0,0.50)'); // Inherited from parent div
+
+                expect(span1.getAttribute('wrapOption')).toBe('noWrap'); // Inherited from parent div
+                expect(span1.getAttribute('fontFamily')).toBe('Arial');  // Not inherited from parent div, as it's specified on an (indirectly) referenced style tag
+                expect(span1.getAttribute('color')).toBe('white');       // Not inherited from parent div or referenced style, as it is specified inline
+            });
+
+            it('resolves refernces to style attributes inherited from a region', function() {
+                var ttmlDocStyle = new DOMParser().parseFromString(
+                    '<?xml version="1.0" encoding="UTF-8"?>' +
+                    '<tt' +
+                            ' xmlns="http://www.w3.org/ns/ttml"' +
+                            ' xmlns:ttp="http://www.w3.org/ns/ttml#parameter"' +
+                            ' xmlns:tts="http://www.w3.org/ns/ttml#styling"' +
+                            ' xmlns:ttm="http://www.w3.org/ns/ttml#metadata"' +
+                            ' xml:lang="eng"' +
+                            ' ttp:cellResolution="80 24"' +
+                        '>' +
+                        '<head>' +
+                            '<styling>' +
+                                '<style xml:id="backgroundStyle"' +
+                                    ' tts:backgroundColor="rgba(128,128,128,200)"' +
+                                    ' tts:displayAlign="after"' +
+                                    ' tts:fontFamily="Arial"' +
+                                    ' tts:fontSize="18px"' +
+                                    ' tts:fontStyle="normal"' +
+                                    ' tts:textAlign="center"' +
+                                ' />' +
+                                '<style xml:id="speakerStyle"' +
+                                    ' tts:backgroundColor="transparent"' +
+                                    ' tts:color="#FFFFFF"' +
+                                    ' tts:textOutline="#000000 1px 1px"' +
+                                    ' style="backgroundStyle"' +
+                                ' />' +
+                            '</styling>' +
+                            '<layout>' +
+                                '<region xml:id="speaker" style="speakerStyle" tts:zIndex="1"/>' +
+                                '<region xml:id="background" style="backgroundStyle" tts:zIndex="0"/>' +
+                                '<region xml:id="inline" tts:fontWeight="bold">' +
+                                    '<style tts:backgroundColor="blue"' +
+                                        ' tts:fontWeight="normal"' +
+                                        ' tts:fontFamily="serif"' +
+                                        ' tts:direction="rtl"' +
+                                    ' />' +
+                                '</region>' +
+                            '</layout>' +
+                        '</head>' +
+                        '<body>' +
+                            '<div tts:wrapOption="noWrap" tts:fontFamily="sansSerif" tts:color="rgba(128,127,0,1.0)">' +
+                                '<p begin="00:00:02:02" end="00:00:05:12" region="inline">' +
+                                    '<span tts:color="white">Welcome to the beautiful Bisham</span><br/>' +
+                                    '<span tts:color="white" style="speakerStyle">Abbey. If you wander round the</span>' +
+                                '</p>' +
+                                '<p begin="00:00:05:13" end="00:00:07:29" region="inline">grounds</p>' +
+                            '</div>' +
+                        '</body>' +
+                    '</tt>',
+
+                    'text/xml'
+                );
+
+                // Method under test
+                var timedText = ttmlParser.parse(ttmlDocStyle);
+
+                var body = timedText.getBody();
+                var div = body.getChildren()[0];
+                var paragraph0 = div.getChildren()[0];
+                var paragraph1 = div.getChildren()[1];
+                var span0 = paragraph0.getChildren()[0]; // 1st span
+                var span1 = paragraph0.getChildren()[2]; // 2nd span
+
+                expect(paragraph1.getNodeName()).toBe(TimedTextElement.NODE_NAME.p);
+                expect(span0.getNodeName()).toBe(TimedTextElement.NODE_NAME.span);
+                expect(span1.getNodeName()).toBe(TimedTextElement.NODE_NAME.span);
+
+                expect(span0.getAttribute('fontFamily')).toBe('sansSerif'); // Not inherited from region as it's already inherited from element's parent
+                expect(span0.getAttribute('fontWeight')).toBe('bold');      // Inherited from region (but not region's inner style) as it's not specfied on a referenced style or a parent
+                expect(span0.getAttribute('direction')).toBe('rtl');        // Inherited from region's inner style, as it's not specfied on region, a referenced style or a parent
+                expect(span0.getAttribute('backgroundColor')).toBeNull();   // Not inherited from region, as it's not an inheritable attribute
+                expect(span1.getAttribute('fontFamily')).toBe('Arial');  // Not inherited from parent div, as it's specified on an (indirectly) referenced style tag
+                expect(span1.getAttribute('color')).toBe('white');       // Not inherited from region or parent div or referenced style, as it is specified inline
             });
 
         });

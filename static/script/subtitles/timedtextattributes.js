@@ -80,6 +80,12 @@ define(
                 default:     'normal',
                 appliesTo:   [ 'span' ]
             },
+            fontWeight: {
+                inheritable: true,
+                style:       true,
+                default:     'normal',
+                appliesTo:   [ 'span' ]
+            },
             frameRate: {
                 inheritable: false,
                 style:       false,
@@ -91,12 +97,6 @@ define(
                 style:       false,
                 default:     {numerator: 1, denominator: 1},
                 appliesTo:   [ 'tt' ]
-            },
-            fontWeight: {
-                inheritable: true,
-                style:       true,
-                default:     'normal',
-                appliesTo:   [ 'span' ]
             },
             id: {
                 inheritable: false,

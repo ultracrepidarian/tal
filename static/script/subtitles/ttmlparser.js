@@ -312,18 +312,42 @@ define(
                 }
             },
 
-            _parseColour: function(name, value) {
+            /**
+             * Parses a TTML colour value into a CSS3 equivalent.
+             *
+             * @param {String} value
+             *        the colour value to be parsed
+             * @private
+             */
+            _parseColour: function(value) {
+                if (typeof value !== 'string') {
+                    return null;
+                }
+
                 if (/^#[0-9a-fA-F]{6}$/.test(value)) {
+                    // 6 digit hex colour
                     return value;
                 } else if (/^#[0-9a-fA-F]{8}$/.test(value)) {
-                    return value.substring(0, 7);  // TODO support the full #RRGGBBAA string instead of just #RRGGBB
+                    // 8 digit hex colour+opacity
+                    var result = 'rgba(';
+                    for (var i = 0; i < 3; i++) {
+                        var index = 2 * i + 1;
+                        result += parseInt(value.substring(index, index + 2), 16) + ',';
+                    }
+                    result += (parseInt(value.substring(7, 9), 16) / 255).toFixed(2);  // Convert to CSS3 opacity, e.g. 'FF' to '1.00'
+                    return result + ')';
                 } else if (/^rgb\(\d+,\d+,\d+\)$/.test(value)) {
+                    // rgb() colour
                     return value;
-                }  else if (/^rgba\(\d+,\d+,\d+,(\d*\.)?\d+\)$/.test(value)) {
-                    return value;
+                }  else if (/^rgba\(\d+,\d+,\d+,\d+\)$/.test(value)) {
+                    // rgba() color and opacity (but opacity ranges between 0 and 255, not 0.0 and 1.0)
+                    return value.replace(/,(\d+)\)/, function(match, p1) {
+                        return ',' + (p1 / 255).toFixed(2) + ')';  // Convert to CSS3 opacity, e.g. '255' to '1.00'
+                    });
                 } else if (value.toLowerCase() === 'transparent') {
-                    return 'rgba(0,0,0,0)';       // Munge this while 'transparent' has no CSS support
-                } else if (/^[a-zA-Z]+$/.test(value)) {  // Named colour?
+                    return 'rgba(0,0,0,0.0)';       // Munge this while 'transparent' has no CSS support
+                } else if (/^[a-zA-Z]+$/.test(value)) {
+                    // Named colour?
                     return value;
                 } else {
                     return null;
@@ -353,16 +377,17 @@ define(
                     var name = attribute.localName || attribute .name;
                     if (attribute && this._ttmlNamespaces.isCanonicalNamespace('tts', attribute.namespaceURI)) {
                         var value = null;
+                        // var css3value = null;
                         var valueArray;
 
                         switch (name) {
 
                         case 'backgroundColor':
-                            value = this._parseColour(name, attribute.value);
+                            value = this._parseColour(attribute.value);
                             break;
 
                         case 'color':
-                            value = this._parseColour(name, attribute.value);
+                            value = this._parseColour(attribute.value);
                             break;
 
                         case 'direction':
@@ -430,7 +455,7 @@ define(
                                 valueArray = attribute.value.split(/\s+/);
                                 if (valueArray && valueArray.length === 2) {
                                     if (this._parseLength(valueArray[0]) && this._parseLength(valueArray[1])) {
-                                        value = {width: valueArray[0], height: valueArray[1]};
+                                        value = {left: valueArray[0], top: valueArray[1]};
                                     }
                                 }
                             }
@@ -493,7 +518,7 @@ define(
                                     for (var m = 0; m < valueArray.length; m++) {
                                         // The first element might be an optional colour
                                         if (m === 0) {
-                                            var colour = this._parseColour(name, valueArray[m]);
+                                            var colour = this._parseColour(valueArray[m]);
                                             if (colour) {
                                                 value.color = colour;
                                                 continue;

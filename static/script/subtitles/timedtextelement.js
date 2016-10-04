@@ -133,15 +133,47 @@ define(
              * @private
              */
             _getAttributeValue: function(name) {
-                var value = this._attributes.getAttribute(name);
-
+                var value;
+                value = this._attributes.getAttribute(name);
                 if (value !== null && value !== undefined) {
                     return value;
-                } else if (this._parent && this._attributes.isInheritable(name)) {
-                    return this._parent._getAttributeValue(name);
-                } else {
-                    return value;
                 }
+
+                if (this._nodeName === TimedTextElement.NODE_NAME.region) {
+                    // If this is a region element then search all its style elements
+                    if (this._attributes.isStyleAttribute(name)) {
+                        for (var i = 0; i < this._children.length; i++) {
+                            var child = this._children[i];
+                            if (child.getNodeName() === TimedTextElement.NODE_NAME.style) {
+                                value = child._getAttributeValue(name);
+                                if (value !== null && value !== undefined) {
+                                    return value;
+                                }
+                            }
+                        }
+                    }
+                } else {
+                    // If this is not a region then inheritance goes up - search parents (and then any associated regions)
+                    if (this._attributes.isInheritable(name)) {
+                        if (this._parent) {
+                            value = this._parent._getAttributeValue(name);
+                            if (value !== null && value !== undefined) {
+                                return value;
+                            }
+                        }
+
+                        // TODO What to do about a region "inherited" from a descendent?
+                        var region = this.getAttributes().getAttribute('region'); // Only search own region attribute (inheritance will search parents')
+                        if (region) {
+                            value = region[0]._getAttributeValue(name);
+                            if (value !== null && value !== undefined) {
+                                return value;
+                            }
+                        }
+                    }
+                }
+
+                return null;
             },
 
             /**
