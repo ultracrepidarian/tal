@@ -74,6 +74,7 @@ define(
              * to keep them updating
              */
             start: function () {
+                this._createRegions();
                 this.update();
 
                 if(!this._updateInterval){
@@ -85,8 +86,8 @@ define(
              */
             stop: function () {
                 this._activeElements = [];
-                this._regions = {};
                 this._removeCaptions();
+                this._regions = {};
 
                 if(this._updateInterval){
                     clearInterval(this._updateInterval);
@@ -151,6 +152,7 @@ define(
             _removeCaptions: function () {
                 var device = this.getCurrentApplication().getDevice();
                 device.clearElement(this.outputElement);
+                this._regions = {};
             },
 
             /**

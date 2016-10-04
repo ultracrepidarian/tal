@@ -207,12 +207,14 @@ require(
                 var subtitles = new Subtitles('id', mockTimedText, mockGetMediaTimeCallback);
                 subtitles._updateInterval = 10;
                 subtitles._activeElements = mockActiveElements;
+                subtitles._regions = {'regionId': 'region'};
                 spyOn(subtitles, '_removeCaptions');
 
                 spyOn(window, 'clearInterval');
 
                 subtitles.stop();
 
+                expect(subtitles._regions).toEqual({});
                 expect(subtitles._updateInterval).toEqual(null);
                 expect(subtitles._activeElements).toEqual([]);
                 expect(subtitles._removeCaptions).toHaveBeenCalled();
@@ -273,13 +275,15 @@ require(
             });
 
 
-            it('_removeCaptions will clear the outputElement', function() {
+            it('_removeCaptions will clear the outputElement and remove references to regions', function() {
                 var subtitles = new Subtitles('id', mockTimedText, mockGetMediaTimeCallback);
                 subtitles.outputElement = mockOutputElement;
+                subtitles._regions = {'regionId': 'region'};
 
                 subtitles._removeCaptions();
 
                 expect(mockBrowserDevice.clearElement).toHaveBeenCalledWith(mockOutputElement);
+                expect(subtitles._regions).toEqual({});
             });
 
             it('_addCaptions do nothing if called with an empty array', function() {
