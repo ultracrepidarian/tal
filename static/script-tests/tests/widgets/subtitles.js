@@ -352,7 +352,7 @@ require(
                 subtitles.outputElement = mockOutputElement;
 
                 mockActiveElements = [mockPElement1];
-                mockPElement1.getAttribute.andReturn(mockRegionElement1); //TODO this shoudlnt be an array
+                mockPElement1.getAttribute.andReturn(mockRegionElement1);
                 mockRegionElement1.getAttribute.andReturn('regionId');
 
                 spyOn(subtitles, '_getRegionById').andReturn(mockRegion);
@@ -369,7 +369,7 @@ require(
                 subtitles.outputElement = mockOutputElement;
 
                 mockActiveElements = [mockPElement1];
-                mockPElement1.getAttribute.andReturn(mockRegionElement1); //TODO this shoudlnt be an array
+                mockPElement1.getAttribute.andReturn(mockRegionElement1);
                 mockRegionElement1.getAttribute.andReturn('regionId');
 
                 spyOn(subtitles, '_getRegionById').andReturn(null);
