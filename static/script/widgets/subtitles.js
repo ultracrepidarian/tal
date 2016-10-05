@@ -166,16 +166,16 @@ define(
 
                 for(var i = 0; i < activeElements.length; i++){
                     var element = this._createElementTree(activeElements[i]);
-                    var elementRegion = null;
-                    var targetRegion = null;
+                    var domRegion = null;
 
                     if(activeElements[i].getAttribute('region')){
-                        elementRegion = activeElements[i].getAttribute('region')[0];
-                        targetRegion = this._getRegionById(elementRegion.getAttribute('id'));
+                        // try and find the region to append this new element to
+                        // if it has a region specified
+                        domRegion = this._getRegionById(activeElements[i].getAttribute('region').getAttribute('id'));
                     }
 
-                    if(targetRegion){
-                        device.appendChildElement(targetRegion, element);
+                    if(domRegion){
+                        device.appendChildElement(domRegion, element);
                     } else {
                         device.appendChildElement(this.outputElement, element);
                     }
