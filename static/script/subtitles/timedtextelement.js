@@ -165,7 +165,7 @@ define(
                         // TODO What to do about a region "inherited" from a descendent?
                         var region = this.getAttributes().getAttribute('region'); // Only search own region attribute (inheritance will search parents')
                         if (region) {
-                            value = region[0]._getAttributeValue(name);
+                            value = region._getAttributeValue(name);
                             if (value !== null && value !== undefined) {
                                 return value;
                             }

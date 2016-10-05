@@ -316,9 +316,8 @@ require(
                 expect(paragraphs[0].getAttributes().getAttribute('end').getMilliseconds()).toBe(5760);
                 expect(paragraphs[0].getAttributes().getAttribute('dur')).toBeNull();
 
-                expect(paragraphs[0].getAttribute('region').length).toBe(1);  // Only references 1 region
-                expect(paragraphs[0].getAttribute('region')[0]).toBe(regions[0]);
-                expect(paragraphs[0].getAttribute('region')[0].getAttribute('id')).toBe('speaker');
+                expect(paragraphs[0].getAttribute('region')).toBe(regions[0]);
+                expect(paragraphs[0].getAttribute('region').getAttribute('id')).toBe('speaker');
 
                 expect(paragraphs[1]).toEqual(jasmine.any(TimedTextElement));
                 expect(paragraphs[1].getNodeName()).toBe(TimedTextElement.NODE_NAME.p);
@@ -335,25 +334,28 @@ require(
                 expect(body.getParent()).toBe(timedText);
             });
 
-            it('parses <tt><body><div><p>text</p> into text on a TimedTextElement', function() {
+            it('parses <tt><body><div><p>text</p> into text on a TimedTextElement and wraps the text in an anonymous span', function() {
                 var timedText = ttmlParser.parse(ttmlDoc);
                 var body = timedText.getBody();
                 var div = body.getChildren()[0];
                 var paragraph = div.getChildren()[1];
-                var textElements = paragraph.getChildren();
+                var spans = paragraph.getChildren();
+                var textElements = spans[0].getChildren();
 
+                expect(spans.length).toBe(1);
                 expect(textElements.length).toBe(1);
                 expect(textElements[0]).toEqual(jasmine.any(TimedTextElement));
                 expect(textElements[0].getNodeName()).toBe(TimedTextElement.NODE_NAME.text);
                 expect(textElements[0].getText()).toBe('grounds');
 
-                expect(textElements[0].getParent()).toBe(paragraph);
+                expect(textElements[0].getParent()).toBe(spans[0]);
+                expect(spans[0].getParent()).toBe(paragraph);
                 expect(paragraph.getParent()).toBe(div);
                 expect(div.getParent()).toBe(body);
                 expect(body.getParent()).toBe(timedText);
             });
 
-            it('parses <tt><body><div><p><span> and <br> into TimedTextElements', function() {
+            it('parses <tt><body><div><p><span> and <br> into TimedTextElements and does not wrap the text in an anonymous span since it\'s already the child of a span', function() {
                 var timedText = ttmlParser.parse(ttmlDoc);
                 var body = timedText.getBody();
                 var div = body.getChildren()[0];
@@ -429,8 +431,9 @@ require(
                 expect(timedText._timePoints[2].active._elements.length).toBe(1);
                 expect(timedText._timePoints[3].active._elements.length).toBe(0);
                 expect(timedText._timePoints[2].active._elements[0].getNodeName()).toBe(TimedTextElement.NODE_NAME.p);
-                expect(timedText._timePoints[2].active._elements[0].getChildren()[0].getNodeName()).toBe(TimedTextElement.NODE_NAME.text);
-                expect(timedText._timePoints[2].active._elements[0].getChildren()[0].getText()).toBe('grounds');
+                expect(timedText._timePoints[2].active._elements[0].getChildren()[0].getNodeName()).toBe(TimedTextElement.NODE_NAME.span); // Bare text wrapped in anonymous span
+                expect(timedText._timePoints[2].active._elements[0].getChildren()[0].getChildren()[0].getNodeName()).toBe(TimedTextElement.NODE_NAME.text);
+                expect(timedText._timePoints[2].active._elements[0].getChildren()[0].getChildren()[0].getText()).toBe('grounds');
             });
 
             it('gets the correct active subtitles for a given time', function() {
@@ -447,8 +450,9 @@ require(
                 var elementsAt6 = timedText.getActiveElements(6);
                 expect(elementsAt6.length).toBe(1);
                 expect(elementsAt6[0].getNodeName()).toBe(TimedTextElement.NODE_NAME.p);
-                expect(elementsAt6[0].getChildren()[0].getNodeName()).toBe(TimedTextElement.NODE_NAME.text);
-                expect(elementsAt6[0].getChildren()[0].getText()).toBe('grounds');
+                expect(elementsAt6[0].getChildren()[0].getNodeName()).toBe(TimedTextElement.NODE_NAME.span); // Bare text wrapped in anonymous span
+                expect(elementsAt6[0].getChildren()[0].getChildren()[0].getNodeName()).toBe(TimedTextElement.NODE_NAME.text);
+                expect(elementsAt6[0].getChildren()[0].getChildren()[0].getText()).toBe('grounds');
 
                 var elementsAt8 = timedText.getActiveElements(8);
                 expect(elementsAt8.length).toBe(0);
@@ -810,7 +814,7 @@ require(
                 expect(speakerStyle.getAttribute('style')[0]).toBe(backgroundStyle);
             });
 
-            it('resolves refernces to style attributes via style tag references and inheritance', function() {
+            it('resolves references to style attributes via style tag references and inheritance', function() {
                 var ttmlDocStyle = new DOMParser().parseFromString(
                     '<?xml version="1.0" encoding="UTF-8"?>' +
                     '<tt' +
@@ -885,7 +889,7 @@ require(
                 expect(span1.getAttribute('color')).toBe('white');       // Not inherited from parent div or referenced style, as it is specified inline
             });
 
-            it('resolves refernces to style attributes inherited from a region', function() {
+            it('resolves references to style attributes inherited from a region', function() {
                 var ttmlDocStyle = new DOMParser().parseFromString(
                     '<?xml version="1.0" encoding="UTF-8"?>' +
                     '<tt' +

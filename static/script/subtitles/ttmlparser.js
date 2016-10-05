@@ -152,7 +152,7 @@ define(
                             break;
 
                         case 'style':
-                            value = this._parseIdReferenceAttribute(name, attribute.value, this._styleReferences);
+                            value = this._parseIdReferenceListAttribute(name, attribute.value, this._styleReferences);
                             break;
 
                         case 'region':
@@ -245,7 +245,7 @@ define(
              *        The name of the attribute
              *
              * @param {String} value
-             *        The value of the attribute
+             *        The value of the attribute - should be a single reference to a previously defined xml:id
              *
              * @param {antie.subtitles.TtmlParser._IdReferences} references
              *        References to xml:id parsed from the document so far
@@ -255,6 +255,36 @@ define(
              * @private
              */
             _parseIdReferenceAttribute: function(name, value, references) {
+                if (/^\s*$/.test(value)) {
+                    this._report(name + ' attribute is empty: ' + value);
+                    return null;
+                }
+
+                var ref = references.getReference(value);
+                if (ref) {
+                    return ref;
+                }
+
+                // TODO Is this good enough, or should we be able to reference tags further down the document too?
+                this._report(name + ' attribute references xml:id "' + value + '" but this does not exist in any earlier tag');
+                return null;
+            },
+
+            /**
+             * @param {String} name
+             *        The name of the attribute
+             *
+             * @param {String} value
+             *        The value of the attribute - should be a comma separated list of references to previously defined xml:ids
+             *
+             * @param {antie.subtitles.TtmlParser._IdReferences} references
+             *        References to xml:id parsed from the document so far
+             *
+             * @returns {?TimedTextElement[]} the element(s) referenced by value,
+             *                                or null if there are none
+             * @private
+             */
+            _parseIdReferenceListAttribute: function(name, value, references) {
                 var refNames = value.split(/\s+/);
                 if (refNames.length === 0) {
                     this._report(name + ' attribute is empty: ' + value);
@@ -879,7 +909,7 @@ define(
              * @private
              */
             _parseBody: function (ttmlBodyElement) {
-                var timedTextBody = new TimedTextBody(this._parseMixedContent(ttmlBodyElement.childNodes));
+                var timedTextBody = new TimedTextBody(this._parseMixedContent(ttmlBodyElement.childNodes, true));
                 this._parseAttributes(ttmlBodyElement, timedTextBody.getAttributes());
                 return timedTextBody;
             },
@@ -893,7 +923,7 @@ define(
              * @private
              */
             _parseDiv: function (ttmlDivElement) {
-                var timedTextElement = new TimedTextElement(TimedTextElement.NODE_NAME.div, this._parseMixedContent(ttmlDivElement.childNodes));
+                var timedTextElement = new TimedTextElement(TimedTextElement.NODE_NAME.div, this._parseMixedContent(ttmlDivElement.childNodes, true));
                 this._parseAttributes(ttmlDivElement, timedTextElement.getAttributes());
                 return timedTextElement;
             },
@@ -907,7 +937,7 @@ define(
              * @private
              */
             _parseParagraph: function (ttmlPElement) {
-                var timedTextElement = new TimedTextElement(TimedTextElement.NODE_NAME.p, this._parseMixedContent(ttmlPElement.childNodes));
+                var timedTextElement = new TimedTextElement(TimedTextElement.NODE_NAME.p, this._parseMixedContent(ttmlPElement.childNodes, true));
                 this._parseAttributes(ttmlPElement, timedTextElement.getAttributes());
                 return timedTextElement;
             },
@@ -921,7 +951,7 @@ define(
              * @private
              */
             _parseSpan: function (ttmlSpanElement) {
-                var timedTextElement = new TimedTextElement(TimedTextElement.NODE_NAME.span, this._parseMixedContent(ttmlSpanElement.childNodes));
+                var timedTextElement = new TimedTextElement(TimedTextElement.NODE_NAME.span, this._parseMixedContent(ttmlSpanElement.childNodes, false));
                 this._parseAttributes(ttmlSpanElement, timedTextElement.getAttributes());
                 return timedTextElement;
             },
@@ -938,7 +968,7 @@ define(
             /**
              * Parses a TTML text element.
              * @param {Element} xmlTextElement
-             *        span tag extracted from an XMLDocument
+             *        text content extracted from an XMLDocument
              *
              * @returns {antie.subtitles.TimedTextElement} new instance
              * @private
@@ -963,10 +993,13 @@ define(
              * @param {NodeList} nodeList
              *        An "array-like" object containing an XML element's children
              *
+             * @param {Boolean} wrapTextInSpan
+             *        true if any text content should be wrapped in an anonymous span
+             *
              * @returns {TimedTextElement[]} Array of elements parsed from nodeList
              * @private
              */
-            _parseMixedContent: function(nodeList) {
+            _parseMixedContent: function(nodeList, wrapTextInSpan) {
 
                 if (!nodeList) {
                     return;
@@ -977,7 +1010,12 @@ define(
                     var element = nodeList[i];
                     if (element && element.nodeType) {
                         if (element.nodeType === Node.TEXT_NODE) {
-                            children.push(this._parseText(element));
+                            var textElement = this._parseText(element);
+                            if (wrapTextInSpan) {
+                                children.push(new TimedTextElement(TimedTextElement.NODE_NAME.span, [ textElement ]));
+                            } else {
+                                children.push(textElement);
+                            }
 
                         } else if (element.nodeType === Node.ELEMENT_NODE && this._ttmlNamespaces.isCanonicalNamespace('tt', element.namespaceURI)) {
                             switch (element.nodeName) {
