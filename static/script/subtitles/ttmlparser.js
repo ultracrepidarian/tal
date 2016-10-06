@@ -3,6 +3,8 @@ define(
     [
         'antie/class',
         'antie/runtimecontext',
+        'antie/subtitles/attributetransformer',
+        'antie/subtitles/attributetransformercss3',
         'antie/subtitles/timedtext',
         'antie/subtitles/timedtextattributes',
         'antie/subtitles/timedtextbody',
@@ -13,7 +15,7 @@ define(
         'antie/subtitles/ttmlnamespaces',
         'antie/subtitles/errors/ttmlparseerror'
     ],
-    function(Class, RuntimeContext, TimedText, TimedTextAttributes, TimedTextBody, TimedTextElement, TimedTextHead, TimedTextRegion, Timestamp, TtmlNamespaces, TtmlParseError) {
+    function(Class, RuntimeContext, AttributeTransformer, AttributeTransformerCss3, TimedText, TimedTextAttributes, TimedTextBody, TimedTextElement, TimedTextHead, TimedTextRegion, Timestamp, TtmlNamespaces, TtmlParseError) {
         'use strict';
 
         /**
@@ -73,6 +75,10 @@ define(
         /**
          * Parses TTML.
          *
+         * @param {antie.subtitles.AttributeTransformer} [attributeTransformer]
+         *        Optionally specify an attribute transformer. If none is specified a
+         *        new CSS3 transformer will be used.
+         *
          * @class
          * @name antie.subtitles.TtmlParser
          * @extends antie.Class
@@ -85,7 +91,16 @@ define(
              * @constructor
              * @ignore
              */
-            init: function() {
+            init: function(attributeTransformer) {
+                if (attributeTransformer) {
+                    if (typeof attributeTransformer === 'object' && attributeTransformer instanceof AttributeTransformer) {
+                        this._attributeTransformer = attributeTransformer;
+                    } else {
+                        throw new Error('attributeTransformer should be an antie.subtitles.AttributeTransformer but was ' + typeof attributeTransformer + ': ' + attributeTransformer);
+                    }
+                } else {
+                    this._attributeTransformer = new AttributeTransformerCss3(this._report);
+                }
                 this._ttmlNamespaces = new TtmlNamespaces();
                 this._styleReferences = null;
                 this._regionReferences = null;
@@ -148,7 +163,7 @@ define(
                             break;
 
                         case 'timeContainer':
-                            value = this._parseEnumeratedAttribute(name, attribute.value, [ 'par', 'seq' ]);
+                            value = this._attributeTransformer.transform(name, attribute.value, [ 'par', 'seq' ]);
                             break;
 
                         case 'style':
@@ -168,76 +183,6 @@ define(
                         }
                     }
                 }
-            },
-
-            /**
-             * @param {String} name
-             *        The name of the attribute
-             *
-             * @param {String} value
-             *        The value of the attribute
-             *
-             * @returns {?Number} positive integer if the parameter parses OK,
-             *                    null if not
-             */
-            _parsePositiveParameterAttribute: function(name, value) {
-                var matches = /^(\d+)$/.exec(value);
-                if (matches) {
-                    var intValue = parseInt(matches[1]);
-                    if (intValue > 0) {
-                        return intValue;
-                    } else {
-                        this._report(name + ' attribute should be positive, but was: ' + value);
-                    }
-                } else {
-                    this._report(name + ' attribute should be a number, but was: ' + value);
-                }
-            },
-
-            /**
-             * @param {String} name
-             *        The name of the attribute
-             *
-             * @param {String} value
-             *        The value of the attribute
-             */
-            _parseTwoPositiveParameterAttribute: function(name, value) {
-                var matches = /^\s*(\d+)\s+(\d+)\s*$/.exec(value);
-                if (matches) {
-                    var first = parseInt(matches[1]);
-                    var second = parseInt(matches[2]);
-                    if (first > 0 && second > 0) {
-                        return [ first, second ];
-                    } else {
-                        this._report(name + 'attribute should be two positive numbers, but were: ' + value);
-                    }
-                } else {
-                    this._report(name + ' attribute should be two numbers separated by a space, but was: ' + value);
-                }
-            },
-
-            /**
-             * @param {String} name
-             *        The name of the attribute
-             *
-             * @param {String} value
-             *        The value of the attribute
-             *
-             * @param {String[]} enumeration
-             *        Array of valid values for this attribute
-             *
-             * @returns {?String} the value of the attribute, if valid,
-             *                    null if not
-             */
-            _parseEnumeratedAttribute: function(name, value, enumeration) {
-                for (var i = 0; i < enumeration.length; i++) {
-                    if (value === enumeration[i]) {
-                        return value;
-                    }
-                }
-
-                this._report(name + ' attribute should be one of "' + enumeration.join('","') + '" but was: "' + value + '"');
-                return null;
             },
 
             /**
@@ -327,11 +272,12 @@ define(
 
                         case 'id':
                         case 'lang':
-                            value = attribute.value;
+                        case 'space':
+                            value = this._attributeTransformer.transform(name, attribute.value);
                             break;
 
-                        case 'space':
-                            value = this._parseEnumeratedAttribute(name, attribute.value, [ 'default', 'preserve' ]);
+                        default:
+                            value = null;
                             break;
                         }
 
@@ -384,14 +330,6 @@ define(
                 }
             },
 
-            _parseLength: function(value) {
-                if (/^(\+|-)?(\d*\.)?\d+(px|em|c|%)$/.test(value)) {
-                    return value;
-                } else {
-                    return null;
-                }
-            },
-
             /**
              * Parses all the attributes in the tts namespace.
              *
@@ -407,194 +345,34 @@ define(
                     var name = attribute.localName || attribute .name;
                     if (attribute && this._ttmlNamespaces.isCanonicalNamespace('tts', attribute.namespaceURI)) {
                         var value = null;
-                        // var css3value = null;
-                        var valueArray;
 
                         switch (name) {
 
                         case 'backgroundColor':
-                            value = this._parseColour(attribute.value);
-                            break;
-
                         case 'color':
-                            value = this._parseColour(attribute.value);
-                            break;
-
                         case 'direction':
-                            value = this._parseEnumeratedAttribute(name, attribute.value, [ 'ltr', 'rtl' ]);
-                            break;
-
                         case 'display':
-                            value = this._parseEnumeratedAttribute(name, attribute.value, [ 'auto', 'none' ]);
-                            break;
-
                         case 'displayAlign':
-                            value = this._parseEnumeratedAttribute(name, attribute.value, [ 'before', 'center', 'after' ]);
-                            break;
-
                         case 'extent':
-                            if (attribute.value === 'auto') {
-                                value = attribute.value;
-                            } else {
-                                valueArray = attribute.value.split(/\s+/);
-                                if (valueArray && valueArray.length === 2) {
-                                    if (this._parseLength(valueArray[0]) && this._parseLength(valueArray[1])) {
-                                        value = {width: valueArray[0], height: valueArray[1]};
-                                    }
-                                }
-                            }
-                            break;
-
                         case 'fontFamily':
-                            value = attribute.value;
-                            break;
-
                         case 'fontSize':
-                            valueArray = attribute.value.split(/\s+/);
-                            if (valueArray && valueArray.length === 2) {
-                                if (this._parseLength(valueArray[0]) && this._parseLength(valueArray[1])) {
-                                    value = {width: valueArray[0], height: valueArray[1]};
-                                }
-                            } else if (valueArray && valueArray.length === 1) {
-                                if (this._parseLength(valueArray[0])) {
-                                    value = {width: valueArray[0], height: valueArray[0]};
-                                }
-                            }
-                            break;
-
                         case 'fontStyle':
-                            value = this._parseEnumeratedAttribute(name, attribute.value, [ 'normal', 'italic', 'oblique' ]);
-                            break;
-
                         case 'fontWeight':
-                            value = this._parseEnumeratedAttribute(name, attribute.value, [ 'normal', 'bold' ]);
-                            break;
-
                         case 'lineHeight':
-                            value = attribute.value === 'normal' ? 'normal' : this._parseLength(attribute.value);
-                            break;
-
                         case 'opacity':
-                            value = parseFloat(attribute.value);
-                            break;
-
                         case 'origin':
-                            if (attribute.value === 'auto') {
-                                value = attribute.value;
-                            } else {
-                                valueArray = attribute.value.split(/\s+/);
-                                if (valueArray && valueArray.length === 2) {
-                                    if (this._parseLength(valueArray[0]) && this._parseLength(valueArray[1])) {
-                                        value = {left: valueArray[0], top: valueArray[1]};
-                                    }
-                                }
-                            }
-                            break;
-
                         case 'overflow':
-                            value = this._parseEnumeratedAttribute(name, attribute.value, [ 'visible', 'hidden' ]);
-                            break;
-
                         case 'padding':
-                            valueArray = attribute.value.split(/\s+/);
-                            if (valueArray && valueArray.length > 0 && valueArray.length <= 4) {
-                                value = valueArray;
-                                for (var j = 0; j < valueArray.length; j++) {
-                                    if (!this._parseLength(valueArray[j])) {
-                                        value = null;      // Parsing here is just to protect against injection attacks
-                                    }
-                                }
-                            }
-                            break;
-
                         case 'showBackground':
-                            value = this._parseEnumeratedAttribute(name, attribute.value, [ 'always', 'whenActive' ]);
-                            break;
-
                         case 'textAlign':
-                            value = this._parseEnumeratedAttribute(name, attribute.value, [ 'left', 'center', 'right', 'start', 'end' ]);
-                            break;
-
                         case 'textDecoration':
-                            if (attribute.value === 'none') {
-                                value = 'none';
-                            } else {
-                                valueArray = attribute.value.split(/\s+/);
-                                if (valueArray && valueArray.length > 0) {
-                                    value = valueArray;
-                                    for (var k = 0; k < valueArray.length; k++) {
-                                        if (!this._parseEnumeratedAttribute(name, valueArray[k], [ 'underline', 'noUnderline', 'lineThrough', 'noLineThrough', 'overline', 'noOverline' ])) {
-                                            value = null;      // Parsing here is just to protect against injection attacks
-                                        }
-                                    }
-                                }
-                            }
-                            break;
-
                         case 'textOutline':
-                            // An optional colour, a tickness and an optional blur radius
-                            if (attribute.value === 'none') {
-                                value = 'none';
-                            } else {
-
-                                valueArray = attribute.value.split(/\s+/);
-                                if (valueArray && valueArray.length > 0 && valueArray.length <= 3) {
-                                    value = {
-                                        color: null,
-                                        outlineThickness: null,
-                                        blurRadius: null
-                                    };
-
-                                    for (var m = 0; m < valueArray.length; m++) {
-                                        // The first element might be an optional colour
-                                        if (m === 0) {
-                                            var colour = this._parseColour(valueArray[m]);
-                                            if (colour) {
-                                                value.color = colour;
-                                                continue;
-                                            } else if (valueArray.length === 3) {  // It really should have been a colour
-                                                value = null;
-                                                break;
-                                            }
-                                        }
-
-                                        if (this._parseLength(valueArray[m])) {
-                                            if (value.outlineThickness === null) {
-                                                value.outlineThickness = valueArray[m];
-                                            } else {
-                                                value.blurRadius = valueArray[m];
-                                            }
-                                        } else {
-                                            value = null;
-                                            break;
-                                        }
-                                    }
-                                }
-                            }
-                            break;
-
                         case 'unicodeBidi':
-                            value = this._parseEnumeratedAttribute(name, attribute.value, [ 'normal', 'embed', 'bidiOverride' ]);
-                            break;
-
                         case 'visibility':
-                            value = this._parseEnumeratedAttribute(name, attribute.value, [ 'visible', 'hidden' ]);
-                            break;
-
                         case 'wrapOption':
-                            value = this._parseEnumeratedAttribute(name, attribute.value, [ 'wrap', 'noWrap' ]);
-                            break;
-
                         case 'writingMode':
-                            value = this._parseEnumeratedAttribute(name, attribute.value, [ 'lrtb', 'rltb', 'tbrl', 'tblr', 'lr', 'rl', 'tb' ]);
-                            break;
-
                         case 'zIndex':
-                            if (attribute.value === 'auto') {
-                                value = 'auto';
-                            } else if (/^(\+|-)?\d+$/.test(attribute.value)) {
-                                value = parseInt(attribute.value);
-                            }
+                            value = this._attributeTransformer.transform(name, attribute.value);
                             break;
 
                         default:
@@ -624,61 +402,25 @@ define(
                     var name = attribute.localName || attribute .name;
                     if (attribute && this._ttmlNamespaces.isCanonicalNamespace('ttp', attribute.namespaceURI)) {
                         var value;
-                        var valueArray;
 
                         switch (name) {
 
                         case 'cellResolution':
-                            valueArray = this._parseTwoPositiveParameterAttribute(name, attribute.value);
-                            if (valueArray) {
-                                value = {columns: valueArray[0], rows: valueArray[1]};
-                            }
-                            break;
-
                         case 'clockMode':
-                            value = this._parseEnumeratedAttribute(name, attribute.value, [ 'local', 'gps', 'utc' ]);
-                            break;
-
                         case 'dropMode':
-                            value = this._parseEnumeratedAttribute(name, attribute.value, [ 'dropNTSC', 'dropPAL', 'nonDrop' ]);
-                            break;
-
                         case 'frameRate':
-                            value = this._parsePositiveParameterAttribute(name, attribute.value);
-                            break;
-
                         case 'frameRateMultiplier':
-                            valueArray = this._parseTwoPositiveParameterAttribute(name, attribute.value);
-                            if (valueArray) {
-                                value = {numerator: valueArray[0], denominator: valueArray[1]};
-                            }
-                            break;
-
                         case 'markerMode':
-                            value = this._parseEnumeratedAttribute(name, attribute.value, [ 'continuous', 'discontinuous' ]);
-                            break;
-
                         case 'pixelAspectRatio':
-                            valueArray = this._parseTwoPositiveParameterAttribute(name, attribute.value);
-                            if (valueArray) {
-                                value = {width: valueArray[0], height: valueArray[1]};
-                            }
-                            break;
-
                         case 'profile':
-                            value = attribute.value;
-                            break;
-
                         case 'subFrameRate':
-                            value = this._parsePositiveParameterAttribute(name, attribute.value);
-                            break;
-
                         case 'tickRate':
-                            value = this._parsePositiveParameterAttribute(name, attribute.value);
+                        case 'timeBase':
+                            value = this._attributeTransformer.transform(name, attribute.value);
                             break;
 
-                        case 'timeBase':
-                            value = this._parseEnumeratedAttribute(name, attribute.value, [ 'media', 'smpte', 'clock' ]);
+                        default:
+                            value = null;
                             break;
                         }
 

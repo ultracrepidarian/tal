@@ -16,6 +16,7 @@ require(
         'use strict';
 
         describe('antie.subtitles.TtmlParser', function() {
+            var stubConfig;
             var mockLogger;
             var mockDevice;
             var mockApplication;
@@ -25,10 +26,30 @@ require(
             var ttmlParser;
 
             beforeEach(function () {
+                stubConfig = {
+                    accessibility: {
+                        captions: {
+                            fontMap: {
+                                'default':               'sans-serif',
+                                'unknown':               'sans-serif',
+                                'monospace':             'monospace',
+                                'sansSerif':             'sans-serif',
+                                'serif':                 'serif',
+                                'monospaceSansSerif':    'monospace',
+                                'monospaceSerif':        'monospace',
+                                'proportionalSansSerif': 'sans-serif',
+                                'proportionalSerif':     'serif',
+                                'Arial':                 'Arial, sans-serif',
+                                'Times New Roman':       '"Times New Roman", serif'
+                            }
+                        }
+                    }
+                };
 
                 mockLogger = mockLoggerObject('mockLogger');
 
                 mockDevice = Object.create(Device.prototype);
+                spyOn(mockDevice, 'getConfig').andReturn(stubConfig);
                 spyOn(mockDevice, 'getLogger').andReturn(mockLogger);
 
                 mockApplication = Object.create(Application.prototype);
@@ -787,7 +808,7 @@ require(
                 expect(backgroundStyle.getAttribute('direction')).toBe('ltr');
                 expect(backgroundStyle.getAttribute('display')).toBe('auto');
                 expect(backgroundStyle.getAttribute('extent')).toEqual({width: '100%', height: '50%'});
-                expect(backgroundStyle.getAttribute('fontFamily')).toBe('Arial');
+                expect(backgroundStyle.getAttribute('fontFamily')).toBe('Arial, sans-serif');
                 expect(backgroundStyle.getAttribute('fontSize')).toEqual({width: '18px', height: '18px'});
                 expect(backgroundStyle.getAttribute('fontStyle')).toBe('normal');
                 expect(backgroundStyle.getAttribute('fontWeight')).toBe('bold');
@@ -881,11 +902,11 @@ require(
                 expect(span1.getNodeName()).toBe(TimedTextElement.NODE_NAME.span);
 
                 expect(span0.getAttribute('wrapOption')).toBe('noWrap');         // Inherited from parent div
-                expect(span0.getAttribute('fontFamily')).toBe('sansSerif');      // Inherited from parent div
+                expect(span0.getAttribute('fontFamily')).toBe('sans-serif');     // Inherited from parent div
                 expect(span0.getAttribute('color')).toBe('rgba(128,127,0,0.50)'); // Inherited from parent div
 
                 expect(span1.getAttribute('wrapOption')).toBe('noWrap'); // Inherited from parent div
-                expect(span1.getAttribute('fontFamily')).toBe('Arial');  // Not inherited from parent div, as it's specified on an (indirectly) referenced style tag
+                expect(span1.getAttribute('fontFamily')).toBe('Arial, sans-serif');  // Not inherited from parent div, as it's specified on an (indirectly) referenced style tag
                 expect(span1.getAttribute('color')).toBe('white');       // Not inherited from parent div or referenced style, as it is specified inline
             });
 
@@ -957,12 +978,12 @@ require(
                 expect(span0.getNodeName()).toBe(TimedTextElement.NODE_NAME.span);
                 expect(span1.getNodeName()).toBe(TimedTextElement.NODE_NAME.span);
 
-                expect(span0.getAttribute('fontFamily')).toBe('sansSerif'); // Not inherited from region as it's already inherited from element's parent
-                expect(span0.getAttribute('fontWeight')).toBe('bold');      // Inherited from region (but not region's inner style) as it's not specfied on a referenced style or a parent
-                expect(span0.getAttribute('direction')).toBe('rtl');        // Inherited from region's inner style, as it's not specfied on region, a referenced style or a parent
-                expect(span0.getAttribute('backgroundColor')).toBeNull();   // Not inherited from region, as it's not an inheritable attribute
-                expect(span1.getAttribute('fontFamily')).toBe('Arial');  // Not inherited from parent div, as it's specified on an (indirectly) referenced style tag
-                expect(span1.getAttribute('color')).toBe('white');       // Not inherited from region or parent div or referenced style, as it is specified inline
+                expect(span0.getAttribute('fontFamily')).toBe('sans-serif'); // Not inherited from region as it's already inherited from element's parent
+                expect(span0.getAttribute('fontWeight')).toBe('bold');       // Inherited from region (but not region's inner style) as it's not specfied on a referenced style or a parent
+                expect(span0.getAttribute('direction')).toBe('rtl');         // Inherited from region's inner style, as it's not specfied on region, a referenced style or a parent
+                expect(span0.getAttribute('backgroundColor')).toBeNull();    // Not inherited from region, as it's not an inheritable attribute
+                expect(span1.getAttribute('fontFamily')).toBe('Arial, sans-serif');  // Not inherited from parent div, as it's specified on an (indirectly) referenced style tag
+                expect(span1.getAttribute('color')).toBe('white');           // Not inherited from region or parent div or referenced style, as it is specified inline
             });
 
         });
