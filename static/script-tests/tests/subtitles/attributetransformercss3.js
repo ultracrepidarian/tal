@@ -151,8 +151,9 @@ require(
                 expect(attributeTransformer.transform('lineHeight', '18px')).toBe('18px');
                 expect(attributeTransformer.transform('lineHeight', '1.5em')).toBe('1.5em');
                 expect(attributeTransformer.transform('lineHeight', '1.5c')).toBe('1.5c');
-                expect(attributeTransformer.transform('lineHeight', '-10%')).toBe('-10%');
+                expect(attributeTransformer.transform('lineHeight', '+10%')).toBe('+10%');
 
+                expect(attributeTransformer.transform('lineHeight', '-10%')).toBeNull();
                 expect(attributeTransformer.transform('lineHeight', '18turds')).toBeNull();
             });
 

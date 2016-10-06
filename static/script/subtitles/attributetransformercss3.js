@@ -14,6 +14,9 @@ define(
         /**
          * Transforms attribute values to those used in CSS3.
          *
+         * @param {antie.subtitles.AttributeTransformer.reporter} report
+         *        Called if there is a problem with the value of an attribute
+         *
          * @class
          * @name antie.subtitles.AttributeTransformerCss3
          * @extends antie.subtitles.AttributeTransformer
@@ -34,12 +37,18 @@ define(
             },
 
             /**
+             * Transforms an attribute. Returns null if the attribute is not valid.
+             *
              * @param {String} name
              *        The name of the attribute
              *
              * @param {String} value
              *        The value to be transformed
+             *
+             * @return {?any} a more CSS3 representation of the attribute,
+             *                or null if the attribute's value is not valid
              * @public
+             * @override
              */
             transform: function(name, value) {
                 var result;
@@ -140,7 +149,7 @@ define(
                     } else {
                         valueArray = value.split(/\s+/);
                         if (valueArray && valueArray.length === 2) {
-                            if (this.transformLength(valueArray[0]) && this.transformLength(valueArray[1])) {
+                            if (this.transformNonNegativeLength(valueArray[0]) && this.transformNonNegativeLength(valueArray[1])) {
                                 result = {width: valueArray[0], height: valueArray[1]};
                             }
                         }
@@ -154,11 +163,11 @@ define(
                 case 'fontSize':
                     valueArray = value.split(/\s+/);
                     if (valueArray && valueArray.length === 2) {
-                        if (this.transformLength(valueArray[0]) && this.transformLength(valueArray[1])) {
+                        if (this.transformNonNegativeLength(valueArray[0]) && this.transformNonNegativeLength(valueArray[1])) {
                             result = {width: valueArray[0], height: valueArray[1]};
                         }
                     } else if (valueArray && valueArray.length === 1) {
-                        if (this.transformLength(valueArray[0])) {
+                        if (this.transformNonNegativeLength(valueArray[0])) {
                             result = {width: valueArray[0], height: valueArray[0]};
                         }
                     }
@@ -173,7 +182,7 @@ define(
                     break;
 
                 case 'lineHeight':
-                    result = value === 'normal' ? 'normal' : this.transformLength(value);
+                    result = value === 'normal' ? 'normal' : this.transformNonNegativeLength(value);
                     break;
 
                 case 'opacity':
@@ -202,7 +211,7 @@ define(
                     if (valueArray && valueArray.length > 0 && valueArray.length <= 4) {
                         result = valueArray;
                         for (var j = 0; j < valueArray.length; j++) {
-                            if (!this.transformLength(valueArray[j])) {
+                            if (!this.transformNonNegativeLength(valueArray[j])) {
                                 result = null;      // Parsing here is just to protect against injection attacks
                             }
                         }
@@ -260,7 +269,7 @@ define(
                                     }
                                 }
 
-                                if (this.transformLength(valueArray[m])) {
+                                if (this.transformNonNegativeLength(valueArray[m])) {
                                     if (result.outlineThickness === null) {
                                         result.outlineThickness = valueArray[m];
                                     } else {
@@ -362,6 +371,24 @@ define(
              */
             transformLength: function(value) {
                 if (/^(\+|-)?(\d*\.)?\d+(px|em|c|%)$/.test(value)) {
+                    return value;
+                } else {
+                    return null;
+                }
+            },
+
+            /**
+             * Validates a string representation of a non-negative length.
+             *
+             * @param {String} value
+             *        The value of the attribute
+             *
+             * @returns {?String} the value if it parses OK as a non-negative length,
+             *                    null if not
+             * @protected
+             */
+            transformNonNegativeLength: function(value) {
+                if (this.transformLength(value) && !/^\-/.test(value)) {
                     return value;
                 } else {
                     return null;

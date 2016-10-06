@@ -51,6 +51,9 @@ define(
              *
              * @param {String} value
              *        The value to be transformed
+             *
+             * @return {?any} a more useful representation of the attribute,
+             *                or null if the attribute's value is not valid
              * @public
              */
             transform: function(name, value) {

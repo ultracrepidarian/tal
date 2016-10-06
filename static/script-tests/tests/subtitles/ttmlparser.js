@@ -3,6 +3,7 @@ require(
         'antie/application',
         'antie/devices/browserdevice',
         'antie/runtimecontext',
+        'antie/subtitles/attributetransformertextsize',
         'antie/subtitles/timedtext',
         'antie/subtitles/timedtextbody',
         'antie/subtitles/timedtextelement',
@@ -12,7 +13,7 @@ require(
         'antie/subtitles/errors/ttmlparseerror',
         'mocks/mockloggerobject'
     ],
-    function(Application, Device, RuntimeContext, TimedText, TimedTextBody, TimedTextElement, TimedTextHead, Timestamp, TtmlParser, TtmlParseError, mockLoggerObject) {
+    function(Application, Device, RuntimeContext, AttributeTransformerTextSize, TimedText, TimedTextBody, TimedTextElement, TimedTextHead, Timestamp, TtmlParser, TtmlParseError, mockLoggerObject) {
         'use strict';
 
         describe('antie.subtitles.TtmlParser', function() {
@@ -253,6 +254,24 @@ require(
                 expect(styles[1].getAttribute('id')).toBe('speakerStyle');
                 expect(styles[1].getAttribute('backgroundColor')).toBe('rgba(0,0,0,0.0)'); // 'transparent' mapped to CSS value
                 expect(styles[1].getAttribute('color')).toBe('#FFFFFF');
+                expect(styles[1].getAttribute('fontSize')).toEqual({ width: '18px', height: '18px' });
+
+                expect(timedText.getHead().getParent()).toBe(timedText);
+            });
+
+            it('parses <tt><head><styling><style> attributes with a bespoke attribute transformer limiting the font size', function() {
+                ttmlParser = new TtmlParser(new AttributeTransformerTextSize());
+                var timedText = ttmlParser.parse(ttmlDoc);
+                var styles = timedText.getHead().getChildren()[0].getChildren();
+
+                expect(styles[0].getAttribute('id')).toBe('backgroundStyle');
+                expect(styles[0].getAttribute('backgroundColor')).toBe('rgba(72,128,132,0.75)');
+                expect(styles[0].getAttribute('color')).toBeNull();
+
+                expect(styles[1].getAttribute('id')).toBe('speakerStyle');
+                expect(styles[1].getAttribute('backgroundColor')).toBe('rgba(0,0,0,0.0)'); // 'transparent' mapped to CSS value
+                expect(styles[1].getAttribute('color')).toBe('#FFFFFF');
+                expect(styles[1].getAttribute('fontSize')).toEqual({ width: '18px', height: '22px' });  // Height has been constrained to >= 22px
 
                 expect(timedText.getHead().getParent()).toBe(timedText);
             });
