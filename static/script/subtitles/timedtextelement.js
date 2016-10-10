@@ -180,20 +180,38 @@ define(
              * Returns the value of an attribute.  Will only return values applicable
              * to this element's type.  If it's an inheriable attribute then it
              * will also be searched for on this element's ancestors if it is not
-             * present on this element.
+             * present on this element.  If the attribute is not found on this
+             * element or via inheritance, then the default value is returned
+             * if there is one.
              *
              * @param {String} name
              *        The name of the attribute
              *
-             * @returns {?any} the value of the named attribute, or null if it has not been set
+             * @returns {?any} the value of the named attribute, or its default value if it has not been set
              * @public
              */
             getAttribute: function(name) {
                 if (this._attributes.isApplicableTo(name, this._nodeName)) {
-                    return this._getAttributeValue(name);
-                } else {
-                    return null;
+                    var value = this._getAttributeValue(name);
+                    if (value === null || value === undefined) {
+                        return this._getAttributeDefault(name);
+                    }
+
+                    return value;
                 }
+
+                return null;
+            },
+
+            /**
+             * @param {String} name
+             *        the name of the attribute
+             *
+             * @return {?any} the default value for the spacified name
+             * @protected
+             */
+            _getAttributeDefault: function(name) {
+                return this._parent ? this._parent._getAttributeDefault(name) : null;
             },
 
             /**

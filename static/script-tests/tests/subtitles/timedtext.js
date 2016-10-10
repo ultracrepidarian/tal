@@ -5,11 +5,12 @@ require(
         'antie/devices/browserdevice',
         'antie/runtimecontext',
         'antie/subtitles/errors/ttmlparseerror',
+        'antie/subtitles/attributedefaultsfactory',
         'antie/subtitles/timedtexthead',
         'antie/subtitles/timedtextbody',
         'mocks/mockloggerobject'
     ],
-    function(TimedText, Application, Device, RuntimeContext, TtmlParseError, TimedTextHead, TimedTextBody, mockLoggerObject) {
+    function(TimedText, Application, Device, RuntimeContext, TtmlParseError, AttributeDefaultsFactory, TimedTextHead, TimedTextBody, mockLoggerObject) {
         'use strict';
 
         describe('antie.subtitles.TimedText', function() {
@@ -23,6 +24,7 @@ require(
 
                 mockDevice = Object.create(Device.prototype);
                 spyOn(mockDevice, 'getLogger').andReturn(mockLogger);
+                spyOn(mockDevice, 'getConfig').andReturn({});
 
                 mockApplication = Object.create(Application.prototype);
                 spyOn(mockApplication, 'getDevice').andReturn(mockDevice);
@@ -45,6 +47,15 @@ require(
                 var timedText = new TimedText(null, body);
                 expect(timedText.getBody()).toBe(body);
             });
+
+            it('gets attribute default', function() {
+                var timedText = new TimedText(null, null);
+                expect(timedText._getAttributeDefault('direction')).toBeNull();
+
+                timedText.setAttributeDefaults(new AttributeDefaultsFactory().getAttributes());
+                expect(timedText._getAttributeDefault('direction')).toBe('ltr');
+            });
+
         });
     }
 );

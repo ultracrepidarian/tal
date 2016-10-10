@@ -140,14 +140,32 @@ require(
                 spyOn(Widget.prototype, 'getCurrentApplication').andReturn(mockApplication);
             });
 
-            afterEach(function() {
-            });
-
             it('can be constructed', function() {
                 var subtitles = new Subtitles('id', mockTimedText, mockGetMediaTimeCallback);
 
                 expect(subtitles._getMediaTimeCallback).toBe(mockGetMediaTimeCallback);
                 expect(subtitles._timedText).toBe(mockTimedText);
+            });
+
+            it('uses a default media time update interval if none specified', function() {
+                var subtitles = new Subtitles('id', mockTimedText, mockGetMediaTimeCallback);
+                expect(subtitles._mediaPollMilliseconds).toBe(200);
+            });
+
+            it('uses a media time update interval if specified', function() {
+                var subtitles = new Subtitles('id', mockTimedText, mockGetMediaTimeCallback, 1000);
+                expect(subtitles._mediaPollMilliseconds).toBe(1000);
+            });
+
+            it('chokes on an invalid media time update interval', function() {
+                var errorDisposition = 'error not thrown';
+                try {
+                    new Subtitles('id', mockTimedText, mockGetMediaTimeCallback, -1);
+                } catch (e) {
+                    expect(e.message).toBe('mediaPollMilliseconds should be a non negative number, but was number: -1');
+                    errorDisposition = 'error thrown';
+                }
+                expect(errorDisposition).toBe('error thrown');
             });
 
             it('will render a new outputDevice if one doesnt exist', function() {

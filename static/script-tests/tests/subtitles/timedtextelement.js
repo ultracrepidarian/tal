@@ -1,12 +1,24 @@
 require(
     [
+        'antie/subtitles/attributedefaultsfactory',
+        'antie/subtitles/attributetransformercss3',
+        'antie/subtitles/timedtext',
+        'antie/subtitles/timedtextbody',
         'antie/subtitles/timedtextattributes',
         'antie/subtitles/timedtextelement'
     ],
-    function(TimedTextAttributes, TimedTextElement) {
+    function(AttributeDefaultsFactory, AttributeTransformerCss3, TimedText, TimedTextBody, TimedTextAttributes, TimedTextElement) {
         'use strict';
 
         describe('antie.subtitles.TimedTextElement', function() {
+
+            beforeEach(function() {
+                spyOn(AttributeTransformerCss3.prototype, 'init');
+                spyOn(AttributeTransformerCss3.prototype, 'transformFontFamily').andCallFake(function(value) {
+                    return value;
+                });
+            });
+
             it('starts off with empty attributes object', function() {
                 var el = new TimedTextElement(TimedTextElement.NODE_NAME.text);
                 expect(el.getAttributes()).toEqual(jasmine.any(TimedTextAttributes));
@@ -72,7 +84,7 @@ require(
             });
 
             it('returns the parent if it was set', function() {
-                var parent = new TimedTextElement(TimedTextElement.NODE_NAME.text);
+                var parent = new TimedTextElement(TimedTextElement.NODE_NAME.div);
 
                 var el = new TimedTextElement(TimedTextElement.NODE_NAME.p);
                 el.setParent(parent);
@@ -160,8 +172,46 @@ require(
                 expect(span1Element.getAttribute('color')).toBe('green');              // Inherited from parent
                 expect(span1Element.getAttribute('backgroundColor')).toBeNull();       // Not inherited - not an inheritable attribute
                 expect(span1Element.getAttribute('direction')).toBe('rtl');            // Inherited from grandparent
-
             });
+
+            it('orphan always returns null default for any attribute', function() {
+                var para = new TimedTextElement(TimedTextElement.NODE_NAME.p);
+                expect(para._getAttributeDefault('direction')).toBeNull();
+            });
+
+            it('gets attribute default from parent', function() {
+                var para = new TimedTextElement(TimedTextElement.NODE_NAME.p);
+                expect(para._getAttributeDefault('direction')).toBeNull();
+
+                var body = new TimedTextBody([ para ]);
+                expect(para._getAttributeDefault('direction')).toBeNull();  // Body's value is also null
+
+                var tt = new TimedText(null, body);
+                tt.setAttributeDefaults(new AttributeDefaultsFactory().getAttributes());
+
+                expect(para._getAttributeDefault('direction')).toBe('ltr');  // tt's value is not null
+            });
+
+            it('inherits attribute value from ancestor', function() {
+                var para = new TimedTextElement(TimedTextElement.NODE_NAME.p);
+                var body = new TimedTextBody([ para ]);
+                var tt = new TimedText(null, body);
+                tt.setAttributeDefaults(new AttributeDefaultsFactory().getAttributes());
+
+                body.getAttributes().setAttribute('direction', 'rtl');
+
+                expect(para.getAttribute('direction')).toBe('rtl');
+            });
+
+            it('returns default attribute value if inheritance yields nothing from any ancestor', function() {
+                var para = new TimedTextElement(TimedTextElement.NODE_NAME.p);
+                var body = new TimedTextBody([ para ]);
+                var tt = new TimedText(null, body);
+                tt.setAttributeDefaults(new AttributeDefaultsFactory().getAttributes());
+
+                expect(para.getAttribute('direction')).toBe('ltr');
+            });
+
         });
     }
 );

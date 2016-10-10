@@ -6,9 +6,10 @@ define(
     'antie/subtitles/timedtext',
     [
         'antie/subtitles/elementset',
+        'antie/subtitles/timedtextattributes',
         'antie/subtitles/timedtextelement'
     ],
-    function (ElementSet, TimedTextElement) {
+    function (ElementSet, TimedTextAttributes, TimedTextElement) {
         'use strict';
 
         /**
@@ -60,6 +61,31 @@ define(
              */
             getBody: function() {
                 return this._body;
+            },
+
+            /**
+             * Sets the default values for unspcified attributes.
+             *
+             * @param {antie.subtitles.TimedTextAttributes} attributeDefaults
+             *        Default values for attributes
+             */
+            setAttributeDefaults: function(attributeDefaults) {
+                if (typeof attributeDefaults !== 'object' || !(attributeDefaults instanceof TimedTextAttributes)) {
+                    throw new Error('setAttributeDefaults: attributeDefaults should be a antie.subtitles.TimedTextAttributes, but was ' + typeof attributeDefaults + ': ' + attributeDefaults);
+                }
+                this._attributeDefaults = attributeDefaults;
+            },
+
+            /**
+             * @param {String} name
+             *        the name of the attribute
+             *
+             * @return {?any} the default value for the spacified name
+             * @override
+             * @protected
+             */
+            _getAttributeDefault: function(name) {
+                return this._attributeDefaults ? this._attributeDefaults.getAttribute(name) : null;
             },
 
             /**

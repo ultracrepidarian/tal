@@ -42,17 +42,27 @@ define(
          * @param {String} [id] The unique ID of the widget. If excluded, a temporary internal ID will be used (but not included in any output).
          * @param {antie.subtitles.TimedText} timedText the object containing ttml information
          * @param {Function} getMediaTimeCallback a function that will return the current playpoint of the media in seconds
+         * @param {Number} [mediaPollMilliseconds=200] number of milliseconds between polls of the current media time
         */
         var Subtitles = Widget.extend(/** @lends antie.widgets.Subtitles.prototype */ {
             /**
              * @constructor
              * @ignore
              */
-            init: function(id, timedText, getMediaTimeCallback) {
+            init: function(id, timedText, getMediaTimeCallback, mediaPollMilliseconds) {
                 this._super(id);
 
                 this._timedText = timedText;
                 this._getMediaTimeCallback = getMediaTimeCallback;
+
+                if (typeof mediaPollMilliseconds === 'undefined' ) {
+                    this._mediaPollMilliseconds = 200;
+                } else if (typeof mediaPollMilliseconds === 'number' && mediaPollMilliseconds > 0) {
+                    this._mediaPollMilliseconds = mediaPollMilliseconds;
+                } else {
+                    throw new Error('mediaPollMilliseconds should be a non negative number, but was ' + typeof mediaPollMilliseconds + ': ' + mediaPollMilliseconds);
+                }
+
                 this._activeElements = [];
                 this._regions = {};
 
@@ -78,7 +88,7 @@ define(
                 this.update();
 
                 if(!this._updateInterval){
-                    this._updateInterval = setInterval(this.update.bind(this), 200);
+                    this._updateInterval = setInterval(this.update.bind(this), this._mediaPollMilliseconds);
                 }
             },
             /**

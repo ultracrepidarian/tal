@@ -3,6 +3,7 @@ define(
     [
         'antie/class',
         'antie/runtimecontext',
+        'antie/subtitles/attributedefaultsfactory',
         'antie/subtitles/attributetransformer',
         'antie/subtitles/attributetransformercss3',
         'antie/subtitles/timedtext',
@@ -15,7 +16,7 @@ define(
         'antie/subtitles/ttmlnamespaces',
         'antie/subtitles/errors/ttmlparseerror'
     ],
-    function(Class, RuntimeContext, AttributeTransformer, AttributeTransformerCss3, TimedText, TimedTextAttributes, TimedTextBody, TimedTextElement, TimedTextHead, TimedTextRegion, Timestamp, TtmlNamespaces, TtmlParseError) {
+    function(Class, RuntimeContext, AttributeDefaultsFactory, AttributeTransformer, AttributeTransformerCss3, TimedText, TimedTextAttributes, TimedTextBody, TimedTextElement, TimedTextHead, TimedTextRegion, Timestamp, TtmlNamespaces, TtmlParseError) {
         'use strict';
 
         /**
@@ -101,6 +102,8 @@ define(
                 } else {
                     this._attributeTransformer = new AttributeTransformerCss3(this._report);
                 }
+                this._attributeDefaultsFactory = new AttributeDefaultsFactory(this._attributeTransformer);
+
                 this._ttmlNamespaces = new TtmlNamespaces();
                 this._styleReferences = null;
                 this._regionReferences = null;
@@ -109,6 +112,14 @@ define(
                 // attributes in the <tt> tag, before the framerate itself has been parsed.
                 // There shouldn't be any, but we cannot depend upon it.
                 this._effectiveFrameRate = 30;
+            },
+
+            /**
+             * @returns {antie.subtitles.AttributeDefaultsFactory} the AttributeDefaultsFactory used to set defaults
+             * @public
+             */
+            getAttributeDefaultsFactory: function() {
+                return this._attributeDefaultsFactory;
             },
 
             /**
@@ -882,6 +893,7 @@ define(
 
                 var timedText = new TimedText(head, body);
                 timedText.setAttributes(timedTextAttributes);
+                timedText.setAttributeDefaults(this._attributeDefaultsFactory.getAttributes());
                 timedText.initialiseActiveElements();
 
                 return timedText;

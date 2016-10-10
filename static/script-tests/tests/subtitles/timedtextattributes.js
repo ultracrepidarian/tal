@@ -182,6 +182,14 @@ require(
                 expect(attributes.appliesTo('display')).toEqual([ 'body', 'div', 'p', 'region', 'span' ]);
             });
 
+            it('clones a shallow copy of itself', function() {
+                var attributes = new TimedTextAttributes();
+                attributes.setAttribute('begin', new Timestamp('00:00:15'));
+
+                expect(attributes.clone()).toEqual(attributes);
+                expect(attributes.clone()).not.toBe(attributes);
+            });
+
         });
     }
 );

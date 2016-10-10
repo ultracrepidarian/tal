@@ -102,7 +102,7 @@ require(
                         '<body>' +
                             '<div >' +
                                 '<p begin="00:00:02.000" end="00:00:05.760" region="speaker">' +
-                                    '<span tts:color="white">Welcome to the beautiful Bisham</span><br/>' +
+                                    '<span tts:color="white">Welcome to the beautiful Woburn</span><br/>' +
                                     '<span tts:color="white">Abbey. If you wander round the</span>' +
                                 '</p>' +
                                 '<p begin="00:00:05.800" end="00:00:07.720" region="speaker">grounds</p>' +
@@ -133,7 +133,7 @@ require(
                             '<body>' +
                                 '<div >' +
                                     '<p begin="00:00:02.000" end="00:00:05.760">' +
-                                        '<span tts:color="white">Welcome to the beautiful Bisham</span><br/>' +
+                                        '<span tts:color="white">Welcome to the beautiful Woburn</span><br/>' +
                                         '<span tts:color="white">Abbey. If you wander round the</span>' +
                                     '</p>' +
                                     '<p begin="00:00:05.800" end="00:00:07.720">grounds</p>' +
@@ -247,14 +247,14 @@ require(
                 var timedText = ttmlParser.parse(ttmlDoc);
                 var styles = timedText.getHead().getChildren()[0].getChildren();
 
-                expect(styles[0].getAttribute('id')).toBe('backgroundStyle');
-                expect(styles[0].getAttribute('backgroundColor')).toBe('rgba(72,128,132,0.75)');
-                expect(styles[0].getAttribute('color')).toBeNull();
+                expect(styles[0].getAttributes().getAttribute('id')).toBe('backgroundStyle');
+                expect(styles[0].getAttributes().getAttribute('backgroundColor')).toBe('rgba(72,128,132,0.75)');
+                expect(styles[0].getAttributes().getAttribute('color')).toBeNull();
 
-                expect(styles[1].getAttribute('id')).toBe('speakerStyle');
-                expect(styles[1].getAttribute('backgroundColor')).toBe('rgba(0,0,0,0.0)'); // 'transparent' mapped to CSS value
-                expect(styles[1].getAttribute('color')).toBe('#FFFFFF');
-                expect(styles[1].getAttribute('fontSize')).toEqual({ width: '18px', height: '18px' });
+                expect(styles[1].getAttributes().getAttribute('id')).toBe('speakerStyle');
+                expect(styles[1].getAttributes().getAttribute('backgroundColor')).toBe('rgba(0,0,0,0.0)'); // 'transparent' mapped to CSS value
+                expect(styles[1].getAttributes().getAttribute('color')).toBe('#FFFFFF');
+                expect(styles[1].getAttributes().getAttribute('fontSize')).toEqual({ width: '18px', height: '18px' });
 
                 expect(timedText.getHead().getParent()).toBe(timedText);
             });
@@ -264,14 +264,14 @@ require(
                 var timedText = ttmlParser.parse(ttmlDoc);
                 var styles = timedText.getHead().getChildren()[0].getChildren();
 
-                expect(styles[0].getAttribute('id')).toBe('backgroundStyle');
-                expect(styles[0].getAttribute('backgroundColor')).toBe('rgba(72,128,132,0.75)');
-                expect(styles[0].getAttribute('color')).toBeNull();
+                expect(styles[0].getAttributes().getAttribute('id')).toBe('backgroundStyle');
+                expect(styles[0].getAttributes().getAttribute('backgroundColor')).toBe('rgba(72,128,132,0.75)');
+                expect(styles[0].getAttributes().getAttribute('color')).toBeNull();
 
-                expect(styles[1].getAttribute('id')).toBe('speakerStyle');
-                expect(styles[1].getAttribute('backgroundColor')).toBe('rgba(0,0,0,0.0)'); // 'transparent' mapped to CSS value
-                expect(styles[1].getAttribute('color')).toBe('#FFFFFF');
-                expect(styles[1].getAttribute('fontSize')).toEqual({ width: '18px', height: '22px' });  // Height has been constrained to >= 22px
+                expect(styles[1].getAttributes().getAttribute('id')).toBe('speakerStyle');
+                expect(styles[1].getAttributes().getAttribute('backgroundColor')).toBe('rgba(0,0,0,0.0)'); // 'transparent' mapped to CSS value
+                expect(styles[1].getAttributes().getAttribute('color')).toBe('#FFFFFF');
+                expect(styles[1].getAttributes().getAttribute('fontSize')).toEqual({ width: '18px', height: '22px' });  // Height has been constrained to >= 22px
 
                 expect(timedText.getHead().getParent()).toBe(timedText);
             });
@@ -431,7 +431,7 @@ require(
                 expect(textElements.length).toBe(1);
                 expect(textElements[0]).toEqual(jasmine.any(TimedTextElement));
                 expect(textElements[0].getNodeName()).toBe(TimedTextElement.NODE_NAME.text);
-                expect(textElements[0].getText()).toBe('Welcome to the beautiful Bisham');
+                expect(textElements[0].getText()).toBe('Welcome to the beautiful Woburn');
 
                 expect(textElements[0].getParent()).toBe(span);
                 expect(span.getParent()).toBe(paragraph);
@@ -589,7 +589,7 @@ require(
                         '<body>' +
                             '<div >' +
                                 '<p begin="00:00:02.000" end="00:00:05.760">' +
-                                    '<span tts:color="white">Welcome to the beautiful Bisham</span><br/>' +
+                                    '<span tts:color="white">Welcome to the beautiful Woburn</span><br/>' +
                                     '<span tts:color="white">Abbey. If you wander round the</span>' +
                                 '</p>' +
                             '</div>' +
@@ -671,7 +671,7 @@ require(
                         '<body>' +
                             '<div >' +
                                 '<p begin="00:00:02:02" end="00:00:05:12" region="speaker">' +
-                                    '<span tts:color="white">Welcome to the beautiful Bisham</span><br/>' +
+                                    '<span tts:color="white">Welcome to the beautiful Woburn</span><br/>' +
                                     '<span tts:color="white">Abbey. If you wander round the</span>' +
                                 '</p>' +
                                 '<p begin="00:00:05:13" end="00:00:07:29" region="speaker">grounds</p>' +
@@ -803,7 +803,7 @@ require(
                         '<body>' +
                             '<div >' +
                                 '<p begin="00:00:02.000" end="00:00:05.760" region="speaker">' +
-                                    '<span tts:color="white">Welcome to the beautiful Bisham</span><br/>' +
+                                    '<span tts:color="white">Welcome to the beautiful Woburn</span><br/>' +
                                     '<span tts:color="white">Abbey. If you wander round the</span>' +
                                 '</p>' +
                                 '<p begin="00:00:05.800" end="00:00:07.720" region="speaker">grounds</p>' +
@@ -897,7 +897,7 @@ require(
                         '<body>' +
                             '<div tts:wrapOption="noWrap" tts:fontFamily="sansSerif" tts:color="rgba(128,127,0,127)">' +
                                 '<p begin="00:00:02:02" end="00:00:05:12" region="speaker">' +
-                                    '<span>Welcome to the beautiful Bisham</span><br/>' +
+                                    '<span>Welcome to the beautiful Woburn</span><br/>' +
                                     '<span tts:color="white" style="speakerStyle">Abbey. If you wander round the</span>' +
                                 '</p>' +
                                 '<p begin="00:00:05:13" end="00:00:07:29" region="speaker">grounds</p>' +
@@ -972,8 +972,8 @@ require(
                         '<body>' +
                             '<div tts:wrapOption="noWrap" tts:fontFamily="sansSerif" tts:color="rgba(128,127,0,1.0)">' +
                                 '<p begin="00:00:02:02" end="00:00:05:12" region="inline">' +
-                                    '<span tts:color="white">Welcome to the beautiful Bisham</span><br/>' +
-                                    '<span tts:color="white" style="speakerStyle">Abbey. If you wander round the</span>' +
+                                    '<span tts:color="green">Welcome to the beautiful Woburn</span><br/>' +
+                                    '<span tts:color="green" style="speakerStyle">Abbey. If you wander round the</span>' +
                                 '</p>' +
                                 '<p begin="00:00:05:13" end="00:00:07:29" region="inline">grounds</p>' +
                             '</div>' +
@@ -1000,9 +1000,9 @@ require(
                 expect(span0.getAttribute('fontFamily')).toBe('sans-serif'); // Not inherited from region as it's already inherited from element's parent
                 expect(span0.getAttribute('fontWeight')).toBe('bold');       // Inherited from region (but not region's inner style) as it's not specfied on a referenced style or a parent
                 expect(span0.getAttribute('direction')).toBe('rtl');         // Inherited from region's inner style, as it's not specfied on region, a referenced style or a parent
-                expect(span0.getAttribute('backgroundColor')).toBeNull();    // Not inherited from region, as it's not an inheritable attribute
-                expect(span1.getAttribute('fontFamily')).toBe('Arial, sans-serif');  // Not inherited from parent div, as it's specified on an (indirectly) referenced style tag
-                expect(span1.getAttribute('color')).toBe('white');           // Not inherited from region or parent div or referenced style, as it is specified inline
+                expect(span0.getAttribute('backgroundColor')).toBe('rgba(0,0,0,0.0)'); // Not inherited from region, as it's not an inheritable attribute (we get the default value for this attribute instead)
+                expect(span1.getAttribute('fontFamily')).toBe('Arial, sans-serif');    // Not inherited from parent div, as it's specified on an (indirectly) referenced style tag
+                expect(span1.getAttribute('color')).toBe('green');                     // Not inherited from region or parent div or referenced style, as it is specified inline
             });
 
         });

@@ -486,6 +486,21 @@ define(
                     'beginMilliseconds': beginMilliseconds,
                     'endMilliseconds': endMilliseconds
                 };
+            },
+
+            /**
+             * @returns {antie.subtitles.TimedTextAttributes} a shallow copy of this object
+             * @public
+             */
+            clone: function() {
+                var result = new TimedTextAttributes();
+                for (var name in this._attributeMap) {
+                    if (this._attributeMap.hasOwnProperty(name)) {
+                        result._attributeMap[name] = this._attributeMap[name];
+                    }
+                }
+
+                return result;
             }
 
         });
