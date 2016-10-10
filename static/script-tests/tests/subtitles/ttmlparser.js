@@ -780,7 +780,7 @@ require(
                                     ' tts:padding="64px 36px"' +
                                     ' tts:showBackground="whenActive"' +
                                     ' tts:textAlign="center"' +
-                                    ' tts:textDecoration="noUnderline lineThrough noOverline"' +
+                                    ' tts:textDecoration="underline lineThrough noOverline"' +
                                     ' tts:textOutline="black 1px"' +
                                     ' tts:unicodeBidi="bidiOverride"' +
                                     ' tts:visibility="visible"' +
@@ -838,9 +838,9 @@ require(
                 expect(backgroundStyle.getAttribute('padding')).toEqual(['64px', '36px']);
                 expect(backgroundStyle.getAttribute('showBackground')).toBe('whenActive');
                 expect(backgroundStyle.getAttribute('textAlign')).toBe('center');
-                expect(backgroundStyle.getAttribute('textDecoration')).toEqual(['noUnderline', 'lineThrough', 'noOverline']);
+                expect(backgroundStyle.getAttribute('textDecoration')).toEqual('underline line-through');
                 expect(backgroundStyle.getAttribute('textOutline')).toEqual({color: 'black', outlineThickness: '1px', blurRadius: null});
-                expect(backgroundStyle.getAttribute('unicodeBidi')).toBe('bidiOverride');
+                expect(backgroundStyle.getAttribute('unicodeBidi')).toBe('bidi-override');
                 expect(backgroundStyle.getAttribute('visibility')).toBe('visible');
                 expect(backgroundStyle.getAttribute('wrapOption')).toBe('noWrap');
                 expect(backgroundStyle.getAttribute('writingMode')).toBe('lrtb');

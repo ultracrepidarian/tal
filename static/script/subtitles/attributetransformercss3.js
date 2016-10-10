@@ -28,7 +28,7 @@ define(
              */
             init: function(report) {
                 this._super(report);
-                var device = RuntimeContext.getCurrentApplication().getDevice();
+                var device = RuntimeContext.getDevice();
                 if (device.getConfig().accessibility && device.getConfig().accessibility.captions) {
                     this._captionsConfig = device.getConfig().accessibility.captions;
                 } else {
@@ -232,11 +232,36 @@ define(
                     } else {
                         valueArray = value.split(/\s+/);
                         if (valueArray && valueArray.length > 0) {
-                            result = valueArray;
+                            result = [];
                             for (var k = 0; k < valueArray.length; k++) {
-                                if (!this.transformEnumeratedAttribute(name, valueArray[k], [ 'underline', 'noUnderline', 'lineThrough', 'noLineThrough', 'overline', 'noOverline' ])) {
-                                    result = null;      // Parsing here is just to protect against injection attacks
+                                switch (valueArray[k]) {
+
+                                case 'underline':
+                                case 'overline':
+                                    result.push(valueArray[k]);
+                                    break;
+
+                                case 'lineThrough':
+                                    result.push('line-through');
+                                    break;
+
+                                case 'noUnderline':
+                                case 'noOverline':
+                                case 'noLineThrough':
+                                    // There is currently no CSS3 way to turn these off if a parent element has switched them on
+                                    break;
+
+                                default:
+                                    this.report(name + ' attribute should be one of "none" or a space separated list of "underline", "noUnderline", "overline", "noOverline", "lineThrough", "noLineThrough" but was: "' + value + '"');
+                                    break;
                                 }
+
+                            }
+
+                            if (result.length > 0) {
+                                result = result.join(' ');
+                            } else {
+                                result = null;  // Just use the default
                             }
                         }
                     }
@@ -286,6 +311,9 @@ define(
 
                 case 'unicodeBidi':
                     result = this.transformEnumeratedAttribute(name, value, [ 'normal', 'embed', 'bidiOverride' ]);
+                    if (result === 'bidiOverride') {
+                        result = 'bidi-override';
+                    }
                     break;
 
                 case 'visibility':

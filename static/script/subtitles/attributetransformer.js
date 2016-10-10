@@ -83,7 +83,7 @@ define(
                     }
                 }
 
-                this._report(name + ' attribute should be one of "' + enumeration.join('","') + '" but was: "' + value + '"');
+                this.report(name + ' attribute should be one of "' + enumeration.join('","') + '" but was: "' + value + '"');
                 return null;
             },
 
@@ -106,10 +106,10 @@ define(
                     if (intValue > 0) {
                         return intValue;
                     } else {
-                        this._report(name + ' attribute should be positive, but was: ' + value);
+                        this.report(name + ' attribute should be positive, but was: ' + value);
                     }
                 } else {
-                    this._report(name + ' attribute should be a positive integer, but was: ' + value);
+                    this.report(name + ' attribute should be a positive integer, but was: ' + value);
                 }
 
                 return null;
@@ -137,10 +137,10 @@ define(
                     if (first > 0 && second > 0) {
                         return [ first, second ];
                     } else {
-                        this._report(name + ' attribute should be two positive numbers separated by a space, but was: ' + value);
+                        this.report(name + ' attribute should be two positive numbers separated by a space, but was: ' + value);
                     }
                 } else {
-                    this._report(name + ' attribute should be two numbers separated by a space, but was: ' + value);
+                    this.report(name + ' attribute should be two numbers separated by a space, but was: ' + value);
                 }
 
                 return null;
