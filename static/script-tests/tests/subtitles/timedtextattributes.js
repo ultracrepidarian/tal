@@ -154,7 +154,6 @@ require(
                 var attributes = new TimedTextAttributes();
                 expect(attributes.isInheritable('backgroundColor')).toBe(false);
                 expect(attributes.isStyleAttribute('backgroundColor')).toBe(true);
-                expect(attributes.getDefault('backgroundColor')).toBe('transparent');
                 expect(attributes.appliesTo('backgroundColor')).toEqual([ 'body', 'div', 'p', 'region', 'span' ]);
             });
 
@@ -162,7 +161,6 @@ require(
                 var attributes = new TimedTextAttributes();
                 expect(attributes.isInheritable('color')).toBe(true);
                 expect(attributes.isStyleAttribute('color')).toBe(true);
-                expect(attributes.getDefault('color')).toBe('white');
                 expect(attributes.appliesTo('color')).toEqual([ 'span' ]);
             });
 
@@ -170,7 +168,6 @@ require(
                 var attributes = new TimedTextAttributes();
                 expect(attributes.isInheritable('direction')).toBe(true);
                 expect(attributes.isStyleAttribute('direction')).toBe(true);
-                expect(attributes.getDefault('direction')).toBe('ltr');
                 expect(attributes.appliesTo('direction')).toEqual([ 'p', 'span' ]);
             });
 
@@ -178,7 +175,6 @@ require(
                 var attributes = new TimedTextAttributes();
                 expect(attributes.isInheritable('display')).toBe(false);
                 expect(attributes.isStyleAttribute('display')).toBe(true);
-                expect(attributes.getDefault('display')).toBe('auto');
                 expect(attributes.appliesTo('display')).toEqual([ 'body', 'div', 'p', 'region', 'span' ]);
             });
 

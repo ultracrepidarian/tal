@@ -810,6 +810,7 @@ define(
              */
             _parseTt: function (ttmlTtElement) {
                 // var lang = ttmlTtElement.getAttributeNS(TimedTextElement.NAMESPACE.xml, 'lang');
+                var defaultAttributeValues = this._attributeDefaultsFactory.getAttributes();
 
                 var frameRate;
                 var timedTextAttributes = new TimedTextAttributes();
@@ -818,10 +819,10 @@ define(
                 if (!timedTextAttributes.getAttribute('tickRate')) {
                     frameRate = timedTextAttributes.getAttribute('frameRate');
                     if (frameRate) {
-                        var subFrameRate = timedTextAttributes.getAttribute('subFrameRate') || timedTextAttributes.getDefault('subFrameRate');
+                        var subFrameRate = timedTextAttributes.getAttribute('subFrameRate') || defaultAttributeValues.getAttribute('subFrameRate');
                         timedTextAttributes.setAttribute('tickRate', frameRate * subFrameRate);
                     } else {
-                        timedTextAttributes.setAttribute('tickRate', timedTextAttributes.getDefault('tickRate'));
+                        timedTextAttributes.setAttribute('tickRate', defaultAttributeValues.getAttribute('tickRate'));
                     }
                 }
 
@@ -844,7 +845,7 @@ define(
                     /* eslint-enable indent */
                     function(name) {
                         if (!timedTextAttributes.getAttribute(name)) {
-                            timedTextAttributes.setAttribute(name, timedTextAttributes.getDefault(name));
+                            timedTextAttributes.setAttribute(name, defaultAttributeValues.getAttribute(name));
                         }
                     },
                     this
@@ -893,7 +894,7 @@ define(
 
                 var timedText = new TimedText(head, body);
                 timedText.setAttributes(timedTextAttributes);
-                timedText.setAttributeDefaults(this._attributeDefaultsFactory.getAttributes());
+                timedText.setAttributeDefaults(defaultAttributeValues);
                 timedText.initialiseActiveElements();
 
                 return timedText;

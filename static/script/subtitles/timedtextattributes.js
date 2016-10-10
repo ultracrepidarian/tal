@@ -11,97 +11,81 @@ define(
             backgroundColor: {
                 inheritable: false,
                 style:       true,
-                default:     'transparent',
                 appliesTo:   [ 'body', 'div', 'p', 'region', 'span' ]
             },
             cellResolution: {
                 inheritable: false,
                 style:       false,
-                default:     {columns: 32, rows: 15},
                 appliesTo:   [ 'tt' ]
             },
             clockMode: {
                 inheritable: false,
                 style:       false,
-                default:     'utc',
                 appliesTo:   [ 'tt' ]
             },
             color: {
                 inheritable: true,
                 style:       true,
-                default:     'white',  // TODO What should the default be?
                 appliesTo:   [ 'span' ]
             },
             direction: {
                 inheritable: true,
                 style:       true,
-                default:     'ltr',
                 appliesTo:   [ 'p', 'span' ]
             },
             display: {
                 inheritable: false,
                 style:       true,
-                default:     'auto',
                 appliesTo:   [ 'body', 'div', 'p', 'region', 'span' ]
             },
             displayAlign: {
                 inheritable: false,
                 style:       true,
-                default:     'before',
                 appliesTo:   [ 'region' ]
             },
             dropMode: {
                 inheritable: false,
                 style:       false,
-                default:     'nonDrop',
                 appliesTo:   [ 'tt' ]
             },
             extent: {
                 inheritable: false,
                 style:       true,
-                default:     'auto',
                 appliesTo:   [ 'tt', 'region' ]
             },
             fontFamily: {
                 inheritable: true,
                 style:       true,
-                default:     'default',
                 appliesTo:   [ 'span' ]
             },
             fontSize: {
                 inheritable: true,
                 style:       true,
-                default:     '1c',
                 appliesTo:   [ 'span' ]
             },
             fontStyle: {
                 inheritable: true,
                 style:       true,
-                default:     'normal',
                 appliesTo:   [ 'span' ]
             },
             fontWeight: {
                 inheritable: true,
                 style:       true,
-                default:     'normal',
                 appliesTo:   [ 'span' ]
             },
             frameRate: {
                 inheritable: false,
                 style:       false,
-                default:     30,
                 appliesTo:   [ 'tt' ]
             },
             frameRateMultiplier: {
                 inheritable: false,
                 style:       false,
-                default:     {numerator: 1, denominator: 1},
                 appliesTo:   [ 'tt' ]
             },
             id: {
                 inheritable: false,
                 style:       false,
-                default:     null,
                 appliesTo:   [
                     'tt',
                     'body', 'div', 'p', 'span', 'br',
@@ -113,7 +97,6 @@ define(
             lang: {
                 inheritable: false,
                 style:       false,
-                default:     '',
                 appliesTo:   [
                     'tt',
                     'body', 'div', 'p', 'span', 'br',
@@ -124,67 +107,56 @@ define(
             lineHeight: {
                 inheritable: true,
                 style:       true,
-                default:     'normal',
                 appliesTo:   [ 'p' ]
             },
             markerMode: {
                 inheritable: false,
                 style:       false,
-                default:     'discontinuous',
                 appliesTo:   [ 'tt' ]
             },
             opacity: {
                 inheritable: false,
                 style:       true,
-                default:     1.0,
                 appliesTo:   [ 'region' ]
             },
             origin: {
                 inheritable: false,
                 style:       true,
-                default:     'auto',
                 appliesTo:   [ 'region' ]
             },
             overflow: {
                 inheritable: false,
                 style:       true,
-                default:     'hidden',
                 appliesTo:   [ 'region' ]
             },
             padding: {
                 inheritable: false,
                 style:       true,
-                default:     '0px',
                 appliesTo:   [ 'region' ]
             },
             pixelAspectRatio: {
                 inheritable: false,
                 style:       false,
-                default:     {width: 1, height: 1},
                 appliesTo:   [ 'tt' ]
             },
             profile: {
                 inheritable: false,
                 style:       false,
-                default:     null,
                 appliesTo:   [ 'tt' ]
             },
             region: {
                 inheritable: false,
                 style:       false,
-                default:     null,
                 appliesTo:   [ 'body', 'div', 'p', 'span' ]
             },
             showBackground: {
                 inheritable: false,
                 style:       true,
-                default:     'always',
                 appliesTo:   [ 'region' ]
             },
             space: {
                 inheritable: false,
                 style:       false,
-                default:     'default',
                 appliesTo:   [
                     'tt',
                     'body', 'div', 'p', 'span', 'br',
@@ -195,73 +167,61 @@ define(
             style: {
                 inheritable: false,
                 style:       false,
-                default:     null,
                 appliesTo:   [ 'body', 'div', 'p' , 'region', 'span', 'style' ]
             },
             subFrameRate: {
                 inheritable: false,
                 style:       false,
-                default:     1,
                 appliesTo:   [ 'tt' ]
             },
             textAlign: {
                 inheritable: true,
                 style:       true,
-                default:     'start',
                 appliesTo:   [ 'p' ]
             },
             textDecoration: {
                 inheritable: true,
                 style:       true,
-                default:     'none',
                 appliesTo:   [ 'span' ]
             },
             textOutline: {
                 inheritable: true,
                 style:       true,
-                default:     'none',
                 appliesTo:   [ 'span' ]
             },
             tickRate: {
                 inheritable: false,
                 style:       false,
-                default:     1,   // The default is actually specified in terms of other parameter values, and is dealt with in the parser
                 appliesTo:   [ 'tt' ]
             },
             timeBase: {
                 inheritable: false,
                 style:       false,
-                default:     'media',
                 appliesTo:   [ 'tt' ]
             },
             unicodeBidi: {
                 inheritable: false,
                 style:       true,
-                default:     'normal',
                 appliesTo:   [ 'p', 'span' ]
             },
             visibility: {
                 inheritable: true,
                 style:       true,
-                default:     'visible',
                 appliesTo:   [ 'body', 'div', 'p', 'region', 'span' ]
             },
             wrapOption: {
                 inheritable: true,
                 style:       true,
-                default:     'wrap',
                 appliesTo:   [ 'span' ]
             },
             writingMode: {
                 inheritable: false,
                 style:       true,
-                default:     'lrtb',
                 appliesTo:   [ 'region' ]
             },
             zIndex: {
                 inheritable: false,
                 style:       true,
-                default:     'auto',
                 appliesTo:   [ 'region' ]
             }
         };
@@ -332,23 +292,6 @@ define(
                 }
 
                 return null;
-            },
-
-            /**
-             * Returns the default value for an attribute.
-             *
-             * @param {String} name
-             *        The name of the attribute
-             *
-             * @returns {?any} the dault value for the named attribute, or null if it has none
-             * @public
-             */
-            getDefault: function(name) {
-                if (descriptors.hasOwnProperty(name)) {
-                    return descriptors[name].default;
-                } else {
-                    return false;
-                }
             },
 
             /**
