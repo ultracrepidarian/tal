@@ -78,13 +78,22 @@ define(
             },
 
             pause: function (opts) {
-                this._mediaPlayer.pause();
                 opts = opts || {};
-                if(opts.disableAutoResume !== true){
+                var secondsUntilStartOfWindow = this._mediaPlayer.getCurrentTime() - this._mediaPlayer.getSeekableRange().start;
+
+                if (opts.disableAutoResume) {
+                    this._mediaPlayer.pause();
+                } else if (secondsUntilStartOfWindow <= AUTO_RESUME_WINDOW_START_CUSHION_SECONDS) {
+                    // IPLAYERTVV1-4166
+                    // We can't pause so close to the start of the sliding window, so do a quick state transition in and
+                    // out on 'pause' state to be consistent with the rest of TAL.
+                    this._mediaPlayer._toPaused();
+                    this._mediaPlayer._toPlaying();
+                } else {
+                    this._mediaPlayer.pause();
                     this._autoResumeAtStartOfRange();
                 }
             },
-
             resume: function () {
                 this._mediaPlayer.resume();
             },
@@ -135,12 +144,12 @@ define(
 
             _autoResumeAtStartOfRange: function () {
                 var self = this;
-                var timeUntilStartOfWindow = Math.max(0, this._mediaPlayer.getCurrentTime() - this._mediaPlayer.getSeekableRange().start - AUTO_RESUME_WINDOW_START_CUSHION_SECONDS);
+                var secondsUntilAutoResume = Math.max(0, this._mediaPlayer.getCurrentTime() - this._mediaPlayer.getSeekableRange().start - AUTO_RESUME_WINDOW_START_CUSHION_SECONDS);
 
                 var autoResumeTimer = setTimeout(function () {
                     self.removeEventCallback(self, detectIfUnpaused);
                     self.resume();
-                }, timeUntilStartOfWindow * 1000);
+                }, secondsUntilAutoResume * 1000);
 
                 this.addEventCallback(this, detectIfUnpaused);
                 function detectIfUnpaused(event) {
