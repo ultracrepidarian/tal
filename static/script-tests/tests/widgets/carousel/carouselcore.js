@@ -85,6 +85,21 @@
                              );
     };
 
+    this.CarouselCoreTest.prototype.testNonDefaultMaskAddedAsChildOfCarousel = function (queue) {
+        queuedApplicationInit(queue,
+                              'lib/mockapplication',
+                              ['antie/widgets/carousel/carouselcore',
+                               'antie/widgets/carousel/mask'],
+                              function (application, CarouselCore, Mask) {
+                                  var appendStub, appendedWidget;
+                                  appendStub = this.sandbox.stub(CarouselCore.prototype, 'appendChildWidget');
+                                  new CarouselCore('myCarousel', null, Mask);
+                                  appendedWidget = appendStub.getCall(0).args[0];
+                                  assertTrue('Mask added is the one provided in the constructor', appendedWidget instanceof Mask);
+                              }
+                             );
+    };
+
     this.CarouselCoreTest.prototype.testCarouselRendersMask = function (queue) {
         queuedApplicationInit(queue,
                               'lib/mockapplication',

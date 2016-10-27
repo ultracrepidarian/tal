@@ -55,18 +55,23 @@ define(
          * and id_WidgetStrip will be used as the id of the widget strip element
          * @param {Object} [orientation=antie.widgets.carousel.CarouselCore.orientations.VERTICAL] the orientation object of
          * the carousel. Vertical by default, for horizontal pass in antie.widgets.carousel.CarouselCore.orientations.HORIZONTAL
+         * @param {antie.widgets.carousel.Mask} The mask to use for this carousel
          */
         var Carousel = Container.extend( /** @lends antie.widgets.carousel.CarouselCore.prototype */ {
             /**
              * @constructor
              * @ignore
              */
-            init: function(id, orientation) {
+            init: function(id, orientation, MaskConstructor) {
                 this.id = id;
                 this._super(id);
                 this._setOrientation(orientation || Carousel.orientations.VERTICAL);
                 this.setWidgetStrip(WidgetStrip);
-                this._mask = new Mask(this.id + '_CarouselMask', this._widgetStrip, this._orientation);
+                if(MaskConstructor){
+                    this._mask = new MaskConstructor(this.id + '_CarouselMask', this._widgetStrip, this._orientation);
+                } else {
+                    this._mask = new Mask(this.id + '_CarouselMask', this._widgetStrip, this._orientation);
+                }
                 this._directAppend(this._mask);
                 this.setNavigator(BookendedNavigator);
                 this._aligner = new Aligner(this._mask);
