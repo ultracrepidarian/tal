@@ -55,7 +55,8 @@ define(
          * and id_WidgetStrip will be used as the id of the widget strip element
          * @param {Object} [orientation=antie.widgets.carousel.CarouselCore.orientations.VERTICAL] the orientation object of
          * the carousel. Vertical by default, for horizontal pass in antie.widgets.carousel.CarouselCore.orientations.HORIZONTAL
-         * @param {antie.widgets.carousel.Mask} The mask to use for this carousel
+         * @param {function} [MaskConstructor] The constructor for the mask
+         * to use for the carousel, if this not provided this carousel will use the default Mask
          */
         var Carousel = Container.extend( /** @lends antie.widgets.carousel.CarouselCore.prototype */ {
             /**
