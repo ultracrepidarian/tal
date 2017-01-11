@@ -1,26 +1,8 @@
 /**
- * @preserve Copyright (c) 2013 British Broadcasting Corporation
- * (http://www.bbc.co.uk) and TAL Contributors (1)
- *
- * (1) TAL Contributors are listed in the AUTHORS file and at
- *     https://github.com/fmtvp/TAL/AUTHORS - please extend this file,
- *     not this notice.
- *
- * @license Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *    http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- *
- * All rights reserved
- * Please contact us for an alternative licence
+ * @preserve Copyright (c) 2013-present British Broadcasting Corporation. All rights reserved.
+ * @license See https://github.com/fmtvp/tal/blob/master/LICENSE for full licence
  */
+
 (function () {
 
     this.InitStateTest = AsyncTestCase('InitState');
@@ -50,14 +32,11 @@
                 var context = new WidgetContext();
                 var parent = new Widget();
                 var child = new Widget();
-                self.sandbox.stub(child, 'render');
+                spyOn(child, 'render');
                 state.append(context, parent, child);
 
-                sinon.assert.calledOnce(child.render);
-                sinon.assert.calledWith(
-                    child.render,
-                    sinon.match.instanceOf(Device)
-                );
+                expect(child.render.calls.count()).toBe(1);
+                expect(child.render).toHaveBeenCalledWith(jasmine.any(Device));
             }
         );
     };
@@ -79,14 +58,11 @@
                 var context = new WidgetContext();
                 var parent = new Widget();
                 var child = new Widget();
-                self.sandbox.stub(child, 'render');
+                spyOn(child, 'render');
                 state.prepend(context, parent, child);
 
-                sinon.assert.calledOnce(child.render);
-                sinon.assert.calledWith(
-                    child.render,
-                    sinon.match.instanceOf(Device)
-                );
+                expect(child.render.calls.count()).toBe(1);
+                expect(child.render).toHaveBeenCalledWith(jasmine.any(Device));
             }
         );
     };
@@ -111,18 +87,14 @@
                 var childEl = 'child';
                 var parentEl = 'parent';
                 parent.outputElement = parentEl;
-                self.sandbox.stub(child, 'render', function () {
+                spyOn(child, 'render').and.callFake(function () {
                     this.outputElement = childEl;
                 });
 
                 state.append(context, parent, child);
 
-                sinon.assert.calledOnce(Device.prototype.appendChildElement);
-                sinon.assert.calledWith(
-                    Device.prototype.appendChildElement,
-                    'parent',
-                    'child'
-                );
+                expect(Device.prototype.appendChildElement.calls.count()).toBe(1);
+                expect(Device.prototype.appendChildElement).toHaveBeenCalledWith('parent', 'child');
             }
         );
     };
@@ -147,18 +119,14 @@
                 var childEl = 'child';
                 var parentEl = 'parent';
                 parent.outputElement = parentEl;
-                self.sandbox.stub(child, 'render', function () {
+                spyOn(child, 'render').and.callFake(function () {
                     this.outputElement = childEl;
                 });
 
                 state.prepend(context, parent, child);
 
-                sinon.assert.calledOnce(Device.prototype.prependChildElement);
-                sinon.assert.calledWith(
-                    Device.prototype.prependChildElement,
-                    'parent',
-                    'child'
-                );
+                expect(Device.prototype.prependChildElement.calls.count()).toBe(1);
+                expect(Device.prototype.prependChildElement).toHaveBeenCalledWith('parent', 'child');
             }
         );
     };
@@ -180,14 +148,11 @@
                 var context = new WidgetContext();
                 var parent = new Widget();
                 var child = new Widget();
-                self.sandbox.stub(child, 'render');
+                spyOn(child, 'render');
                 state.append(context, parent, child);
 
-                sinon.assert.calledOnce(WidgetContext.prototype.setState);
-                sinon.assert.calledWith(
-                    WidgetContext.prototype.setState,
-                    'ATTACHED'
-                );
+                expect(WidgetContext.prototype.setState.calls.count()).toBe(1);
+                expect(WidgetContext.prototype.setState).toHaveBeenCalledWith('ATTACHED');
             }
         );
     };
@@ -209,14 +174,11 @@
                 var context = new WidgetContext();
                 var parent = new Widget();
                 var child = new Widget();
-                self.sandbox.stub(child, 'render');
+                spyOn(child, 'render');
                 state.prepend(context, parent, child);
 
-                sinon.assert.calledOnce(WidgetContext.prototype.setState);
-                sinon.assert.calledWith(
-                    WidgetContext.prototype.setState,
-                    'ATTACHED'
-                );
+                expect(WidgetContext.prototype.setState.calls.count()).toBe(1);
+                expect(WidgetContext.prototype.setState).toHaveBeenCalledWith('ATTACHED');
             }
         );
     };
@@ -237,7 +199,7 @@
                 var state = createState(self, WidgetContext, InitState);
                 var child = new Widget();
                 state.detach(child);
-                sinon.assert.notCalled(Device.prototype.removeElement);
+                expect(Device.prototype.removeElement).not.toHaveBeenCalled();
             }
         );
     };
@@ -260,7 +222,7 @@
                 var context = new WidgetContext();
                 var child = new Widget();
                 state.detach(context, child);
-                sinon.assert.notCalled(WidgetContext.prototype.setState);
+                expect(WidgetContext.prototype.setState).not.toHaveBeenCalled();
             }
         );
     };
@@ -286,14 +248,22 @@
 
 
     var createState = function (self, Context, State) {
-        self.sandbox.stub(Context.prototype);
+        for (var i in Context.prototype) {
+            if(Context.prototype.hasOwnProperty(i)) {
+                spyOn(Context.prototype, i);
+            }
+        }
         return new State();
     };
 
     var stubWidgetToReturnStubAppAndDevice = function (self, Widget, Device, application) {
-        self.sandbox.stub(Device.prototype);
-        self.sandbox.stub(Widget.prototype, 'getCurrentApplication');
-        Widget.prototype.getCurrentApplication.returns(application);
-        self.sandbox.stub(application, 'getDevice').returns(new Device());
+        for (var i in Device.prototype) {
+            if(Device.prototype.hasOwnProperty(i)) {
+                spyOn(Device.prototype, i);
+            }
+        }
+        spyOn(Widget.prototype, 'getCurrentApplication').and.returnValue(application);
+
+        spyOn(application, 'getDevice').and.returnValue(new Device());
     };
 }());
