@@ -1,25 +1,6 @@
 /**
- * @preserve Copyright (c) 2013 British Broadcasting Corporation
- * (http://www.bbc.co.uk) and TAL Contributors (1)
- *
- * (1) TAL Contributors are listed in the AUTHORS file and at
- *     https://github.com/fmtvp/TAL/AUTHORS - please extend this file,
- *     not this notice.
- *
- * @license Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *    http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- *
- * All rights reserved
- * Please contact us for an alternative licence
+ * @preserve Copyright (c) 2013-present British Broadcasting Corporation. All rights reserved.
+ * @license See https://github.com/fmtvp/tal/blob/master/LICENSE for full licence
  */
 
 (function() {
@@ -338,6 +319,137 @@
 
                 assertEquals('Abc', keyboard.getText());
             });
+    };
+
+    this.KeyboardTest.prototype.testTripleTapOfNewFirstCharacterWhenOneBeforeMaxLengthIsAccepted = function(queue) {
+        expectAsserts(2);
+        // Use JSON.parse/stringify to create a copy of the device config
+        var config = JSON.parse(JSON.stringify(antie.framework.deviceConfiguration));
+        config.input.multitap = {
+            '2': ['a', 'b', 'c']
+        };
+        queuedApplicationInit(
+            queue,
+            'lib/mockapplication',
+            ['antie/widgets/keyboard', 'antie/events/keyevent'],
+            function(application, Keyboard, KeyEvent) {
+                var keyboard = new Keyboard('id', 5, 1, ['a', 'b', 'c', 'd', 'e']);
+                keyboard.setMultiTap(true);
+                keyboard.setCapitalisation(Keyboard.CAPITALISATION_LOWER);
+
+                keyboard.setMaximumLength(5);
+                keyboard.setText('abcd');
+
+                keyboard.fireEvent(new KeyEvent('keydown', KeyEvent.VK_2));
+
+                assertEquals('abcda', keyboard.getText());
+            }, config);
+    };
+
+    this.KeyboardTest.prototype.testTripleTapOfNewSecondaryCharacterWhenOneBeforeMaxLengthIsAccepted = function(queue) {
+        expectAsserts(2);
+        // Use JSON.parse/stringify to create a copy of the device config
+        var config = JSON.parse(JSON.stringify(antie.framework.deviceConfiguration));
+        config.input.multitap = {
+            '2': ['a', 'b', 'c']
+        };
+        queuedApplicationInit(
+            queue,
+            'lib/mockapplication',
+            ['antie/widgets/keyboard', 'antie/events/keyevent'],
+            function(application, Keyboard, KeyEvent) {
+                var keyboard = new Keyboard('id', 5, 1, ['a', 'b', 'c', 'd', 'e']);
+                keyboard.setMultiTap(true);
+                keyboard.setCapitalisation(Keyboard.CAPITALISATION_LOWER);
+
+                keyboard.setMaximumLength(5);
+                keyboard.setText('abcd');
+
+                keyboard.fireEvent(new KeyEvent('keydown', KeyEvent.VK_2));
+                keyboard.fireEvent(new KeyEvent('keydown', KeyEvent.VK_2));
+
+                assertEquals('abcdb', keyboard.getText());
+            }, config);
+    };
+
+    this.KeyboardTest.prototype.testTripleTapOfTwoCharactersWhenOneBeforeMaxLengthFirstIsAccepted = function(queue) {
+        expectAsserts(2);
+        // Use JSON.parse/stringify to create a copy of the device config
+        var config = JSON.parse(JSON.stringify(antie.framework.deviceConfiguration));
+        config.input.multitap = {
+            '2': ['a', 'b', 'c'],
+            '3': ['d', 'e', 'f']
+        };
+        queuedApplicationInit(
+            queue,
+            'lib/mockapplication',
+            ['antie/widgets/keyboard', 'antie/events/keyevent'],
+            function(application, Keyboard, KeyEvent) {
+                var keyboard = new Keyboard('id', 6, 1, ['a', 'b', 'c', 'd', 'e', 'f']);
+                keyboard.setMultiTap(true);
+                keyboard.setCapitalisation(Keyboard.CAPITALISATION_LOWER);
+
+                keyboard.setMaximumLength(5);
+                keyboard.setText('abcd');
+
+                keyboard.fireEvent(new KeyEvent('keydown', KeyEvent.VK_3));
+                keyboard.fireEvent(new KeyEvent('keydown', KeyEvent.VK_2));
+
+                assertEquals('abcdd', keyboard.getText());
+            }, config);
+    };
+
+    this.KeyboardTest.prototype.testTripleTapOfNewFirstCharacterWhenAtMaxLengthIsIgnored = function(queue) {
+        expectAsserts(2);
+        // Use JSON.parse/stringify to create a copy of the device config
+        var config = JSON.parse(JSON.stringify(antie.framework.deviceConfiguration));
+        config.input.multitap = {
+            '2': ['a', 'b', 'c']
+        };
+        queuedApplicationInit(
+            queue,
+            'lib/mockapplication',
+            ['antie/widgets/keyboard', 'antie/events/keyevent'],
+            function(application, Keyboard, KeyEvent) {
+                var keyboard = new Keyboard('id', 5, 1, ['a', 'b', 'c', 'd', 'e']);
+                keyboard.setMultiTap(true);
+                keyboard.setCapitalisation(Keyboard.CAPITALISATION_LOWER);
+
+                var maxLengthText = 'abcde';
+                keyboard.setMaximumLength(5);
+                keyboard.setText(maxLengthText);
+
+                keyboard.fireEvent(new KeyEvent('keydown', KeyEvent.VK_2));
+
+                assertEquals('abcde', keyboard.getText());
+            }, config);
+    };
+
+    this.KeyboardTest.prototype.testTripleTapOfNewSecondaryCharacterWhenAtMaxLengthIsIgnored = function(queue) {
+        expectAsserts(2);
+        // Use JSON.parse/stringify to create a copy of the device config
+        var config = JSON.parse(JSON.stringify(antie.framework.deviceConfiguration));
+        config.input.multitap = {
+            '2': ['a', 'b', 'c']
+        };
+        queuedApplicationInit(
+            queue,
+            'lib/mockapplication',
+            ['antie/widgets/keyboard', 'antie/events/keyevent'],
+            function(application, Keyboard, KeyEvent) {
+                var keyboard = new Keyboard('id', 5, 1, ['a', 'b', 'c', 'd', 'e']);
+                keyboard.setMultiTap(true);
+                keyboard.setCapitalisation(Keyboard.CAPITALISATION_LOWER);
+
+                var maxLengthText = 'abcde';
+                keyboard.setMaximumLength(5);
+                keyboard.setText(maxLengthText);
+
+                keyboard.fireEvent(new KeyEvent('keydown', KeyEvent.VK_2));
+                keyboard.fireEvent(new KeyEvent('keydown', KeyEvent.VK_2));
+
+                assertEquals('abcde', keyboard.getText());
+            }, config);
     };
 
 })();
