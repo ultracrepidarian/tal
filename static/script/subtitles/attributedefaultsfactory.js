@@ -40,7 +40,6 @@ define(
             lineHeight: 'normal',
             opacity: '1.0',
             origin: 'auto',
-            overflow: 'hidden',
             padding: '0px',
             showBackground: 'always',
             textAlign: 'start',
