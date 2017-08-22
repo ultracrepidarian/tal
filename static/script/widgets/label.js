@@ -45,12 +45,27 @@ define(
              */
             render: function(device) {
                 // TODO: is there a more efficient way of doing this?
+                var s = this.getTextAsRendered(device);
+
+                if(!this.outputElement) {
+                    this.outputElement = device.createLabel(this.id, this.getClasses(), s);
+                } else {
+                    device.setElementContent(this.outputElement, s);
+                }
+
+                return this.outputElement;
+            },
+            /**
+             * will return device-specific rendering of the text,e.g. including truncation
+             * @param {antie.devices.Device} device The device to render to.
+             * @returns text as rendered on the device
+             */
+            getTextAsRendered: function(device) {
                 var s;
                 if(this._width && this._maxLines && this._text && (this._truncationMode === Label.TRUNCATION_MODE_RIGHT_ELLIPSIS)) {
                     var h = device.getTextHeight('fW', this._width, this.getClasses());
                     var allowedHeight = h * this._maxLines;
                     var currentHeight = device.getTextHeight(this._text, this._width, this.getClasses());
-
                     var len = this._text.length;
                     while(currentHeight > allowedHeight && len > 1) {
                         len = Math.floor((len * allowedHeight) / currentHeight);
@@ -61,7 +76,6 @@ define(
                         currentHeight = device.getTextHeight(this._text.substring(0, len) + '...', this._width, this.getClasses());
                     }
                     len--;
-
                     if(len < this._text.length) {
                         // truncate at word boundary
                         var boundaryLen = len;
@@ -79,14 +93,7 @@ define(
                 } else {
                     s = this._text;
                 }
-
-                if(!this.outputElement) {
-                    this.outputElement = device.createLabel(this.id, this.getClasses(), s);
-                } else {
-                    device.setElementContent(this.outputElement, s);
-                }
-
-                return this.outputElement;
+                return s;
             },
             /**
              * Sets the text displayed by this label.
