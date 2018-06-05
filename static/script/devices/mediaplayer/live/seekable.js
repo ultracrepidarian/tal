@@ -1,28 +1,8 @@
 /**
  * @fileOverview Requirejs module containing device modifier for live playback
  * with support level Seekable
- *
- * @preserve Copyright (c) 2015 British Broadcasting Corporation
- * (http://www.bbc.co.uk) and TAL Contributors (1)
- *
- * (1) TAL Contributors are listed in the AUTHORS file and at
- *     https://github.com/fmtvp/TAL/AUTHORS - please extend this file,
- *     not this notice.
- *
- * @license Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *    http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- *
- * All rights reserved
- * Please contact us for an alternative licence
+ * @preserve Copyright (c) 2013-present British Broadcasting Corporation. All rights reserved.
+ * @license See https://github.com/bbc/tal/blob/master/LICENSE for full licence
  */
 
 define(
@@ -46,11 +26,11 @@ define(
          * @extends antie.Class
          */
         var SeekableLivePlayer = Class.extend({
-            init: function () {
+            init: function init () {
                 this._mediaPlayer = RuntimeContext.getDevice().getMediaPlayer();
             },
 
-            setSource: function (mediaType, sourceUrl, mimeType) {
+            setSource: function setSource (mediaType, sourceUrl, mimeType) {
                 if (mediaType === MediaPlayer.TYPE.AUDIO) {
                     mediaType = MediaPlayer.TYPE.LIVE_AUDIO;
                 } else {
@@ -60,7 +40,7 @@ define(
                 this._mediaPlayer.setSource(mediaType, sourceUrl, mimeType);
             },
 
-            beginPlayback: function () {
+            beginPlayback: function beginPlayback () {
                 var config = RuntimeContext.getDevice().getConfig();
                 if (config && config.streaming && config.streaming.overrides && config.streaming.overrides.forceBeginPlaybackToEndOfWindow) {
                     this._mediaPlayer.beginPlaybackFrom(Infinity);
@@ -69,15 +49,15 @@ define(
                 }
             },
 
-            beginPlaybackFrom: function (offset) {
+            beginPlaybackFrom: function beginPlaybackFrom (offset) {
                 this._mediaPlayer.beginPlaybackFrom(offset);
             },
 
-            playFrom: function (offset) {
+            playFrom: function playFrom (offset) {
                 this._mediaPlayer.playFrom(offset);
             },
 
-            pause: function (opts) {
+            pause: function pause (opts) {
                 opts = opts || {};
                 var secondsUntilStartOfWindow = this._mediaPlayer.getCurrentTime() - this._mediaPlayer.getSeekableRange().start;
 
@@ -94,55 +74,55 @@ define(
                     this._autoResumeAtStartOfRange();
                 }
             },
-            resume: function () {
+            resume: function resume () {
                 this._mediaPlayer.resume();
             },
 
-            stop: function () {
+            stop: function stop () {
                 this._mediaPlayer.stop();
             },
 
-            reset: function () {
+            reset: function reset () {
                 this._mediaPlayer.reset();
             },
 
-            getState: function () {
+            getState: function getState () {
                 return this._mediaPlayer.getState();
             },
 
-            getSource: function () {
+            getSource: function getSource () {
                 return this._mediaPlayer.getSource();
             },
 
-            getCurrentTime: function () {
+            getCurrentTime: function getCurrentTime () {
                 return this._mediaPlayer.getCurrentTime();
             },
 
-            getSeekableRange: function () {
+            getSeekableRange: function getSeekableRange () {
                 return this._mediaPlayer.getSeekableRange();
             },
 
-            getMimeType: function () {
+            getMimeType: function getMimeType () {
                 return this._mediaPlayer.getMimeType();
             },
 
-            addEventCallback: function (thisArg, callback) {
+            addEventCallback: function addEventCallback (thisArg, callback) {
                 this._mediaPlayer.addEventCallback(thisArg, callback);
             },
 
-            removeEventCallback: function (thisArg, callback) {
+            removeEventCallback: function removeEventCallback (thisArg, callback) {
                 this._mediaPlayer.removeEventCallback(thisArg, callback);
             },
 
-            removeAllEventCallbacks: function () {
+            removeAllEventCallbacks: function removeAllEventCallbacks () {
                 this._mediaPlayer.removeAllEventCallbacks();
             },
 
-            getPlayerElement: function () {
+            getPlayerElement: function getPlayerElement () {
                 return this._mediaPlayer.getPlayerElement();
             },
 
-            _autoResumeAtStartOfRange: function () {
+            _autoResumeAtStartOfRange: function _autoResumeAtStartOfRange () {
                 var self = this;
                 var secondsUntilAutoResume = Math.max(0, this._mediaPlayer.getCurrentTime() - this._mediaPlayer.getSeekableRange().start - AUTO_RESUME_WINDOW_START_CUSHION_SECONDS);
 

@@ -1,6 +1,6 @@
 /**
- * @preserve Copyright (c) 2015 British Broadcasting Corporation. All rights reserved.
- * @license See https://github.com/fmtvp/tal/blob/master/LICENSE for full licence
+ * @preserve Copyright (c) 2013-present British Broadcasting Corporation. All rights reserved.
+ * @license See https://github.com/bbc/tal/blob/master/LICENSE for full licence
  */
 
 require(
@@ -43,6 +43,12 @@ require(
                 storage.clear();
                 expect(mock().storage).toEqual({});
             });
+
+            it('is Empty', function() {
+                expect(storage.isEmpty()).toEqual(true);
+                storage.setItem('key', {value: true});
+                expect(storage.isEmpty()).toEqual(false);
+            });
         });
 
         function mock() {
@@ -57,17 +63,20 @@ require(
                                     values: {
                                         insert: function(key, value) {
                                             mock().storage[key] = value;
+                                            mock().storage.Size++;
                                         },
                                         lookup: function(key) {
                                             return mock().storage[key];
                                         },
                                         clear: function() {
                                             mock().storage = {};
+                                            mock().storage.Size = 0;
                                         },
                                         hasKey: function(key) {
                                             return mock().storage.hasOwnProperty(key);
                                         }
-                                    }
+                                    },
+                                    Size: 0
                                 }
                             }
                         }

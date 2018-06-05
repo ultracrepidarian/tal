@@ -1,27 +1,7 @@
 /**
  * @fileOverview Requirejs module containing the CallbackManager utility class.
- *
- * @preserve Copyright (c) 2014 British Broadcasting Corporation
- * (http://www.bbc.co.uk) and TAL Contributors (1)
- *
- * (1) TAL Contributors are listed in the AUTHORS file and at
- *     https://github.com/fmtvp/TAL/AUTHORS - please extend this file,
- *     not this notice.
- *
- * @license Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *    http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- *
- * All rights reserved
- * Please contact us for an alternative licence
+ * @preserve Copyright (c) 2013-present British Broadcasting Corporation. All rights reserved.
+ * @license See https://github.com/bbc/tal/blob/master/LICENSE for full licence
  */
 
 define('antie/callbackmanager',
@@ -42,7 +22,7 @@ define('antie/callbackmanager',
              * @constructor
              * @ignore
              */
-            init: function() {
+            init: function init () {
                 this._callbacks = [ ];
             },
 
@@ -54,7 +34,7 @@ define('antie/callbackmanager',
              * @param {Object} thisArg The object to use as "this" when calling the callback.
              * @param {Function} callback The callback function
              */
-            addCallback: function(thisArg, callback) {
+            addCallback: function addCallback (thisArg, callback) {
                 if (this._getIndexOf(thisArg,callback) === undefined) {
                     this._callbacks.push([thisArg, callback]);
                 }
@@ -65,7 +45,7 @@ define('antie/callbackmanager',
              * @param {Object} thisArg The object that was used as "this" when adding the callback.
              * @param {Function} callback The callback function
              */
-            removeCallback: function(thisArg, callback) {
+            removeCallback: function removeCallback (thisArg, callback) {
                 var foundIndex = this._getIndexOf(thisArg,callback);
 
                 if (foundIndex !== undefined) {
@@ -73,7 +53,7 @@ define('antie/callbackmanager',
                 }
             },
 
-            _getIndexOf: function(thisArg, callback) {
+            _getIndexOf: function _getIndexOf (thisArg, callback) {
                 var result;
                 for (var i = 0; i < this._callbacks.length; i++) {
                     if (this._callbacks[i][0] === thisArg && this._callbacks[i][1] === callback) {
@@ -88,7 +68,7 @@ define('antie/callbackmanager',
             /**
              * Remove all callbacks.
              */
-            removeAllCallbacks: function() {
+            removeAllCallbacks: function removeAllCallbacks () {
                 this._callbacks = [ ];
             },
 
@@ -97,7 +77,7 @@ define('antie/callbackmanager',
              * @example manager.callAll(1);
              * @example manager.callAll(1,2,3,4);
              */
-            callAll: function() {
+            callAll: function callAll () {
                 // Convert arguments object to args array.
                 var args = Array.prototype.slice.call(arguments);
 

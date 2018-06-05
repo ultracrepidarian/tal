@@ -1,33 +1,13 @@
 /**
  * @fileOverview A sanitisation strategy using a whitelist of tags
- *
- * @preserve Copyright (c) 2013 British Broadcasting Corporation
- * (http://www.bbc.co.uk) and TAL Contributors (1)
- *
- * (1) TAL Contributors are listed in the AUTHORS file and at
- *     https://github.com/fmtvp/TAL/AUTHORS - please extend this file,
- *     not this notice.
- *
- * @license Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *    http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- *
- * All rights reserved
- * Please contact us for an alternative licence
+ * @preserve Copyright (c) 2013-present British Broadcasting Corporation. All rights reserved.
+ * @license See https://github.com/bbc/tal/blob/master/LICENSE for full licence
  */
+
 define(
     'antie/devices/sanitisers/whitelisted',
     [
-        'antie/devices/sanitiser',
-        'antie/lib/array.indexof' // Adds Array.prototype.indexOf()
+        'antie/devices/sanitiser'
     ],
     function (Sanitiser) {
 
@@ -59,19 +39,19 @@ define(
 
             _whitelist: ['p', 'ul', 'li', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'div', 'br'],
 
-            setElementContent: function (el) {
+            setElementContent: function setElementContent (el) {
                 var dom = this._createDom();
                 this._clearElement(el);
                 this._processDomElement(dom.firstChild, el);
             },
 
-            _clearElement: function(el) {
+            _clearElement: function _clearElement (el) {
                 for (var i = el.childNodes.length - 1; i >= 0; i--) {
                     el.removeChild(el.childNodes[i]);
                 }
             },
 
-            _createDom: function () {
+            _createDom: function _createDom () {
                 var xmlDoc,
                     string = '<content>' + this._string + '</content>';
 
@@ -89,7 +69,7 @@ define(
                 return xmlDoc;
             },
 
-            _replaceEntities: function (string) {
+            _replaceEntities: function _replaceEntities (string) {
 
                 var replaced = {},
                     regexp,
@@ -114,7 +94,7 @@ define(
 
             },
 
-            _processDomElement: function (element, originalDom) {
+            _processDomElement: function _processDomElement (element, originalDom) {
 
                 var content = element.childNodes,
                     el;

@@ -1,27 +1,7 @@
 /**
- * @fileOverview Requirejs module containing base antie.Historian class.
- *
- * @preserve Copyright (c) 2013 British Broadcasting Corporation
- * (http://www.bbc.co.uk) and TAL Contributors (1)
- *
- * (1) TAL Contributors are listed in the AUTHORS file and at
- *     https://github.com/fmtvp/TAL/AUTHORS - please extend this file,
- *     not this notice.
- *
- * @license Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *    http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- *
- * All rights reserved
- * Please contact us for an alternative licence
+ * @fileOverview Requirejs module containing base antie.historian class.
+ * @preserve Copyright (c) 2013-present British Broadcasting Corporation. All rights reserved.
+ * @license See https://github.com/bbc/tal/blob/master/LICENSE for full licence
  */
 
 define(
@@ -38,7 +18,7 @@ define(
              * @constructor
              * @ignore
              */
-            init: function(currentUrl) {
+            init: function init (currentUrl) {
                 var i;
 
                 this._historyArray = currentUrl.split(Historian.HISTORY_TOKEN);
@@ -52,7 +32,7 @@ define(
              * Returns a URL to navigate back to the previous application
              * @returns {String} The first history item in currentUrl as a non-encoded URL, or the empty string if there is no history.
              */
-            back: function() {
+            back: function back () {
                 var recent, remaining, fragmentSeparator, self;
                 self = this;
 
@@ -91,7 +71,7 @@ define(
              * @param {String} destinationUrl, The non uri-encoded destination url including route fragment if applicable.
              * @returns {String} A non encoded uri with history information appended, the exact format of this is subject to change and should not be depended upon.
              */
-            forward: function(destinationUrl) {
+            forward: function forward (destinationUrl) {
                 var fragmentSeparator, self;
                 self = this;
 
@@ -132,7 +112,7 @@ define(
              * Returns a string representation of the current history stack. This is not useful externally.
              * @returns {String} A string representing the current history stack, to be appended to the current route within the application.
              */
-            toString: function() {
+            toString: function toString () {
                 return this._historyArray.join('');
             },
 
@@ -140,7 +120,7 @@ define(
              * Returns a Boolean to indicate whether the history stack contains valid return URLs. This excludes the 'return to broadcast' special case.
              * @returns {Boolean} True if the history stack contains one or more valid return URLs.
              */
-            hasHistory: function() {
+            hasHistory: function hasHistory () {
                 var historyMinimumLength = this.hasBroadcastOrigin() ? 2 : 1;
                 return this._historyArray.length >= historyMinimumLength;
             },
@@ -149,7 +129,7 @@ define(
              * Returns a Boolean to indicate whether the first entry in the history stack is the special 'broadcast' entry.
              * @returns {Boolean} True if the first entry in the history stack is the special 'broadcast' entry.
              */
-            hasBroadcastOrigin: function() {
+            hasBroadcastOrigin: function hasBroadcastOrigin () {
                 return this._historyArray.length > 0 && this._historyArray[this._historyArray.length - 1] === Historian.HISTORY_TOKEN + Historian.BROADCAST_ENTRY;
             }
         });

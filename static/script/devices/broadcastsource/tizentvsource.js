@@ -1,29 +1,9 @@
 /* global tizen */
 
 /**
- * @fileOverview Requirejs module containing the antie.devices.broadcastsource.tizentvsource class.
- *
- * @preserve Copyright (c) 2013-2014 British Broadcasting Corporation
- * (http://www.bbc.co.uk) and TAL Contributors (1)
- *
- * (1) TAL Contributors are listed in the AUTHORS file and at
- *     https://github.com/fmtvp/TAL/AUTHORS - please extend this file,
- *     not this notice.
- *
- * @license Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *    http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- *
- * All rights reserved
- * Please contact us for an alternative licence
+ * @fileOverview Requirejs module containing base antie.devices.broadcastsource.tizentvsource class.
+ * @preserve Copyright (c) 2013-present British Broadcasting Corporation. All rights reserved.
+ * @license See https://github.com/bbc/tal/blob/master/LICENSE for full licence
  */
 
 define(
@@ -58,7 +38,7 @@ define(
              * @override
              * @ignore
              */
-            init: function () {
+            init: function init () {
                 if (typeof tizen === 'undefined' || typeof tizen.tvchannel === 'undefined' ||
                     typeof tizen.tvwindow === 'undefined') {
                     throw new Error('Unable to initialize Tizen broadcast object, not found');
@@ -88,7 +68,7 @@ define(
              * @override
              * @returns {antie.devices.broadcastsources.BaseTvSource.STATE} current state of the broadcast source
              */
-            getState: function () {
+            getState: function getState () {
                 return this.playState;
             },
 
@@ -96,7 +76,7 @@ define(
              * Sets current state and also checks state prerequisites
              * @param state antie.devices.broadcastsources.BaseTvSource.STATE
              */
-            setState: function (state) {
+            setState: function setState (state) {
                 // If already set, skip, with exception to presenting, which
                 // will always be emitted
                 if (state === this.getState() && state !== BaseTvSource.STATE.PRESENTING) {
@@ -126,7 +106,7 @@ define(
              * Shows current channel by setting broadcast source to full screen
              * @override
              */
-            showCurrentChannel: function () {
+            showCurrentChannel: function showCurrentChannel () {
                 this._setBroadcastToFullScreen();
             },
 
@@ -134,7 +114,7 @@ define(
              * Hides broadcast signal window
              * @override
              */
-            stopCurrentChannel: function () {
+            stopCurrentChannel: function stopCurrentChannel () {
                 var self = this;
                 tizen.tvwindow.hide(function () {
                     self.setState(BaseTvSource.STATE.STOPPED);
@@ -145,7 +125,7 @@ define(
              * Gets the service name of the current channel
              * @override
              */
-            getCurrentChannelName: function () {
+            getCurrentChannelName: function getCurrentChannelName () {
                 return tizen.tvchannel.getCurrentChannel().channelName;
             },
 
@@ -153,12 +133,12 @@ define(
              * Gets only channel names from channel list
              * @override
              */
-            getChannelNameList: function (params) {
+            getChannelNameList: function getChannelNameList (params) {
                 params.onSuccess = params.onSuccess || this.nop;
                 params.onError = params.onError || this.nop;
 
                 this._getChannelList({
-                    onSuccess: function (channels) {
+                    onSuccess: function onSuccess (channels) {
                         var result = [];
                         for (var i = 0, len = channels.length; i < len; i++) {
                             result.push(channels[i].channelName);
@@ -169,7 +149,7 @@ define(
                 });
             },
 
-            _getChannelList: function (params) {
+            _getChannelList: function _getChannelList (params) {
                 params.onSuccess = params.onSuccess || this.nop;
                 params.onError = params.onError || this.nop;
 
@@ -198,7 +178,7 @@ define(
              * @param width
              * @param height
              */
-            setPosition: function (top, left, width, height) {
+            setPosition: function setPosition (top, left, width, height) {
                 var self = this;
 
                 tizen.tvwindow.show(
@@ -215,7 +195,7 @@ define(
             /**
              * @override
              */
-            destroy: function () {
+            destroy: function destroy () {
                 if (this.signalStateChangeListenerId !== -1) {
                     tizen.tvchannel.removeSignalStateChangeListener(this.signalStateChangeListenerId);
                 }
@@ -227,7 +207,7 @@ define(
              * @overrides
              * @param params.channelName
              */
-            setChannelByName: function (params) {
+            setChannelByName: function setChannelByName (params) {
                 params.onSuccess = params.onSuccess || this.nop;
                 params.onError = params.onError || this.nop;
 
@@ -251,11 +231,11 @@ define(
                 }
             },
 
-            _setBroadcastToFullScreen: function () {
+            _setBroadcastToFullScreen: function _setBroadcastToFullScreen () {
                 this.setPosition(0, 0, window.screen.width, window.screen.height);
             },
 
-            _tuneToChannelByName: function (params) {
+            _tuneToChannelByName: function _tuneToChannelByName (params) {
                 params.onSuccess = params.onSuccess || this.nop;
                 params.onError = params.onError || this.nop;
 
@@ -297,7 +277,7 @@ define(
              * @param params.onSuccess Function to call on success.
              * @private
              */
-            _tuneToChannel: function (params) {
+            _tuneToChannel: function _tuneToChannel (params) {
                 params.onError = params.onError || this.nop;
                 params.onSuccess = params.onSuccess || this.nop;
 
@@ -313,15 +293,15 @@ define(
 
                 try {
                     tizen.tvchannel.tune(channel, {
-                        onsuccess: function () {
+                        onsuccess: function onsuccess () {
                             self._setBroadcastToFullScreen();
                             self.setState(BaseTvSource.STATE.PRESENTING);
                             params.onSuccess();
                         },
-                        onnosignal: function () {
+                        onnosignal: function onnosignal () {
                             self.setState(BaseTvSource.STATE.UNAVAILABLE);
                         },
-                        onprograminforeceived: function () {}
+                        onprograminforeceived: function onprograminforeceived () {}
                     }, tuneError);
                 } catch (error) {
                     params.onError({

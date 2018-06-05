@@ -1,26 +1,8 @@
 /**
- * @preserve Copyright (c) 2013 British Broadcasting Corporation
- * (http://www.bbc.co.uk) and TAL Contributors (1)
- *
- * (1) TAL Contributors are listed in the AUTHORS file and at
- *     https://github.com/fmtvp/TAL/AUTHORS - please extend this file,
- *     not this notice.
- *
- * @license Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *    http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- *
- * All rights reserved
- * Please contact us for an alternative licence
+ * @preserve Copyright (c) 2013-present British Broadcasting Corporation. All rights reserved.
+ * @license See https://github.com/bbc/tal/blob/master/LICENSE for full licence
  */
+
 (function () {
 
     this.WidgetContextTest = AsyncTestCase('WidgetContext');
@@ -43,10 +25,10 @@
                 'antie/widgets/carousel/strips/utility/states'
             ],
             function (application, WidgetContext, States) {
-                self.sandbox.stub(States.INIT.prototype);
+                spyOn(States.INIT.prototype, 'append');
                 var context = createContext(self, WidgetContext, {}, {}, States);
                 context.append();
-                sinon.assert.calledOnce(States.INIT.prototype.append);
+                expect(States.INIT.prototype.append.calls.count()).toBe(1);
             }
         );
     };
@@ -65,7 +47,7 @@
                 var stateName = 'ATTACHED';
                 var context = createContextInState(self, WidgetContext, States, stateName, new Widget());
                 context.append();
-                sinon.assert.calledOnce(States[stateName].prototype.append);
+                expect(States[stateName].prototype.append.calls.count()).toBe(1);
             }
         );
     };
@@ -86,12 +68,7 @@
                 var parent = new Widget();
                 var context = createContextInState(self, WidgetContext, States, stateName, widget, parent);
                 context.append();
-                sinon.assert.calledWith(
-                    States[stateName].prototype.append,
-                    context,
-                    parent,
-                    widget
-                );
+                expect(States[stateName].prototype.append).toHaveBeenCalledWith(context, parent, widget);
             }
         );
     };
@@ -112,12 +89,7 @@
                 var parent = new Widget();
                 var context = createContextInState(self, WidgetContext, States, stateName, widget, parent);
                 context.prepend();
-                sinon.assert.calledWith(
-                    States[stateName].prototype.prepend,
-                    context,
-                    parent,
-                    widget
-                );
+                expect(States[stateName].prototype.prepend).toHaveBeenCalledWith(context, parent, widget);
             }
         );
     };
@@ -138,11 +110,7 @@
                 var parent = new Widget();
                 var context = createContextInState(self, WidgetContext, States, stateName, widget, parent);
                 context.detach();
-                sinon.assert.calledWith(
-                    States[stateName].prototype.detach,
-                    context,
-                    widget
-                );
+                expect(States[stateName].prototype.detach).toHaveBeenCalledWith(context, widget);
             }
         );
     };
@@ -162,7 +130,7 @@
                 var widget = new Widget();
                 var parent = new Widget();
                 var context = createContextInState(self, WidgetContext, States, stateName, widget, parent);
-                States[stateName].prototype.hasLength.returns('boo');
+                States[stateName].prototype.hasLength.and.returnValue('boo');
                 var attached = context.hasLength();
                 assertEquals('value from state returned on hasLength', 'boo', attached);
             }
@@ -170,7 +138,6 @@
     };
 
     this.WidgetContextTest.prototype.testStateInititalisedOnStateChange = function (queue) {
-        var self = this;
         queuedApplicationInit(
             queue,
             'lib/mockapplication',
@@ -183,27 +150,36 @@
                 var stateName = 'ATTACHED';
                 var widget = new Widget();
                 var parent = new Widget();
-                self.sandbox.stub(States[stateName].prototype);
+                spyOn(States[stateName].prototype, 'init');
                 var context = new WidgetContext(widget, parent, States);
-                States[stateName].prototype.init.reset();
                 context.setState(stateName);
-                sinon.assert.calledOnce(
-                    States[stateName].prototype.init
-                );
+                expect(States[stateName].prototype.init.calls.count()).toBe(1);
             }
         );
     };
 
     var createContextInState = function (self, Context, STATES, stateName, widget, parent) {
         var context = createContext(self, Context, widget, parent, STATES);
-        self.sandbox.stub(STATES[stateName].prototype);
+        for (var i in STATES[stateName].prototype) {
+            if(STATES[stateName].prototype.hasOwnProperty(i)) {
+                spyOn(STATES[stateName].prototype, i);
+            }
+        }
         context.setState(stateName);
         return context;
     };
 
     var createContext = function (self, Context, widget, parent, STATES) {
-        self.sandbox.stub(widget);
-        self.sandbox.stub(parent);
+        for (var i in widget) {
+            if(widget.hasOwnProperty(i)) {
+                spyOn(widget, i);
+            }
+        }
+        for (i in parent) {
+            if(parent.hasOwnProperty(i)) {
+                spyOn(parent, i);
+            }
+        }
         return new Context(widget, parent, STATES);
     };
 }());

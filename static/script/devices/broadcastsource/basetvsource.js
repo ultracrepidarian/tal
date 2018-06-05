@@ -1,27 +1,7 @@
 /**
- * @fileOverview Requirejs module containing the antie.devices.broadcastsource.basetvsource class.
- *
- * @preserve Copyright (c) 2013-2014 British Broadcasting Corporation
- * (http://www.bbc.co.uk) and TAL Contributors (1)
- *
- * (1) TAL Contributors are listed in the AUTHORS file and at
- *     https://github.com/fmtvp/TAL/AUTHORS - please extend this file,
- *     not this notice.
- *
- * @license Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *    http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- *
- * All rights reserved
- * Please contact us for an alternative licence
+ * @fileOverview Requirejs module containing base antie.devices.bradcastsource.basetvsource class.
+ * @preserve Copyright (c) 2013-present British Broadcasting Corporation. All rights reserved.
+ * @license See https://github.com/bbc/tal/blob/master/LICENSE for full licence
  */
 
 define(
@@ -45,26 +25,26 @@ define(
              * @constructor
              * @ignore
              */
-            init: function () {
+            init: function init () {
                 throw new Error('Abstract class constructor should not be called directly');
             },
             /**
              * Displays the currently tuned channel
              */
-            showCurrentChannel: function () {
+            showCurrentChannel: function showCurrentChannel () {
                 throw new Error('Device broadcast source does not override abstract method showCurrentChannel');
             },
             /**
              * Stops the currently playing programme and turns the screen black
              */
-            stopCurrentChannel: function () {
+            stopCurrentChannel: function stopCurrentChannel () {
                 throw new Error('Device broadcast source does not override abstract method stopCurrentChannel');
             },
             /**
              * Get the current channel name from broadcast and return as a string.
              * @returns A string with the name of the current channel.
              */
-            getCurrentChannelName: function () {
+            getCurrentChannelName: function getCurrentChannelName () {
                 throw new Error('Device broadcast source does not override abstract method getCurrentChannelName');
             },
             /**

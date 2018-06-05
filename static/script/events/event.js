@@ -5,41 +5,16 @@
  */
 
 /**
- * @fileOverview Requirejs module containing the antie.events.Event abstract base class.
- *
- * @preserve Copyright (c) 2013 British Broadcasting Corporation
- * (http://www.bbc.co.uk) and TAL Contributors (1)
- *
- * (1) TAL Contributors are listed in the AUTHORS file and at
- *     https://github.com/fmtvp/TAL/AUTHORS - please extend this file,
- *     not this notice.
- *
- * @license Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *    http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- *
- * All rights reserved
- * Please contact us for an alternative licence
- *
- * Antie events.
- * @name antie.events
- * @namespace
+ * @preserve Copyright (c) 2013-present British Broadcasting Corporation. All rights reserved.
+ * @license See https://github.com/bbc/tal/blob/master/LICENSE for full licence
  */
+
 
 define(
     'antie/events/event',
     [
         'antie/class',
-        'antie/runtimecontext',
-        'antie/lib/array.indexof' // Adds Array.prototype.indexOf()
+        'antie/runtimecontext'
     ],
     function(Class, RuntimeContext) {
         'use strict';
@@ -60,7 +35,7 @@ define(
              * @constructor
              * @ignore
              */
-            init: function(type) {
+            init: function init (type) {
                 this.type = type;
                 this._propagationStopped = false;
                 this._defaultPrevented = false;
@@ -69,7 +44,7 @@ define(
             /**
              * Stop propagation of the event through the widget tree.
              */
-            stopPropagation: function() {
+            stopPropagation: function stopPropagation () {
                 this._propagationStopped = true;
                 eventCount--;
                 if (!eventCount) {
@@ -80,20 +55,20 @@ define(
              * Check to see if the propagation of this event has been stopped.
              * @returns Boolean true if the event has been stopped, otherwise Boolean false.
              */
-            isPropagationStopped: function() {
+            isPropagationStopped: function isPropagationStopped () {
                 return this._propagationStopped;
             },
             /**
              * Prevent any default handler being called for this event.
              */
-            preventDefault: function() {
+            preventDefault: function preventDefault () {
                 this._defaultPrevented = true;
             },
             /**
              * Check to see if the default handler has been prevented.
              * @returns Boolean true if the default handler has been prevented.
              */
-            isDefaultPrevented: function() {
+            isDefaultPrevented: function isDefaultPrevented () {
                 return this._defaultPrevented;
             },
             /**
@@ -103,7 +78,7 @@ define(
              * @param {String} ev The event type to listen for (e.g. <code>emptyStack</code>)
              * @param {Function} func The handler to be called when the event is fired.
              */
-            addEventListener: function(ev, func) {
+            addEventListener: function addEventListener (ev, func) {
                 var listeners = eventListeners[ev];
                 if (typeof listeners === 'undefined') {
                     listeners = [];
@@ -120,7 +95,7 @@ define(
              * @param {String} ev The event type that the listener is to be removed from (e.g. <code>emptyStack</code>)
              * @param {Function} func The handler to be removed.
              */
-            removeEventListener: function(ev, func) {
+            removeEventListener: function removeEventListener (ev, func) {
                 var listeners = eventListeners[ev],
                     listener;
 
@@ -143,7 +118,7 @@ define(
              * @param {String} ev The event to fire (e.g. <code>emptyStack</code>).
              * @see antie.events.Event
              */
-            fireEvent: function(ev) {
+            fireEvent: function fireEvent (ev) {
                 var listeners = eventListeners[ev];
                 if(listeners) {
                     for(var func in listeners) {

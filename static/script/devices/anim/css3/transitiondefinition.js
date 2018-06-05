@@ -1,27 +1,7 @@
 /**
- * @fileOverview Requirejs module containing base antie.devices.anim.css3.transitiondefinition class.
- *
- * @preserve Copyright (c) 2013 British Broadcasting Corporation
- * (http://www.bbc.co.uk) and TAL Contributors (1)
- *
- * (1) TAL Contributors are listed in the AUTHORS file and at
- *     https://github.com/fmtvp/TAL/AUTHORS - please extend this file,
- *     not this notice.
- *
- * @license Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *    http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- *
- * All rights reserved
- * Please contact us for an alternative licence
+ * @fileOverview Requirejs module containing base antie.devices.anim.css3.transition class.
+ * @preserve Copyright (c) 2013-present British Broadcasting Corporation. All rights reserved.
+ * @license See https://github.com/bbc/tal/blob/master/LICENSE for full licence
  */
 
 define(
@@ -40,11 +20,11 @@ define(
          * (these are handled by TransitionEndPoints)
          */
         TransitionDefinition = Class.extend({
-            init: function(){
+            init: function init (){
                 this.properties = {};
             },
 
-            setProperty: function(property, attributes){
+            setProperty: function setProperty (property, attributes){
                 if(attributes) {
                     this.properties[property] = {
                         duration: (attributes.duration !== undefined ? attributes.duration : TransitionDefinition.defaults.duration),
@@ -60,11 +40,11 @@ define(
                 }
             },
 
-            hasProperty: function(property) {
+            hasProperty: function hasProperty (property) {
                 return this.properties.hasOwnProperty(property);
             },
 
-            getProperties: function() {
+            getProperties: function getProperties () {
                 var prop, propArr;
                 propArr = [];
                 for (prop in this.properties) {
@@ -75,7 +55,7 @@ define(
                 return propArr;
             },
 
-            removeProperty: function(property) {
+            removeProperty: function removeProperty (property) {
                 if(this.hasProperty(property)) {
                     delete this.properties[property];
                     return true;
@@ -83,20 +63,20 @@ define(
                 return false;
             },
 
-            getPropertyDuration: function(property) {
+            getPropertyDuration: function getPropertyDuration (property) {
                 return this._getPropertyAttribute(property, 'duration');
 
             },
 
-            getPropertyDelay: function(property) {
+            getPropertyDelay: function getPropertyDelay (property) {
                 return this._getPropertyAttribute(property, 'delay');
             },
 
-            getPropertyTimingFn: function(property) {
+            getPropertyTimingFn: function getPropertyTimingFn (property) {
                 return this._getPropertyAttribute(property, 'timingFn');
             },
 
-            setPropertyDuration: function(property, duration) {
+            setPropertyDuration: function setPropertyDuration (property, duration) {
                 if (this.hasProperty(property)) {
                     this.properties[property].duration = duration;
                 } else {
@@ -106,7 +86,7 @@ define(
                 }
             },
 
-            setPropertyDelay: function(property, delay) {
+            setPropertyDelay: function setPropertyDelay (property, delay) {
                 if (this.hasProperty(property)) {
                     this.properties[property].delay = delay;
                 } else {
@@ -116,7 +96,7 @@ define(
                 }
             },
 
-            setPropertyTimingFn: function(property, timingFn) {
+            setPropertyTimingFn: function setPropertyTimingFn (property, timingFn) {
                 if (this.hasProperty(property)) {
                     this.properties[property].timingFn = timingFn;
                 } else {
@@ -126,7 +106,7 @@ define(
                 }
             },
 
-            addIn: function(transitionDefinition) {
+            addIn: function addIn (transitionDefinition) {
                 var property, addProps, i;
                 addProps = transitionDefinition.getProperties();
                 for (i = 0; i !== addProps.length; i += 1) {
@@ -139,7 +119,7 @@ define(
                 }
             },
 
-            takeOut: function(transitionDefinition) {
+            takeOut: function takeOut (transitionDefinition) {
                 var subProps, i;
                 subProps = transitionDefinition.getProperties();
                 for (i = 0; i !== subProps.length; i += 1) {
@@ -149,7 +129,7 @@ define(
                 }
             },
 
-            areAllDurationsZero: function() {
+            areAllDurationsZero: function areAllDurationsZero () {
                 var property, subProps, i, allZeros;
                 allZeros = true;
                 subProps = this.getProperties();
@@ -162,7 +142,7 @@ define(
                 return allZeros;
             },
 
-            _getPropertyAttribute: function(property, attribute) {
+            _getPropertyAttribute: function _getPropertyAttribute (property, attribute) {
                 if(this.hasProperty(property)) {
                     return this.properties[property][attribute];
                 }

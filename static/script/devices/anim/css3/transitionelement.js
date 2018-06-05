@@ -1,29 +1,8 @@
 /**
  * @fileOverview Requirejs module containing base antie.devices.anim.css3.transitionelement class.
- *
- * @preserve Copyright (c) 2013 British Broadcasting Corporation
- * (http://www.bbc.co.uk) and TAL Contributors (1)
- *
- * (1) TAL Contributors are listed in the AUTHORS file and at
- *     https://github.com/fmtvp/TAL/AUTHORS - please extend this file,
- *     not this notice.
- *
- * @license Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *    http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- *
- * All rights reserved
- * Please contact us for an alternative licence
+ * @preserve Copyright (c) 2013-present British Broadcasting Corporation. All rights reserved.
+ * @license See https://github.com/bbc/tal/blob/master/LICENSE for full licence
  */
-
 define(
     'antie/devices/anim/css3/transitionelement',
     [
@@ -37,18 +16,18 @@ define(
          */
         return Class.extend(
             {
-                init: function(element) {
+                init: function init (element) {
                     this._element = element;
                     this._strHelper = new StringHelpers();
                     this._prefixes = ['', '-webkit-', '-moz-', '-o-'];
                     this._transitionEndEvents = ['webkitTransitionEnd', 'oTransitionEnd', 'otransitionend', 'transitionend'];
                 },
 
-                getProperties: function() {
+                getProperties: function getProperties () {
                     return this._getCssCsvPropValueAsArray('transition-property');
                 },
 
-                getDurations: function() {
+                getDurations: function getDurations () {
                     var durStrings, durations, i;
                     durations = [];
                     durStrings = this._getCssCsvPropValueAsArray('transition-duration');
@@ -59,7 +38,7 @@ define(
                     return durations;
                 },
 
-                getDelays: function() {
+                getDelays: function getDelays () {
                     var delayStrings, delays, i;
                     delays = [];
                     delayStrings = this._getCssCsvPropValueAsArray('transition-delay');
@@ -70,11 +49,11 @@ define(
                     return delays;
                 },
 
-                getTimingFns: function() {
+                getTimingFns: function getTimingFns () {
                     return this._getCssCsvPropValueAsArray('transition-timing-function');
                 },
 
-                setCallback: function(callback) {
+                setCallback: function setCallback (callback) {
                     var endEvents, endEvent, i;
                     endEvents = this._transitionEndEvents;
                     for(i = 0; i !== endEvents.length; i+= 1) {
@@ -83,7 +62,7 @@ define(
                     }
                 },
 
-                removeCallback: function(callback) {
+                removeCallback: function removeCallback (callback) {
                     var endEvents, endEvent, i;
                     endEvents = this._transitionEndEvents;
                     for(i = 0; i !== endEvents.length; i+= 1) {
@@ -92,7 +71,7 @@ define(
                     }
                 },
 
-                applyDefinition: function(transitionDefinition) {
+                applyDefinition: function applyDefinition (transitionDefinition) {
                     var transProperties, property, delays, durations, props, timingFns, i;
                     delays = [];
                     props = [];
@@ -119,20 +98,20 @@ define(
                  * them to by accessing the computed style of the element after changing it.
                  * See http://louisremi.com/2012/06/05/working-around-css-transitions-bugs-with-getcomputedstyle/
                  */
-                forceUpdate: function(property) {
+                forceUpdate: function forceUpdate (property) {
                     var style = this.getComputedStyle();
                     return (style) ? style[property] : null;
                 },
 
-                getStylePropertyValue: function(property) {
+                getStylePropertyValue: function getStylePropertyValue (property) {
                     return this._element.style.getPropertyValue(property);
                 },
 
-                setStylePropertyValue: function(property, value) {
+                setStylePropertyValue: function setStylePropertyValue (property, value) {
                     this._element.style.setProperty(property, value, '');
                 },
 
-                setStylePropertyValueWithPrefixes: function(property, value) {
+                setStylePropertyValueWithPrefixes: function setStylePropertyValueWithPrefixes (property, value) {
                     var self = this;
                     var prefix;
 
@@ -142,11 +121,11 @@ define(
                     }
                 },
 
-                getComputedStyle: function() {
+                getComputedStyle: function getComputedStyle () {
                     return window.getComputedStyle(this._element, null);
                 },
 
-                _getCssCsvPropValueAsArray: function(cssProp) {
+                _getCssCsvPropValueAsArray: function _getCssCsvPropValueAsArray (cssProp) {
                     var value, propArr;
 
                     value = this._element.style.getPropertyValue(cssProp);
@@ -164,14 +143,14 @@ define(
                     return propArr;
                 },
 
-                _setProperties: function(properties) {
+                _setProperties: function _setProperties (properties) {
                     var transitionProperties;
                     transitionProperties = this._strHelper.buildCsvString(properties);
 
                     this.setStylePropertyValueWithPrefixes('transition-property', transitionProperties);
                 },
 
-                _setDurations: function(durations) {
+                _setDurations: function _setDurations (durations) {
                     var durationString, i;
                     for(i = 0; i !== durations.length; i += 1) {
                         durations[i] += 'ms';
@@ -181,7 +160,7 @@ define(
                     this.setStylePropertyValueWithPrefixes('transition-duration', durationString);
                 },
 
-                _setDelays: function(delays) {
+                _setDelays: function _setDelays (delays) {
                     var delayString, i;
                     for(i = 0; i !== delays.length; i += 1) {
                         delays[i] += 'ms';
@@ -190,13 +169,13 @@ define(
                     this.setStylePropertyValueWithPrefixes('transition-delay', delayString);
                 },
 
-                _setTimingFns: function(timings) {
+                _setTimingFns: function _setTimingFns (timings) {
                     var timingString;
                     timingString = this._strHelper.buildCsvString(timings);
                     this.setStylePropertyValueWithPrefixes('transition-timing-function', timingString);
                 },
 
-                isEventTarget: function(evt) {
+                isEventTarget: function isEventTarget (evt) {
                     return evt.target === this._element;
                 }
             }

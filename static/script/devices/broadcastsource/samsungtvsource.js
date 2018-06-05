@@ -1,29 +1,9 @@
 /* global webapis */
 
 /**
- * @fileOverview Requirejs module containing the antie.devices.broadcastsource.samsungtvsource class.
- *
- * @preserve Copyright (c) 2013-2014 British Broadcasting Corporation
- * (http://www.bbc.co.uk) and TAL Contributors (1)
- *
- * (1) TAL Contributors are listed in the AUTHORS file and at
- *     https://github.com/fmtvp/TAL/AUTHORS - please extend this file,
- *     not this notice.
- *
- * @license Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *    http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- *
- * All rights reserved
- * Please contact us for an alternative licence
+ * @fileOverview Requirejs module containing base antie.devices.broadcastsource.samsungtvsource class.
+ * @preserve Copyright (c) 2013-present British Broadcasting Corporation. All rights reserved.
+ * @license See https://github.com/bbc/tal/blob/master/LICENSE for full licence
  */
 
 define(
@@ -61,7 +41,7 @@ define(
              * @constructor
              * @ignore
              */
-            init: function () {
+            init: function init () {
                 this._samsungSefWindowPlugin = document.getElementById(WINDOW_PLUGIN_DOM_ELEMENT_ID);
 
                 if (!this._samsungSefWindowPlugin) {
@@ -111,28 +91,28 @@ define(
              * Sets the current source to TV broadcast
              * @see http://www.samsungdforum.com/Guide/ref00014/SetSource.html
              */
-            showCurrentChannel: function () {
+            showCurrentChannel: function showCurrentChannel () {
                 this._samsungSefWindowPlugin.SetSource(PL_WINDOW_SOURCE_TV);
             },
             /**
              * Sets the current source to the media source
              * @see http://www.samsungdforum.com/Guide/ref00014/SetSource.html
              */
-            stopCurrentChannel: function() {
+            stopCurrentChannel: function stopCurrentChannel () {
                 this._samsungSefWindowPlugin.SetSource(PL_WINDOW_SOURCE_MEDIA);
             },
             /**
              * Gets the service name of the current channel
              * @see http://www.samsungdforum.com/Guide/ref00014/getcurrentchannel_servicename.html
              */
-            getCurrentChannelName: function () {
+            getCurrentChannelName: function getCurrentChannelName () {
                 var channelName = this._samsungSefWindowPlugin.GetCurrentChannel_Name();
                 if (channelName < 0) {
                     throw new Error('Channel name returned error code: ' + channelName);
                 }
                 return channelName;
             },
-            getChannelNameList: function (params) {
+            getChannelNameList: function getChannelNameList (params) {
 
                 this._getChannelList( {
                     onSuccess : function(mapleChannels) {
@@ -145,7 +125,7 @@ define(
                     onError: params.onError
                 });
             },
-            _getChannelList: function (params) {
+            _getChannelList: function _getChannelList (params) {
                 try {
                     var onFailedToRetrieveChannelList = function () {
                         params.onError({
@@ -249,7 +229,7 @@ define(
              * @param params.onSuccess Function to call on success.
              * @private
              */
-            _tuneToChannel: function(params) {
+            _tuneToChannel: function _tuneToChannel (params) {
 
                 var channel = params.channel;
                 try {

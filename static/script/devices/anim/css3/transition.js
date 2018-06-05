@@ -1,27 +1,7 @@
 /**
  * @fileOverview Requirejs module containing base antie.devices.anim.css3.transition class.
- *
- * @preserve Copyright (c) 2013 British Broadcasting Corporation
- * (http://www.bbc.co.uk) and TAL Contributors (1)
- *
- * (1) TAL Contributors are listed in the AUTHORS file and at
- *     https://github.com/fmtvp/TAL/AUTHORS - please extend this file,
- *     not this notice.
- *
- * @license Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *    http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- *
- * All rights reserved
- * Please contact us for an alternative licence
+ * @preserve Copyright (c) 2013-present British Broadcasting Corporation. All rights reserved.
+ * @license See https://github.com/bbc/tal/blob/master/LICENSE for full licence
  */
 
 define(
@@ -44,7 +24,7 @@ define(
                  * @param {EndPoints} endPoints Defines start, end and associated callbacks of the transition
                  * @param {Object} element the DOM element the transition is to be applied to
                  */
-                init: function(transDef, endPoints, element) {
+                init: function init (transDef, endPoints, element) {
                     var combinedTransitions, shouldSkip;
 
                     this._endPoints = endPoints;
@@ -74,7 +54,7 @@ define(
                     }
                 },
 
-                stop: function(skipToEnd) {
+                stop: function stop (skipToEnd) {
                     var currentStyle, currentProps, transitionTargets, prop, i, skip;
                     if(!this._completed) {
                         skip = skipToEnd;
@@ -103,7 +83,7 @@ define(
                     }
                 },
 
-                _setInitialValues: function() {
+                _setInitialValues: function _setInitialValues () {
                     var properties, origin, i, prop;
                     properties = this._endPoints.getProperties();
 
@@ -118,7 +98,7 @@ define(
                 },
 
                 /* forces re-calc of style */
-                _forceUpdate: function() {
+                _forceUpdate: function _forceUpdate () {
                     var transitionTargets;
                     transitionTargets = this._ownTransitions.getProperties();
                     if(transitionTargets.length > 0) {
@@ -126,7 +106,7 @@ define(
                     }
                 },
 
-                _genTransEndFn: function() {
+                _genTransEndFn: function _genTransEndFn () {
                     var self;
                     self = this;
                     function endFn(evt) {
@@ -155,7 +135,7 @@ define(
                     return endFn;
                 },
 
-                _doTransition: function() {
+                _doTransition: function _doTransition () {
                     var prop, destination, properties, i;
                     properties = this._endPoints.getProperties();
                     for(i = 0; i !== properties.length; i += 1) {
@@ -165,14 +145,14 @@ define(
                     }
                 },
 
-                _isTransitionInstant: function() {
+                _isTransitionInstant: function _isTransitionInstant () {
                     var instant = this._ownTransitions.areAllDurationsZero();
                     instant = instant || this._endPoints.shouldSkip();
                     instant = instant || this._isThereNoChange();
                     return instant;
                 },
 
-                _isThereNoChange: function() {
+                _isThereNoChange: function _isThereNoChange () {
                     var targetProperties, prop, i, changed, self;
 
                     function targetDifferentToCurrent(prop) {

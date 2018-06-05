@@ -1,26 +1,9 @@
 /**
- * @preserve Copyright (c) 2013 British Broadcasting Corporation
- * (http://www.bbc.co.uk) and TAL Contributors (1)
- *
- * (1) TAL Contributors are listed in the AUTHORS file and at
- *     https://github.com/fmtvp/TAL/AUTHORS - please extend this file,
- *     not this notice.
- *
- * @license Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *    http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- *
- * All rights reserved
- * Please contact us for an alternative licence
+ * @fileOverview Requirejs module containing the antie.widgets.carousel.keyhandlers.keyhandler class.
+ * @preserve Copyright (c) 2013-present British Broadcasting Corporation. All rights reserved.
+ * @license See https://github.com/bbc/tal/blob/master/LICENSE for full licence
  */
+
 define(
     'antie/widgets/carousel/keyhandlers/keyhandler',
     [
@@ -41,7 +24,7 @@ define(
              * @constructor
              * @ignore
              */
-            init: function () {
+            init: function init () {
                 this._animationOptions = {};
             },
 
@@ -49,7 +32,7 @@ define(
              * Adds listeners to the supplied carousel to provided behaviour when navigation keys are pressed
              * @param carousel
              */
-            attach: function (carousel) {
+            attach: function attach (carousel) {
                 this._carousel = carousel;
                 this._addKeyListeners();
                 this._addAlignmentListeners();
@@ -64,11 +47,11 @@ define(
              * @param {Boolean} [options.skipAnim] If set true, the alignment will complete instantly then fire any provided callback
              * @param {Function} [options.onComplete] A function which will be executed on completion of the alignment animation.
              */
-            setAnimationOptions: function (options) {
+            setAnimationOptions: function setAnimationOptions (options) {
                 this._animationOptions = options;
             },
 
-            _addKeyListeners: function () {
+            _addKeyListeners: function _addKeyListeners () {
                 var previousKey, nextKey, carousel, self;
                 self = this;
                 carousel = this._carousel;
@@ -94,7 +77,7 @@ define(
                 });
             },
 
-            _addAlignmentListeners: function () {
+            _addAlignmentListeners: function _addAlignmentListeners () {
 
             }
         });

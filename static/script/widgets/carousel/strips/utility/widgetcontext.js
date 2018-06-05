@@ -1,26 +1,9 @@
 /**
- * @preserve Copyright (c) 2013 British Broadcasting Corporation
- * (http://www.bbc.co.uk) and TAL Contributors (1)
- *
- * (1) TAL Contributors are listed in the AUTHORS file and at
- *     https://github.com/fmtvp/TAL/AUTHORS - please extend this file,
- *     not this notice.
- *
- * @license Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *    http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- *
- * All rights reserved
- * Please contact us for an alternative licence
+ * @fileOverview Requirejs module containing the antie.widgets.carousel.strips.utility.widgetcontext class.
+ * @preserve Copyright (c) 2013-present British Broadcasting Corporation. All rights reserved.
+ * @license See https://github.com/bbc/tal/blob/master/LICENSE for full licence
  */
+
 define('antie/widgets/carousel/strips/utility/widgetcontext',
     [
         'antie/class'
@@ -29,7 +12,7 @@ define('antie/widgets/carousel/strips/utility/widgetcontext',
         'use strict';
         var WidgetContext;
         WidgetContext = Class.extend({
-            init: function (widget, parent, STATES) {
+            init: function init (widget, parent, STATES) {
                 this._widget = widget;
                 this._parent = parent;
                 this.STATES = STATES;
@@ -39,21 +22,21 @@ define('antie/widgets/carousel/strips/utility/widgetcontext',
             /**
              * Appends output element to parent if not already child
              */
-            append: function () {
+            append: function append () {
                 this._state.append(this, this._parent, this._widget);
             },
 
             /**
              * Prepends output element to parent if not already child
              */
-            prepend: function () {
+            prepend: function prepend () {
                 this._state.prepend(this, this._parent, this._widget);
             },
 
             /**
              * Element no longer needs to be visible (e.g. remove from DOM)
              */
-            detach: function () {
+            detach: function detach () {
                 this._state.detach(this, this._widget);
             },
 
@@ -62,15 +45,15 @@ define('antie/widgets/carousel/strips/utility/widgetcontext',
              * e.g. would return true if rendered, in the document and without display: none set
              * would return false if not rendered, not in the DOM or with display: none set
              */
-            hasLength: function () {
+            hasLength: function hasLength () {
                 return this._state.hasLength();
             },
 
-            inView: function () {
+            inView: function inView () {
                 return this._state.inView();
             },
 
-            setState: function (stateName) {
+            setState: function setState (stateName) {
                 this._state = new this.STATES[stateName](this);
             }
         });

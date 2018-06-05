@@ -1,28 +1,9 @@
 /**
  * @fileOverview Requirejs module containing the antie.widgets.Component class.
- *
- * @preserve Copyright (c) 2013 British Broadcasting Corporation
- * (http://www.bbc.co.uk) and TAL Contributors (1)
- *
- * (1) TAL Contributors are listed in the AUTHORS file and at
- *     https://github.com/fmtvp/TAL/AUTHORS - please extend this file,
- *     not this notice.
- *
- * @license Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *    http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- * 
- * All rights reserved
- * Please contact us for an alternative licence
+ * @preserve Copyright (c) 2013-present British Broadcasting Corporation. All rights reserved.
+ * @license See https://github.com/bbc/tal/blob/master/LICENSE for full licence
  */
+
 
 define('antie/widgets/component',
     [
@@ -45,15 +26,15 @@ define('antie/widgets/component',
              * @constructor
              * @ignore
              */
-            init: function(id) {
-                this._super(id);
+            init: function init (id) {
+                init.base.call(this, id);
                 this.addClass('component');
                 this._isModal = false;
             },
             /**
              * Hide the component.
              */
-            hide: function() {
+            hide: function hide () {
                 if(this.parentWidget) {
                     this.parentWidget.hide();
                 }
@@ -62,19 +43,19 @@ define('antie/widgets/component',
              * Returns any state information required (in addition to the initial arguments) that is required to restore this component.
              * @returns State information
              */
-            getCurrentState: function() {
+            getCurrentState: function getCurrentState () {
                 return null;
             },
 
-            getIsModal: function() {
+            getIsModal: function getIsModal () {
                 return this._isModal;
             },
 
-            setIsModal: function(modal) {
+            setIsModal: function setIsModal (modal) {
                 this._isModal = modal;
             },
 
-            getConfig: function() {
+            getConfig: function getConfig () {
                 return RuntimeContext.getDevice().getConfig();
             },
 
@@ -82,7 +63,7 @@ define('antie/widgets/component',
              * Returns whether the widget is a Component.
              * @returns {Boolean} True if the widget is a Component.
              */
-            isComponent: function() {
+            isComponent: function isComponent () {
                 return true;
             }
         });

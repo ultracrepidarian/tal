@@ -1,27 +1,7 @@
 /**
  * @fileOverview Requirejs module containing base antie.devices.logging.xhr class.
- *
- * @preserve Copyright (c) 2013 British Broadcasting Corporation
- * (http://www.bbc.co.uk) and TAL Contributors (1)
- *
- * (1) TAL Contributors are listed in the AUTHORS file and at
- *     https://github.com/fmtvp/TAL/AUTHORS - please extend this file,
- *     not this notice.
- *
- * @license Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *    http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- *
- * All rights reserved
- * Please contact us for an alternative licence
+ * @preserve Copyright (c) 2013-present British Broadcasting Corporation. All rights reserved.
+ * @license See https://github.com/bbc/tal/blob/master/LICENSE for full licence
  */
 
 //Logs to via an XML HTTP Request ( XHR )
@@ -32,7 +12,7 @@ define(
         'antie/runtimecontext',
         'antie/devices/device'
     ],
-    function( Module, RuntimeContext, Device) {
+    function(Module, RuntimeContext, Device) {
         'use strict';
 
         function zeroFill(number, width) {
@@ -54,19 +34,19 @@ define(
             /**
              * Sets the iterator pointer to the first item
              */
-            log: function() {
+            log: function log () {
                 sendXHRLogMessage('LOG', Array.prototype.join.call(arguments, '\n'));
             },
-            debug: function() {
+            debug: function debug () {
                 sendXHRLogMessage( 'DEBUG', Array.prototype.join.call(arguments, '\n'));
             },
-            info: function() {
+            info: function info () {
                 sendXHRLogMessage('INFO', Array.prototype.join.call(arguments, '\n'));
             },
-            warn: function() {
+            warn: function warn () {
                 sendXHRLogMessage('WARN', Array.prototype.join.call(arguments, '\n'));
             },
-            error: function() {
+            error: function error () {
                 sendXHRLogMessage('ERROR', Array.prototype.join.call(arguments, '\n'));
             }
         };
@@ -76,9 +56,7 @@ define(
         function xhrPost(url, opts, messageObject) {
 
             var http = new XMLHttpRequest();
-
-            var device = RuntimeContext.getCurrentApplication().getDevice();
-            var jsonMessage = device.encodeJson( messageObject );
+            var jsonMessage = JSON.stringify(messageObject);
 
             http.open('POST', url, true);
 

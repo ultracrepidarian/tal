@@ -1,27 +1,7 @@
 /**
  * @fileOverview Requirejs module containing the antie.devices.PS3Base class for all PS3 browsers.
- *
- * @preserve Copyright (c) 2013 British Broadcasting Corporation
- * (http://www.bbc.co.uk) and TAL Contributors (1)
- *
- * (1) TAL Contributors are listed in the AUTHORS file and at
- *     https://github.com/fmtvp/TAL/AUTHORS - please extend this file,
- *     not this notice.
- *
- * @license Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *    http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- *
- * All rights reserved
- * Please contact us for an alternative licence
+ * @preserve Copyright (c) 2013-present British Broadcasting Corporation. All rights reserved.
+ * @license See https://github.com/bbc/tal/blob/master/LICENSE for full licence
  */
 
 define(
@@ -45,13 +25,13 @@ define(
         }
         if(!window.console) {
             window.console = {
-                log: function() {}
+                log: function log () {}
             };
         }
 
         return BrowserDevice.extend({
-            init: function(config) {
-                this._super(config);
+            init: function init (config) {
+                init.base.call(this, config);
                 this._nativeCallbacks = [];
 
                 this.addNativeEventListener('networkStatusChange', function(networkStatus) {
@@ -70,8 +50,8 @@ define(
                 });
                 this._endtag = endtag;
             },
-            nativeCallback: function(json) {
-                var data = this.decodeJson(json);
+            nativeCallback: function nativeCallback (json) {
+                var data = JSON.parse(json);
 
                 if(enableDebugging) {
                     if(!debug) {
@@ -94,10 +74,29 @@ define(
                 var callbacks = this._nativeCallbacks[data.command];
                 if(callbacks && callbacks.length > 0) {
                     switch(data.command) {
-                    case 'networkStatusChange':
-                    case 'contentAvailable':
-                    case 'playerStatusChange':
                     case 'getContentParameters':
+                    case 'contentAvailable':
+                    case 'applicationStatusChange':
+                    case 'networkStatusChange':
+                    case 'playerStatusChange':
+                    case 'playerSubtitle':
+                    case 'playerStreamingError':
+                    case 'playerError':
+                    case 'playerMessage':
+                    case 'externalParameter':
+                    case 'shutdownNotification':
+                    case 'fbAccessToken':
+                    case 'psnActivityFeedResponse':
+                    case 'onOskClose':
+                    case 'touchPanelEvent':
+                    case 'psnCommerceProductDataResponse':
+                    case 'psnCommerceCategoryDataResponse':
+                    case 'psnEntitlementList':
+                    case 'psnCommercePurchaseProductResponse':
+                    case 'psnCommerceCheckoutResponse':
+                    case 'lowBatteryNotification':
+                    case 'npAuthCodeResponse':
+                    case 'resetVrPosition':
                         // multiple event listeners may be listening for these events
                         for(var i = 0; i < callbacks.length; i++) {
                             callbacks[i](data);
@@ -110,8 +109,12 @@ define(
                         break;
                     }
                 }
+
+                if (typeof window.postMessage === 'function') {
+                    window.postMessage(data, '*');
+                }
             },
-            addNativeEventListener: function(name, callback) {
+            addNativeEventListener: function addNativeEventListener (name, callback) {
                 var callbacks;
                 if(!(callbacks = this._nativeCallbacks[name])) {
                     callbacks = this._nativeCallbacks[name] = [];
@@ -120,7 +123,7 @@ define(
                 }
                 callbacks.push(callback);
             },
-            removeNativeEventListener: function(name, callback) {
+            removeNativeEventListener: function removeNativeEventListener (name, callback) {
                 var callbacks = this._nativeCallbacks[name];
                 if(callbacks) {
                     for(var i=0; i<callbacks.length; i++) {
@@ -131,7 +134,7 @@ define(
                     }
                 }
             },
-            nativeCommand: function(command, args, callback) {
+            nativeCommand: function nativeCommand (command, args, callback) {
                 var callbacks;
                 if(!(callbacks = this._nativeCallbacks[command])) {
                     callbacks = this._nativeCallbacks[command] = [];
@@ -174,7 +177,7 @@ define(
             /**
              * Loads a resource from a URL protected by device authentication
              */
-            loadAuthenticatedURL: function(url, opts) {
+            loadAuthenticatedURL: function loadAuthenticatedURL (url, opts) {
                 var collectedContentDocument = '';
                 var collectedBytes = 0;
                 var messageSize = 0;
@@ -225,7 +228,7 @@ define(
              * Checks to see if HD output is currently enabled.
              * @returns True if HD is currently enabled.
              */
-            isHDEnabled: function() {
+            isHDEnabled: function isHDEnabled () {
                 // HD should only be enabled when HDMI is used
                 return (this.outputPortType === 'HDMI');
             }

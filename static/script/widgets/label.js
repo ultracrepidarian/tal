@@ -1,27 +1,7 @@
 /**
  * @fileOverview Requirejs module containing the antie.widgets.Label class.
- *
- * @preserve Copyright (c) 2013 British Broadcasting Corporation
- * (http://www.bbc.co.uk) and TAL Contributors (1)
- *
- * (1) TAL Contributors are listed in the AUTHORS file and at
- *     https://github.com/fmtvp/TAL/AUTHORS - please extend this file,
- *     not this notice.
- *
- * @license Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *    http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- *
- * All rights reserved
- * Please contact us for an alternative licence
+ * @preserve Copyright (c) 2013-present British Broadcasting Corporation. All rights reserved.
+ * @license See https://github.com/bbc/tal/blob/master/LICENSE for full licence
  */
 
 define(
@@ -43,18 +23,19 @@ define(
              * @constructor
              * @ignore
              */
-            init: function(id, text) {
+            init: function init (id, text, enableHTML) {
                 // The current API states that if only one parameter is passed to
                 // use that value as the text and auto generate an internal id
                 if(arguments.length === 1) {
                     this._text = id;
-                    this._super();
+                    init.base.call(this);
                 } else {
                     this._text = text;
-                    this._super(id);
+                    init.base.call(this, id);
                 }
                 this._truncationMode = Label.TRUNCATION_MODE_NONE;
                 this._maxLines = 0;
+                this._enableHTML = enableHTML || false;
                 this._width = 0;
                 this.addClass('label');
             },
@@ -63,8 +44,25 @@ define(
              * @param {antie.devices.Device} device The device to render to.
              * @returns A device-specific object that represents the widget as displayed on the device (in a browser, a DOMElement);
              */
-            render: function(device) {
+            render: function render (device) {
                 // TODO: is there a more efficient way of doing this?
+                var s = this.getTextAsRendered(device);
+
+                if(!this.outputElement) {
+                    this.outputElement = device.createLabel(this.id, this.getClasses(), s, this._enableHTML);
+                } else {
+                    device.setElementContent(this.outputElement, s, this._enableHTML);
+                }
+
+                return this.outputElement;
+            },
+            
+            /**
+             * Will return text as rendered on the device
+             * @param {antie.devices.Device} device The device to render to.
+             * @returns A string that will be displayed in the label after truncation, etc...
+             */
+            getTextAsRendered: function(device) {
                 var s;
                 if(this._width && this._maxLines && this._text && (this._truncationMode === Label.TRUNCATION_MODE_RIGHT_ELLIPSIS)) {
                     var h = device.getTextHeight('fW', this._width, this.getClasses());
@@ -99,20 +97,14 @@ define(
                 } else {
                     s = this._text;
                 }
-
-                if(!this.outputElement) {
-                    this.outputElement = device.createLabel(this.id, this.getClasses(), s);
-                } else {
-                    device.setElementContent(this.outputElement, s);
-                }
-
-                return this.outputElement;
+                return s;
             },
+            
             /**
              * Sets the text displayed by this label.
              * @param {String} text The new text to be displayed.
              */
-            setText: function(text) {
+            setText: function setText (text) {
                 this._text = text;
                 if(this.outputElement) {
                     this.render(this.getCurrentApplication().getDevice());
@@ -122,7 +114,7 @@ define(
              * Gets the current text displayed by this label.
              * @returns The current text displayed by this label.
              */
-            getText: function() {
+            getText: function getText () {
                 return this._text;
             },
             /**
@@ -131,21 +123,21 @@ define(
              * @deprecated TRUNCATION_MODE_RIGHT_ELLIPSIS relies on browserdevice.getTextHeight(), which can be inaccurate.
              * @param {String} mode The new truncation mode.
              */
-            setTruncationMode: function(mode) {
+            setTruncationMode: function setTruncationMode (mode) {
                 this._truncationMode = mode;
             },
             /**
              * Sets the maximum lines displayed when a truncation mode is set.
              * @param {String} lines The maximum number of lines to display.
              */
-            setMaximumLines: function(lines) {
+            setMaximumLines: function setMaximumLines (lines) {
                 this._maxLines = lines;
             },
             /**
              * Sets the width of this label for use with truncation only.
              * @param {Integer} width The width of this label in pixels
              */
-            setWidth: function(width) {
+            setWidth: function setWidth (width) {
                 this._width = width;
             }
         });

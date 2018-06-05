@@ -1,25 +1,6 @@
 /**
- * @preserve Copyright (c) 2014 British Broadcasting Corporation
- * (http://www.bbc.co.uk) and TAL Contributors (1)
- *
- * (1) TAL Contributors are listed in the AUTHORS file and at
- *     https://github.com/fmtvp/TAL/AUTHORS - please extend this file,
- *     not this notice.
- *
- * @license Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *    http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- *
- * All rights reserved
- * Please contact us for an alternative licence
+ * @preserve Copyright (c) 2013-present British Broadcasting Corporation. All rights reserved.
+ * @license See https://github.com/bbc/tal/blob/master/LICENSE for full licence
  */
 
 window.commonTests = window.commonTests || { };
@@ -104,6 +85,9 @@ window.commonTests.mediaPlayer.html5.mixinTests = function (testCase, mediaPlaye
             }
             clock.restore();
             clock = undefined;
+        },
+        pause: function () {
+            mediaEventListeners.pause();
         }
     };
 
@@ -607,6 +591,99 @@ window.commonTests.mediaPlayer.html5.mixinTests = function (testCase, mediaPlaye
             self._mediaPlayer.pause();
 
             assert(stubCreateElementResults.video.pause.calledOnce);
+        });
+    };
+
+    mixins.testPausePassedFromMediaElementToMediaPlayer = function(queue) {
+        expectAsserts(1);
+        var self = this;
+        runMediaPlayerTest(this, queue, function (MediaPlayer) {
+            getToPlaying(self, MediaPlayer);
+            deviceMockingHooks.pause();
+
+            assertState(self, MediaPlayer.STATE.PAUSED);
+        });
+    };
+
+    mixins.testPauseNotPassedFromMediaElementToMediaPlayerOnUserPauseFromBuffering = function(queue) {
+        expectAsserts(1);
+        var self = this;
+        runMediaPlayerTest(this, queue, function (MediaPlayer) {
+            getToBuffering(self, MediaPlayer);
+            self._mediaPlayer.pause();
+            self._mediaPlayer.resume();
+            // pause event fired asynchonously due to calling pause() IPLAYERTVV1-5736
+            deviceMockingHooks.pause();
+            deviceMockingHooks.finishBuffering();
+
+            assertState(self, MediaPlayer.STATE.PLAYING);
+        });
+    };
+
+    mixins.testPauseNotPassedFromMediaElementToMediaPlayerOnUserPauseFromPlaying = function(queue) {
+        expectAsserts(1);
+        var self = this;
+        runMediaPlayerTest(this, queue, function (MediaPlayer) {
+            getToPlaying(self, MediaPlayer);
+            self._mediaPlayer.pause();
+            self._mediaPlayer.resume();
+            // pause event fired asynchonously due to calling pause() IPLAYERTVV1-5736
+            deviceMockingHooks.pause();
+            deviceMockingHooks.finishBuffering();
+
+            assertState(self, MediaPlayer.STATE.PLAYING);
+        });
+    };
+
+    mixins.testPauseNotPassedFromMediaElementToMediaPlayerOnStop = function(queue) {
+        expectAsserts(1);
+        var self = this;
+        runMediaPlayerTest(this, queue, function (MediaPlayer) {
+            getToPlaying(self, MediaPlayer);
+            self._mediaPlayer.stop();
+            // pause event fired asynchonously due to calling pause() IPLAYERTVV1-5736
+            deviceMockingHooks.pause();
+
+            assertState(self, MediaPlayer.STATE.STOPPED);
+        });
+    };
+
+    mixins.testPauseNotPassedFromMediaElementToMediaPlayerOnUserPauseFromBufferingBeforeMetadata = function(queue) {
+        expectAsserts(1);
+        var self = this;
+        runMediaPlayerTest(this, queue, function (MediaPlayer) {
+            self._mediaPlayer.setSource(MediaPlayer.TYPE.VIDEO, 'http://testurl/', 'video/mp4');
+            self._mediaPlayer.beginPlaybackFrom(0);
+            self._mediaPlayer.pause();
+            deviceMockingHooks.sendMetadata(self._mediaPlayer, 0, { start: 0, end: 100 });
+            self._mediaPlayer.resume();
+
+            // pause event fired asynchonously due to calling pause() IPLAYERTVV1-5736
+            deviceMockingHooks.pause();
+
+            deviceMockingHooks.finishBuffering(self._mediaPlayer);
+            assertState(self, MediaPlayer.STATE.PLAYING);
+        });
+    };
+
+    mixins.testPauseNotPassedFromMediaElementToMediaPlayerOnSentinelPause = function(queue) {
+        expectAsserts(1);
+        var self = this;
+        runMediaPlayerTest(this, queue, function (MediaPlayer) {
+            getToPlaying(self, MediaPlayer, 0);
+            this._mediaPlayer.pause();
+            // pause event fired asynchonously due to calling pause() IPLAYERTVV1-5736
+            deviceMockingHooks.pause();
+
+            advancePlayTime(self);
+            fireSentinels(self);
+
+            this._mediaPlayer.resume();
+
+            // pause event fired asynchonously due to sentinel calling pause() IPLAYERTVV1-5736
+            deviceMockingHooks.pause();
+
+            assertState(self, MediaPlayer.STATE.PLAYING);
         });
     };
 

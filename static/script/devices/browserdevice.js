@@ -1,27 +1,7 @@
 /**
- * @fileOverview Requirejs module containing the antie.BrowserDevice class.
- *
- * @preserve Copyright (c) 2013 British Broadcasting Corporation
- * (http://www.bbc.co.uk) and TAL Contributors (1)
- *
- * (1) TAL Contributors are listed in the AUTHORS file and at
- *     https://github.com/fmtvp/TAL/AUTHORS - please extend this file,
- *     not this notice.
- *
- * @license Licensed under the Apache License, Version 2.0 (the 'License');
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *    http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- *
- * All rights reserved
- * Please contact us for an alternative licence
+ * @fileOverview Requirejs module containing base antie.devices.browserdevice class.
+ * @preserve Copyright (c) 2013-present British Broadcasting Corporation. All rights reserved.
+ * @license See https://github.com/bbc/tal/blob/master/LICENSE for full licence
  */
 
 define(
@@ -52,30 +32,11 @@ define(
              * @constructor
              * @ignore
              */
-            init: function(config) {
-                this._super(config);
+            init: function init (config) {
+                init.base.call(this, config);
                 this._textSizeCache = {};
 
                 this.addClassToElement(this.getTopLevelElement(), 'notanimating');
-            },
-            /**
-             * Returns the index of an object in an array. Behaves as native JavaScript 1.5 Array.indexOf().
-             * @param {Array} arr Array in which to search.
-             * @param {Object} obj Object to search for.
-             * @param {Integer} start Index from which to start searching.
-             * @returns Index of object in array. -1 if object is not found.
-             */
-            arrayIndexOf: function(arr, obj, start) {
-                if (typeof(Array.prototype.indexOf) === 'function') {
-                    return arr.indexOf(obj, start);
-                } else {
-                    for (var i = (start || 0); i < arr.length; i++) {
-                        if (arr[i] === obj) {
-                            return i;
-                        }
-                    }
-                    return -1;
-                }
             },
             /**
              * Creates an element in the device's user-agent.
@@ -84,7 +45,7 @@ define(
              * @param {String} [id] The id of the element to create.
              * @param {Array} [classNames] An array of class names to apply to the element.
              */
-            _createElement: function(tagName, id, classNames) {
+            _createElement: function _createElement (tagName, id, classNames) {
                 var el = document.createElement(tagName);
 
                 // don't add auto-generated IDs to the DOM
@@ -118,7 +79,7 @@ define(
              * @param {Array} [classNames] An array of class names to apply to the element.
              * @returns A container element within the device's user-agent.
              */
-            createContainer: function(id, classNames) {
+            createContainer: function createContainer (id, classNames) {
                 return this._createElement('div', id, classNames);
             },
             /**
@@ -128,9 +89,9 @@ define(
              * @param {String} [text] The text within the label.
              * @returns A label within the device's user-agent.
              */
-            createLabel: function(id, classNames, text) {
+            createLabel: function createLabel (id, classNames, text, enableHTML) {
                 var el = this._createElement('span', id, classNames);
-                this.setElementContent(el, text);
+                this.setElementContent(el, text, enableHTML);
                 return el;
             },
             /**
@@ -145,11 +106,12 @@ define(
             },
             /**
              * Creates a button (an element that can be selected by the user to perform an action) in the device's user-agent.
+             * CreatesetElementContent a button (an element that can be selected by the user to perform an action) in the device's user-agent.
              * @param {String} [id] The id of the element to create.
              * @param {Array} [classNames] An array of class names to apply to the element.
              * @returns A button within the device's user-agent.
              */
-            createButton: function(id, classNames) {
+            createButton: function createButton (id, classNames) {
                 return this._createElement('div', id, classNames);
             },
             /**
@@ -158,7 +120,7 @@ define(
              * @param {Array} [classNames] An array of class names to apply to the element.
              * @returns A list within the device's user-agent.
              */
-            createList: function(id, classNames) {
+            createList: function createList (id, classNames) {
                 return this._createElement('ul', id, classNames);
             },
             /**
@@ -167,7 +129,7 @@ define(
              * @param {Array} [classNames] An array of class names to apply to the element.
              * @returns A list item within the device's user-agent.
              */
-            createListItem: function(id, classNames) {
+            createListItem: function createListItem (id, classNames) {
                 return this._createElement('li', id, classNames);
             },
             /**
@@ -178,7 +140,7 @@ define(
              * @param {Size} [size] The size of the image.
              * @returns An image within the device's user-agent.
              */
-            createImage: function(id, classNames, src, size, onLoad, onError) {
+            createImage: function createImage (id, classNames, src, size, onLoad, onError) {
                 var el = this._createElement('img', id, classNames);
                 el.src = src;
                 el.alt = '';
@@ -208,7 +170,7 @@ define(
              * @param {function(String)} [callback] Callback function when style has loaded/failed
              * @returns The link element that will load the style sheet.
              */
-            loadStyleSheet: function(url, callback) {
+            loadStyleSheet: function loadStyleSheet (url, callback) {
                 var self = this;
                 function supportsCssRules() {
                     var style = self._createElement('style');
@@ -271,7 +233,7 @@ define(
              * @param {Element} to Append as a child of this element.
              * @param {Element} el The new child element.
              */
-            appendChildElement: function(to, el) {
+            appendChildElement: function appendChildElement (to, el) {
                 to.appendChild(el);
             },
             /**
@@ -279,7 +241,7 @@ define(
              * @param {Element} to Prepend as a child of this element.
              * @param {Element} el The new child element.
              */
-            prependChildElement: function(to, el) {
+            prependChildElement: function prependChildElement (to, el) {
                 if (to.childNodes.length > 0) {
                     to.insertBefore(el, to.childNodes[0]);
                 } else {
@@ -292,7 +254,7 @@ define(
              * @param {Element} el The new child element.
              * @param {Element} ref The reference element which will appear after the inserted element.
              */
-            insertChildElementBefore: function(to, el, ref) {
+            insertChildElementBefore: function insertChildElementBefore (to, el, ref) {
                 to.insertBefore(el, ref);
             },
             /**
@@ -301,7 +263,7 @@ define(
              * @param {Element} el The new child element.
              * @param {Integer} index The index at which the element will be inserted.
              */
-            insertChildElementAt: function(to, el, index) {
+            insertChildElementAt: function insertChildElementAt (to, el, index) {
                 if (index >= to.childNodes.length) {
                     to.appendChild(el);
                 } else {
@@ -313,14 +275,14 @@ define(
              * @param {Element} el The element.
              * @returns The parent element.
              */
-            getElementParent: function(el) {
+            getElementParent: function getElementParent (el) {
                 return el.parentNode;
             },
             /**
              * Removes an element from its parent.
              * @param {Element} el The element to remove.
              */
-            removeElement: function(el) {
+            removeElement: function removeElement (el) {
                 if (el.parentNode) {
                     el.parentNode.removeChild(el);
                 }
@@ -329,7 +291,7 @@ define(
              * Clears the content of an element.
              * @param {Element} el The element you are removing the content from.
              */
-            clearElement: function(el) {
+            clearElement: function clearElement (el) {
                 for (var i = el.childNodes.length - 1; i >= 0; i--) {
                     el.removeChild(el.childNodes[i]);
                 }
@@ -339,7 +301,7 @@ define(
              * @param {Element} el The element which will receive new class names.
              * @param {Array} classNames An array of class names.
              */
-            setElementClasses: function(el, classNames) {
+            setElementClasses: function setElementClasses (el, classNames) {
                 el.className = classNames.join(' ');
             },
             /**
@@ -348,7 +310,7 @@ define(
              * @param {String} className The class to remove.
              * @param {Boolean} [deep] If true, and this element has the given class, remove the class from it's children recursively.
              */
-            removeClassFromElement: function(el, className, deep) {
+            removeClassFromElement: function removeClassFromElement (el, className, deep) {
                 if (new RegExp(' ' + className + ' ').test(' ' + el.className + ' ')) {
                     el.className = trim((' ' + el.className + ' ').replace(' ' + className + ' ', ' '));
                 }
@@ -363,7 +325,7 @@ define(
              * @param {Element} el The element which will receive new class name.
              * @param {String} className The new class name to add.
              */
-            addClassToElement: function(el, className) {
+            addClassToElement: function addClassToElement (el, className) {
                 this.removeClassFromElement(el, className, false);
                 el.className = trim(el.className + ' ' + className);
             },
@@ -378,7 +340,7 @@ define(
              *     self._application.bubbleEvent(new KeyEvent('keydown', keyMap[e.keyCode]));
              * };
              */
-            addKeyEventListener: function() {
+            addKeyEventListener: function addKeyEventListener () {
                 var self = this;
                 var _keyMap = this.getKeyMap();
                 var _pressed = {};
@@ -423,7 +385,7 @@ define(
              * @param {Element} el The element of which to return the size.
              * @returns A size object containing the width and height of the element.
              */
-            getElementSize: function(el) {
+            getElementSize: function getElementSize (el) {
                 return {
                     width: el.clientWidth || el.offsetWidth,
                     height: el.clientHeight || el.offsetHeight
@@ -434,7 +396,7 @@ define(
              * @param {Element} el The element of which to set the size.
              * @param {Size} size The new size of the element.
              */
-            setElementSize: function(el, size) {
+            setElementSize: function setElementSize (el, size) {
                 if (size.width !== undefined) {
                     el.style.width = size.width + 'px';
                 }
@@ -447,7 +409,7 @@ define(
              * @param {Element} el The element of which to reposition.
              * @param {Size} size The new position of the element.
              */
-            setElementPosition: function(el, pos) {
+            setElementPosition: function setElementPosition (el, pos) {
                 if (pos.top !== undefined) {
                     el.style.top = pos.top + 'px';
                 }
@@ -460,14 +422,14 @@ define(
              * @param {Element} el The element of which to change the content.
              * @param {String} content The new content for the element.
              */
-            setElementContent: function(el, content) {
+            setElementContent: function setElementContent (el, content, enableHTML) {
                 if (content === '') {
                     this.clearElement(el);
                     return;
                 }
 
                 var sanitiser = new Sanitiser(content);
-                sanitiser.setElementContent(el);
+                sanitiser.setElementContent(el, enableHTML);
             },
             /**
              * Clones an element.
@@ -477,7 +439,7 @@ define(
              * @param {String} [appendID] Append this string to the ID of the clone (top level only).
              * @returns The clone.
              */
-            cloneElement: function(el, deep, appendClass, appendID) {
+            cloneElement: function cloneElement (el, deep, appendClass, appendID) {
                 var clone = el.cloneNode(deep);
                 if (appendClass) {
                     clone.className += ' ' + appendClass;
@@ -499,7 +461,7 @@ define(
              * @param {Array} classNames An array of class names which define the style of the text.
              * @returns The height (in pixels) that is required to display this block of text.
              */
-            getTextHeight: function(text, maxWidth, classNames) {
+            getTextHeight: function getTextHeight (text, maxWidth, classNames) {
                 /// TODO: is there a more efficient way of doing this?
                 var cacheKey = maxWidth + ':' + classNames.join(' ') + ':' + text;
                 var height;
@@ -526,7 +488,7 @@ define(
              * @param {String} tagName The tag name you are looking for.
              * @returns An array of elements having the provided tag name.
              */
-            getChildElementsByTagName: function(el, tagName) {
+            getChildElementsByTagName: function getChildElementsByTagName (el, tagName) {
                 var children = [];
                 tagName = tagName.toLowerCase();
                 for (var i = 0; i < el.childNodes.length; i++) {
@@ -542,14 +504,14 @@ define(
              * Returns the top-level element. This is the target of layout class names.
              * @return The top-level DOM element.
              */
-            getTopLevelElement: function() {
+            getTopLevelElement: function getTopLevelElement () {
                 return document.documentElement || document.body.parentNode || document;
             },
             /**
              * Returns all the loaded stylesheet elements.
              * @return An array containing all stylesheet related DOM elements (link and style elements)
              */
-            getStylesheetElements: function() {
+            getStylesheetElements: function getStylesheetElements () {
                 var stylesheetElements = [];
 
                 var linkElements = document.getElementsByTagName('link');
@@ -571,7 +533,7 @@ define(
              * @param {Element} el The element you wish to know the offset of.
              * @return An literal object containing properties, top and left.
              */
-            getElementOffset: function(el) {
+            getElementOffset: function getElementOffset (el) {
                 var offsets;
                 //                if (el && el.getBoundingClientRect && el.parentNode) {
                 //                    var rect = el.getBoundingClientRect();
@@ -592,7 +554,7 @@ define(
              * Gets the available browser screen size.
              * @returns An object with width and height properties.
              */
-            getScreenSize: function() {
+            getScreenSize: function getScreenSize () {
                 var w, h;
                 if (typeof(window.innerWidth) === 'number') {
                     w = window.innerWidth;
@@ -611,7 +573,7 @@ define(
              * Sets the current route (a reference pointing to a location within the application).
              * @param {Array} route A route pointing to a location within the application.
              */
-            setCurrentRoute: function(route) {
+            setCurrentRoute: function setCurrentRoute (route) {
                 var history = this.getHistorian().toString();
 
                 if (route.length > 0) {
@@ -624,7 +586,7 @@ define(
              * Gets the current route (a reference pointing to a location within the application).
              * @returns The current route (location within the application).
              */
-            getCurrentRoute: function() {
+            getCurrentRoute: function getCurrentRoute () {
                 var unescaped = unescape(window.location.hash).split(Historian.HISTORY_TOKEN, 1)[0];
                 return (unescaped.replace(/^#/, '').split('/'));
             },
@@ -633,7 +595,7 @@ define(
              * gets historian for current location
              * @returns {antie.Historian} an object that can be used to get a back or forward url between applications while preserving history
              */
-            getHistorian: function() {
+            getHistorian: function getHistorian () {
                 return new Historian(decodeURI(this.getWindowLocation().href));
             },
 
@@ -645,7 +607,7 @@ define(
              * Use getCurrentAppURL(), getCurrentAppURLParams() and getCurrentRoute() to get
              * this information in a more generic way.
              */
-            getWindowLocation: function() {
+            getWindowLocation: function getWindowLocation () {
                 var windowLocation, copyProps, prop, i, newLocation;
                 windowLocation = this._windowLocation || window.location; // Allow stubbing for unit testing
 
@@ -671,7 +633,7 @@ define(
              * to manipulate the current location more easily.
              * @param {String} url Full URL to navigate to, including search and hash if applicable.
              */
-            setWindowLocationUrl: function(url) {
+            setWindowLocationUrl: function setWindowLocationUrl (url) {
                 var windowLocation = this._windowLocation || window.location; // Allow stubbing for unit testing
 
                 // Prefer assign(), but some devices don't have this function.
@@ -685,14 +647,14 @@ define(
              * Gets the reference (e.g. URL) of the resource that launched the application.
              * @returns A reference (e.g. URL) of the resource that launched the application.
              */
-            getReferrer: function() {
+            getReferrer: function getReferrer () {
                 return document.referrer;
             },
             /**
              * Forces the device to pre-load an image.
              * @param {String} url The URL of the image to preload.
              */
-            preloadImage: function(url) {
+            preloadImage: function preloadImage (url) {
                 var img = new Image();
                 img.src = url;
             },
@@ -700,7 +662,7 @@ define(
              * Checks to see if HD output is currently enabled.
              * @returns True if HD is currently enabled.
              */
-            isHDEnabled: function() {
+            isHDEnabled: function isHDEnabled () {
                 return true;
             }
         });

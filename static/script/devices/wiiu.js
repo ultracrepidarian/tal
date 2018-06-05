@@ -1,29 +1,12 @@
 /**
+ * @preserve Copyright (c) 2013-present British Broadcasting Corporation. All rights reserved.
+ * @license See https://github.com/bbc/tal/blob/master/LICENSE for full licence
+ */
+
+/**
  * @fileOverview Requirejs module containing the antie.devices.WiiU class to support the WiiU Bamboo framework.
  * @author Ian Arundale <ian.arundale@bbc.co.uk>
  * @notes Updated for compatibility with Wii U SDK >= 2.0.8.11 (Daniel Jeffrey <daniel.jeffrey@accedo.tv>)
- *
- * @preserve Copyright (c) 2013 British Broadcasting Corporation
- * (http://www.bbc.co.uk) and TAL Contributors (1)
- *
- * (1) TAL Contributors are listed in the AUTHORS file and at
- *     https://github.com/fmtvp/TAL/AUTHORS - please extend this file,
- *     not this notice.
- *
- * @license Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *    http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- *
- * All rights reserved
- * Please contact us for an alternative licence
  */
 
 
@@ -38,14 +21,14 @@ define(
 
         return BrowserDevice.extend({
             /* global nwf: true */
-            init: function(config) {
-                this._super(config);
+            init: function init (config) {
+                init.base.call(this, config);
             },
             /**
              * Adds key event listeners to WiiU Gamepad and WiiRemote, Wii U Pro controller is
              * currently unsupported in NWF
              */
-            addKeyEventListener: function() {
+            addKeyEventListener: function addKeyEventListener () {
                 this._registerWiiUGamePadInputControls();
                 this._registerWiiRemoteInputControls();
             },
@@ -87,7 +70,7 @@ define(
                     break;
                 }
             },
-            _onGamePadButtonRelease: function(buttonEvent) {
+            _onGamePadButtonRelease: function _onGamePadButtonRelease (buttonEvent) {
                 var controllerButton = nwf.input.ControllerButton;
                 switch (buttonEvent.button) {
                 case controllerButton.GAMEPAD_A:

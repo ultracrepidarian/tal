@@ -1,25 +1,7 @@
 /**
- * @preserve Copyright (c) 2013 British Broadcasting Corporation
- * (http://www.bbc.co.uk) and TAL Contributors (1)
- *
- * (1) TAL Contributors are listed in the AUTHORS file and at
- *     https://github.com/fmtvp/TAL/AUTHORS - please extend this file,
- *     not this notice.
- *
- * @license Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *    http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- *
- * All rights reserved
- * Please contact us for an alternative licence
+ * @fileOverview Requirejs module containing the antie.widgets.Carousel class.
+ * @preserve Copyright (c) 2013-present British Broadcasting Corporation. All rights reserved.
+ * @license See https://github.com/bbc/tal/blob/master/LICENSE for full licence
  */
 
 define(
@@ -46,7 +28,7 @@ define(
              * Appends a child widget to this widget.
              * @param {antie.widgets.Widget} widget The child widget to add.
              */
-            appendChildWidget: function (widget) {
+            appendChildWidget: function appendChildWidget (widget) {
                 return this.append(widget);
             },
 
@@ -55,7 +37,7 @@ define(
              * @param {Integer} index The index where to insert the child widget.
              * @param {antie.widgets.Widget} widget The child widget to add.
              */
-            insertChildWidget: function (index, widget) {
+            insertChildWidget: function insertChildWidget (index, widget) {
                 return this.insert(index, widget);
             },
 
@@ -64,14 +46,14 @@ define(
              * @param {antie.widgets.Widget} widget The child widget to remove.
              * @param {Boolean} [retainElement] Pass <code>true</code> to retain the child output element of the given widget
              */
-            removeChildWidget: function (widget, retainElement) {
+            removeChildWidget: function removeChildWidget (widget, retainElement) {
                 return this.remove(widget, retainElement);
             },
 
             /**
              * Remove all child widgets from this widget.
              */
-            removeChildWidgets: function () {
+            removeChildWidgets: function removeChildWidgets () {
                 return this.removeAll();
             },
 
@@ -91,9 +73,9 @@ define(
              * @param {antie.widgets.Widget} widget The child widget to set focus to.
              * @returns Boolean true if the child widget was focusable, otherwise boolean false.
              */
-            setActiveChildWidget: function (widget) {
+            setActiveChildWidget: function setActiveChildWidget (widget) {
                 if (widget === this._mask) {
-                    return this._super(widget);
+                    return setActiveChildWidget.base.call(this, widget);
                 } else {
                     return this.setActiveWidget(widget);
                 }
@@ -103,9 +85,9 @@ define(
              * Checks to see if a specific widget is a direct child of this widget.
              * @param {antie.widgets.Widget} widget The widget to check to see if it is a direct child of this widget.
              */
-            hasChildWidget: function (id) {
+            hasChildWidget: function hasChildWidget (id) {
                 if (id === this._mask.id) {
-                    return this._super(id);
+                    return hasChildWidget.base.call(this, id);
                 } else {
                     return this._widgetStrip.hasChildWidget(id);
                 }
@@ -115,7 +97,7 @@ define(
              * Get the current active widget.
              * @returns The current active widget
              */
-            getActiveChildWidget: function () {
+            getActiveChildWidget: function getActiveChildWidget () {
                 return this._widgetStrip.getActiveChildWidget();
             },
 
@@ -124,7 +106,7 @@ define(
              * @param {String} id The id of the child widget to return.
              * @returns antie.widgets.Widget of the widget with the given ID, otherwise undefined if the child does not exist.
              */
-            getChildWidget: function (id) {
+            getChildWidget: function getChildWidget (id) {
                 if (id === this._mask.id) {
                     return this._mask;
                 } else {
@@ -136,7 +118,7 @@ define(
              * Gets the number of direct child widgets.
              * @returns The number of direct child widgets.
              */
-            getChildWidgetCount: function () {
+            getChildWidgetCount: function getChildWidgetCount () {
                 return this._widgetStrip.getChildWidgetCount();
             },
 
@@ -144,7 +126,7 @@ define(
              * Get an array of all this widget's children.
              * @returns An array of all this widget's children.
              */
-            getChildWidgets: function () {
+            getChildWidgets: function getChildWidgets () {
                 return this.items();
             },
 
@@ -154,7 +136,7 @@ define(
              * @param {Integer} index Index of the child widget to set focus to.
              * @returns Boolean true if the child widget was focusable, otherwise boolean false.
              */
-            setActiveChildIndex: function (index) {
+            setActiveChildIndex: function setActiveChildIndex (index) {
                 return this.setActiveIndex(index);
             },
 
@@ -162,7 +144,7 @@ define(
              * @see #setActiveChildWidget
              * @returns {Integer} index Index of the child widget that is currently active.
              */
-            getActiveChildIndex: function () {
+            getActiveChildIndex: function getActiveChildIndex () {
                 return this.getActiveIndex();
             },
 
@@ -170,7 +152,7 @@ define(
              * Adds a CSS class to the widget strip if not already present.
              * @param {String} className The class name to add.
              */
-            addClass: function (className) {
+            addClass: function addClass (className) {
                 if (this._widgetStrip) {
                     return this._widgetStrip.addClass(className);
                 }
@@ -181,7 +163,7 @@ define(
              * @param {String} className The class name to check.
              * @returns Boolean true if the device has the className. Otherwise boolean false.
              */
-            hasClass: function (className) {
+            hasClass: function hasClass (className) {
                 if (this._widgetStrip) {
                     return this._widgetStrip.hasClass(className);
                 } else {
@@ -193,7 +175,7 @@ define(
              * Removes a CSS class from the widget strip if present.
              * @param {String} className The class name to remove.
              */
-            removeClass: function (className) {
+            removeClass: function removeClass (className) {
                 if (this._widgetStrip) {
                     return this._widgetStrip.removeClass(className);
                 }
@@ -203,7 +185,7 @@ define(
              * Get an array of class names that this widget strip has.
              * @returns An array of class names (Strings)
              */
-            getClasses: function () {
+            getClasses: function getClasses () {
                 if (this._widgetStrip) {
                     return this._widgetStrip.getClasses();
                 } else {
@@ -211,7 +193,7 @@ define(
                 }
             },
 
-            _directAppend: function (widget) {
+            _directAppend: function _directAppend (widget) {
                 Container.prototype.appendChildWidget.call(this, widget);
             }
         });

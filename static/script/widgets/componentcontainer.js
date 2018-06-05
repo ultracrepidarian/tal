@@ -1,28 +1,9 @@
 /**
  * @fileOverview Requirejs module containing the antie.widgets.ComponentContainer class.
- *
- * @preserve Copyright (c) 2013 British Broadcasting Corporation
- * (http://www.bbc.co.uk) and TAL Contributors (1)
- *
- * (1) TAL Contributors are listed in the AUTHORS file and at
- *     https://github.com/fmtvp/TAL/AUTHORS - please extend this file,
- *     not this notice.
- *
- * @license Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *    http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- *
- * All rights reserved
- * Please contact us for an alternative licence
+ * @preserve Copyright (c) 2013-present British Broadcasting Corporation. All rights reserved.
+ * @license See https://github.com/bbc/tal/blob/master/LICENSE for full licence
  */
+
 
 define('antie/widgets/componentcontainer',
     [
@@ -46,7 +27,7 @@ define('antie/widgets/componentcontainer',
              * @constructor
              * @ignore
              */
-            init: function (id) {
+            init: function init (id) {
                 this._loadingIndex = 0;
                 this._loadingModule = null;
                 this._currentModule = null;
@@ -54,7 +35,7 @@ define('antie/widgets/componentcontainer',
                 this._currentArgs = null;
                 this._historyStack = [];
                 this._previousFocus = null;
-                this._super(id);
+                init.base.call(this, id);
                 this.addClass('componentcontainer');
             },
             /**
@@ -64,7 +45,7 @@ define('antie/widgets/componentcontainer',
              * @param {Class} componentClass The subclass of antie.widgets.Component which has been loaded.
              * @param {Object} [args] The arguments passed to populate the component.
              */
-            _loadComponentCallback: function (module, componentClass, args, keepHistory, state) {
+            _loadComponentCallback: function _loadComponentCallback (module, componentClass, args, keepHistory, state) {
                 if (!this.getCurrentApplication()) {
                     // Application has been destroyed, abort
                     return;
@@ -91,7 +72,7 @@ define('antie/widgets/componentcontainer',
              * @param {Boolean} [keepHistory] If true, the current component shown in this container is preserved in the history stack.
              * @param {Object} [state] Additional component-specific state information
              */
-            show: function (module, args, keepHistory, state, fromBack, focus) {
+            show: function show (module, args, keepHistory, state, fromBack, focus) {
                 this._loadingModule = module;
 
                 this._loadingIndex++;
@@ -180,19 +161,19 @@ define('antie/widgets/componentcontainer',
              * @param {String} module The requirejs module name of the component to show.
              * @param {Object} [args] An optional object to pass arguments to the component.
              */
-            pushComponent: function (module, args) {
+            pushComponent: function pushComponent (module, args) {
                 this.show(module, args, true);
             },
             /**
              * Returns the widget added to this container.
              */
-            getContent: function () {
+            getContent: function getContent () {
                 return this._currentComponent;
             },
             /**
              * Return this component container to the previous component in the history.
              */
-            back: function () {
+            back: function back () {
                 var _focus = this._currentComponent.getIsModal() ? this._previousFocus : null;
 
                 var _lastComponent = this._historyStack.pop();
@@ -206,7 +187,7 @@ define('antie/widgets/componentcontainer',
             /**
              * Hide the component within this container.
              */
-            hide: function (focusToComponent, args, keepHistory, state, fromBack) {
+            hide: function hide (focusToComponent, args, keepHistory, state, fromBack) {
 
                 if (this._currentComponent) {
                     var evt = new ComponentEvent('beforehide', this, this._currentComponent, args, state, fromBack);
@@ -252,10 +233,10 @@ define('antie/widgets/componentcontainer',
                     this.parentWidget.setActiveChildWidget(this.parentWidget._childWidgets[focusToComponent]);
                 }
             },
-            getCurrentModule: function () {
+            getCurrentModule: function getCurrentModule () {
                 return this._currentModule;
             },
-            getCurrentArguments: function () {
+            getCurrentArguments: function getCurrentArguments () {
                 return this._currentArgs;
             }
         });

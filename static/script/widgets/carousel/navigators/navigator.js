@@ -1,26 +1,9 @@
 /**
- * @preserve Copyright (c) 2013 British Broadcasting Corporation
- * (http://www.bbc.co.uk) and TAL Contributors (1)
- *
- * (1) TAL Contributors are listed in the AUTHORS file and at
- *     https://github.com/fmtvp/TAL/AUTHORS - please extend this file,
- *     not this notice.
- *
- * @license Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *    http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- *
- * All rights reserved
- * Please contact us for an alternative licence
+ * @fileOverview Requirejs module containing the antie.widgets.carousel.navigators.navigator class.
+ * @preserve Copyright (c) 2013-present British Broadcasting Corporation. All rights reserved.
+ * @license See https://github.com/bbc/tal/blob/master/LICENSE for full licence
  */
+
 define(
     'antie/widgets/carousel/navigators/navigator',
     [
@@ -47,7 +30,7 @@ define(
              * @constructor
              * @ignore
              */
-            init: function (container) {
+            init: function init (container) {
                 this.setContainer(container);
             },
 
@@ -55,14 +38,14 @@ define(
              * @returns {Number} the index of the currently active widget, or null if there is no active widget
              * (for example if there are no widgets)
              */
-            currentIndex: function () {
+            currentIndex: function currentIndex () {
                 return (this._getActiveIndex());
             },
 
             /**
              * @returns {Number} the index of the next focusable widget
              */
-            nextIndex: function () {
+            nextIndex: function nextIndex () {
                 var currentIndex = this.currentIndex();
                 return this.indexAfter(currentIndex);
             },
@@ -71,14 +54,14 @@ define(
              * @param index
              * @returns {Number} the first focussable index after that supplied
              */
-            indexAfter: function (index) {
+            indexAfter: function indexAfter (index) {
                 return this._getNextPotientialIndexInDirection(index, Navigator.directions.FORWARD);
             },
 
             /**
              * @returns {Number} the index of the previous focusable widget
              */
-            previousIndex: function () {
+            previousIndex: function previousIndex () {
                 var currentIndex = this.currentIndex();
                 return this.indexBefore(currentIndex);
             },
@@ -87,14 +70,14 @@ define(
              * @param index
              * @returns {Number} the first focussable index before that supplied
              */
-            indexBefore: function (index) {
+            indexBefore: function indexBefore (index) {
                 return this._getNextPotientialIndexInDirection(index, Navigator.directions.BACKWARD);
             },
 
             /**
              * @returns {Number} the number of widgets in the container under control
              */
-            indexCount: function () {
+            indexCount: function indexCount () {
                 return this._container.getChildWidgetCount();
             },
 
@@ -105,7 +88,7 @@ define(
              * If the index corresponds to an unfocussable widget or an invalid index the function has no effect.
              * @param {Number} index A 0 base index into the container being navigated
              */
-            setIndex: function (index) {
+            setIndex: function setIndex (index) {
                 if (this._isValidIndex(index) && !this._indexedWidgetCantBeFocussed(index)) {
                     this._fireItemChangeEvent(index, BeforeSelectedItemChangeEvent);
                     this._setActiveIndexOnContainer(index);
@@ -116,11 +99,11 @@ define(
             /**
              * Sets the container the navigator is managing
              */
-            setContainer: function (container) {
+            setContainer: function setContainer (container) {
                 this._container = container;
             },
 
-            _getActiveIndex: function () {
+            _getActiveIndex: function _getActiveIndex () {
                 var activeWidget, activeIndex;
                 activeWidget = this._container.getActiveChildWidget();
                 activeIndex = this._container.getIndexOfChildWidget(activeWidget);
@@ -131,20 +114,20 @@ define(
                 }
             },
 
-            _setActiveIndexOnContainer: function (activeIndex) {
+            _setActiveIndexOnContainer: function _setActiveIndexOnContainer (activeIndex) {
                 if (activeIndex !== this.currentIndex()) {
                     this._container.setActiveChildIndex(activeIndex);
                 }
             },
 
-            _indexedWidgetCantBeFocussed: function (index) {
+            _indexedWidgetCantBeFocussed: function _indexedWidgetCantBeFocussed (index) {
                 var widgets, focussable;
                 widgets = this._container.getChildWidgets();
                 focussable = widgets[index].isFocusable();
                 return !focussable;
             },
 
-            _getIndexIncrementFunction: function (direction) {
+            _getIndexIncrementFunction: function _getIndexIncrementFunction (direction) {
                 var nextFn;
                 function forwardFn(index) {
                     return index + 1;
@@ -164,7 +147,7 @@ define(
                 return nextFn;
             },
 
-            _getNextPotientialIndexInDirection: function (currentIndex, direction) {
+            _getNextPotientialIndexInDirection: function _getNextPotientialIndexInDirection (currentIndex, direction) {
                 var potentialActiveIndex, indexIsValid, incrementIndex;
                 incrementIndex = this._getIndexIncrementFunction(direction);
 
@@ -179,7 +162,7 @@ define(
                 return potentialActiveIndex;
             },
 
-            _fireItemChangeEvent: function (index, EventClass) {
+            _fireItemChangeEvent: function _fireItemChangeEvent (index, EventClass) {
                 var event, item, target;
                 target = this._container;
                 item = this._container.getChildWidgets()[index];

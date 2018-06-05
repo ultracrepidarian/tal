@@ -1,27 +1,7 @@
 /**
  * @fileOverview Requirejs module containing antie.MediaSource class.
- *
- * @preserve Copyright (c) 2013 British Broadcasting Corporation
- * (http://www.bbc.co.uk) and TAL Contributors (1)
- *
- * (1) TAL Contributors are listed in the AUTHORS file and at
- *     https://github.com/fmtvp/TAL/AUTHORS - please extend this file,
- *     not this notice.
- *
- * @license Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *    http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- *
- * All rights reserved
- * Please contact us for an alternative licence
+ * @preserve Copyright (c) 2013-present British Broadcasting Corporation. All rights reserved.
+ * @license See https://github.com/bbc/tal/blob/master/LICENSE for full licence
  */
 
 define(
@@ -48,7 +28,7 @@ define(
              * @constructor
              * @ignore
              */
-            init: function(src, type) {
+            init: function init (src, type) {
                 this.src = src;
                 this.type = type;
             },
@@ -57,14 +37,14 @@ define(
              * @param {Object} mediaSource A MediaSource object to compare this one to.
              * @returns Boolean true if the provided mediaSource is equal to this. Otherwise false.
              */
-            isEqual: function(mediaSource) {
+            isEqual: function isEqual (mediaSource) {
                 return this.src === mediaSource.src && this.type === mediaSource.type;
             },
             /**
              * Check to see if this media source refers to a live stream.
              * @returns Boolean true if this is a live stream. Otherwise false.
              */
-            isLiveStream: function() {
+            isLiveStream: function isLiveStream () {
                 return MediaSource.isLiveStream(this.type);
             },
             /**
@@ -72,7 +52,7 @@ define(
              * @param {Object} [tags] A associative array of tags (%tag%) and values to repalce in the URL.
              * @returns The URL of this source.
              */
-            getURL: function(tags) {
+            getURL: function getURL (tags) {
                 tags = tags || {};
 
                 var config = RuntimeContext.getCurrentApplication().getDevice().getConfig();
@@ -85,14 +65,14 @@ define(
              * Get the content type of this source.
              * @returns The content type (MIME type) of this source.
              */
-            getContentType: function() {
+            getContentType: function getContentType () {
                 return this.type;
             },
             /**
              * Get the media type of this source. Either  <code>MediaType.MEDIA_TYPE_UNKNOWN</code>, <code>MediaType.MEDIA_TYPE_AUDIO</code> or <code>MediaType.MEDIA_TYPE_VIDEO</code>.
              * @returns The media type of this content.
              */
-            getMediaType: function() {
+            getMediaType: function getMediaType () {
                 return MediaSource.MEDIA_TYPE_UNKNOWN;
             }
         });
