@@ -23,11 +23,11 @@ require(
                 mockLogger = mockLoggerObject('mockLogger');
 
                 mockDevice = Object.create(Device.prototype);
-                spyOn(mockDevice, 'getLogger').andReturn(mockLogger);
-                spyOn(mockDevice, 'getConfig').andReturn({});
+                spyOn(mockDevice, 'getLogger').and.returnValue(mockLogger);
+                spyOn(mockDevice, 'getConfig').and.returnValue({});
 
                 mockApplication = Object.create(Application.prototype);
-                spyOn(mockApplication, 'getDevice').andReturn(mockDevice);
+                spyOn(mockApplication, 'getDevice').and.returnValue(mockDevice);
 
                 RuntimeContext.setCurrentApplication(mockApplication);
             });

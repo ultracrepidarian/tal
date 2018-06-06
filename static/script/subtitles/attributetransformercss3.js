@@ -26,7 +26,7 @@ define(
              * @constructor
              * @ignore
              */
-            init: function(report) {
+            init: function init(report) {
                 init.base.call(this, report);
                 var device = RuntimeContext.getDevice();
                 if (device.getConfig().accessibility && device.getConfig().accessibility.captions) {
@@ -50,7 +50,7 @@ define(
              * @public
              * @override
              */
-            transform: function(name, value) {
+            transform: function transform(name, value) {
                 var result;
                 var valueArray;
 
@@ -352,7 +352,7 @@ define(
              *        the colour value to be parsed
              * @private
              */
-            _transformColour: function(value) {
+            _transformColour: function _transformColour(value) {
                 if (typeof value !== 'string') {
                     return null;
                 }
@@ -397,7 +397,7 @@ define(
              *                    null if not
              * @protected
              */
-            transformLength: function(value) {
+            transformLength: function transformLength(value) {
                 if (/^(\+|-)?(\d*\.)?\d+(px|em|c|%)$/.test(value)) {
                     return value;
                 } else {
@@ -415,7 +415,7 @@ define(
              *                    null if not
              * @protected
              */
-            transformNonNegativeLength: function(value) {
+            transformNonNegativeLength: function transformNonNegativeLength(value) {
                 if (this.transformLength(value) && !/^\-/.test(value)) {
                     return value;
                 } else {
@@ -433,7 +433,7 @@ define(
              *                    the value, as is, if not
              * @protected
              */
-            transformFontFamily: function(value) {
+            transformFontFamily: function transformFontFamily(value) {
                 if (value && typeof value === 'string') {
                     if (this._captionsConfig.fontMap) {
                         return this._captionsConfig.fontMap[value] || this._captionsConfig.fontMap.unknown || value;

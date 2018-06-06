@@ -49,9 +49,9 @@ define(
              * @constructor
              * @ignore
              */
-            init: function(id, timedText, getMediaTimeCallback, mediaPollMilliseconds) {
-                init.base.call(this, id);
+            init: function init(id, timedText, getMediaTimeCallback, mediaPollMilliseconds) {
 
+                init.base.call(this, id);
                 this._timedText = timedText;
                 this._getMediaTimeCallback = getMediaTimeCallback;
 
@@ -72,7 +72,7 @@ define(
              * @param {antie.devices.Device} device The device to render to.
              * @returns A device-specific object that represents the widget as displayed on the device (in a browser, a DOMElement);
              */
-            render: function(device) {
+            render: function render(device) {
                 if (!this.outputElement) {
                     this.outputElement = device.createContainer(this.id, ['subtitlesContainer']);
                 }
@@ -83,7 +83,7 @@ define(
              * Starts displaying the captions and starts an interval Timer
              * to keep them updating
              */
-            start: function () {
+            start: function start() {
                 this._createRegions();
                 this.update();
 
@@ -94,7 +94,7 @@ define(
             /**
              * Stops displaying the captions and clears the interval timer
              */
-            stop: function () {
+            stop: function stop() {
                 this._activeElements = [];
                 this._removeCaptions();
                 this._regions = {};
@@ -113,7 +113,7 @@ define(
              * @param {String} id the id of the region
              * @returns {HtmlElement} the region
              */
-            _getRegionById: function(id){
+            _getRegionById: function _getRegionById(id){
                 if(this._regions.hasOwnProperty(id)){
                     return this._regions[id];
                 }
@@ -124,7 +124,7 @@ define(
              * Update the subtitles on screen with those that are current
              * according to the time of the mediaPlayer
              */
-            update: function(){
+            update: function update(){
                 if (!this._getMediaTimeCallback) {
                     // clean up
                     this.stop();
@@ -140,7 +140,7 @@ define(
              * @private
              * @param {Integer} time The time (in seconds) to show the captions for.
              */
-            _updateCaptions: function (time) {
+            _updateCaptions: function _updateCaptions(time) {
                 var currentActiveElements = this._timedText.getActiveElements(time);
                 // if the two arrays are equal there is no need to refresh the content
                 if(!this._arraysEqual(currentActiveElements, this._activeElements)){
@@ -159,7 +159,7 @@ define(
              * Clear the outputElement so there are no subtitles on the screen
              * @private
              */
-            _removeCaptions: function () {
+            _removeCaptions: function _removeCaptions() {
                 var device = this.getCurrentApplication().getDevice();
                 device.clearElement(this.outputElement);
                 this._regions = {};
@@ -171,7 +171,7 @@ define(
              * @param {Array} [antie.subtitles.TimedTextElement] activeElements
              *                  the array of active timedTextElements to display.
              */
-            _addCaptions: function (activeElements) {
+            _addCaptions: function _addCaptions(activeElements) {
                 var device = this.getCurrentApplication().getDevice();
 
                 for(var i = 0; i < activeElements.length; i++){
@@ -198,7 +198,7 @@ define(
              * later
              * @private
              */
-            _createRegions: function(){
+            _createRegions: function _createRegions(){
                 var device = this.getCurrentApplication().getDevice();
 
                 if(this._timedText.getHead() && this._timedText.getHead().getLayout()){
@@ -221,7 +221,7 @@ define(
              * @returns {HTMLElement} the root HTML element with childNodes corresponding
              *                        to the children of the timedTextElement
              */
-            _createElementTree: function(timedTextElement){
+            _createElementTree: function _createElementTree(timedTextElement){
                 //create this node
                 var node = this._createElement(timedTextElement);
                 //set the styling on it
@@ -249,7 +249,7 @@ define(
              *                         an HTMLNode for
              * @returns {HTMLElement} the basic HTML element
              */
-            _createElement: function(timedTextElement){
+            _createElement: function _createElement(timedTextElement){
                 var device = this.getCurrentApplication().getDevice();
                 var newElement;
 
@@ -298,7 +298,7 @@ define(
              * @param {TimedTextElement} timedTextElement the name of the attribute to set i.e. 'backgroundColour'
              *
              */
-            _setStylingOnElement: function(htmlElement, timedTextElement){
+            _setStylingOnElement: function _setStylingOnElement(htmlElement, timedTextElement){
                 // add the styling
                 for (var style in Subtitles.SUPPORTED_STYLES){
                     if (Subtitles.SUPPORTED_STYLES.hasOwnProperty(style)){
@@ -350,7 +350,7 @@ define(
              * @param {String} value the value to set the named attribute to
              *
              */
-            _setStyleAttributeOnElement: function(element, attribute, value){
+            _setStyleAttributeOnElement: function _setStyleAttributeOnElement(element, attribute, value){
                 if(element && element.style && value){
                     element.style[attribute] = value;
                 }
@@ -366,7 +366,7 @@ define(
             * @param {Array} arrayB the second array to compare
             * @returns {Boolean} whether the arrays have equal elements
             */
-            _arraysEqual: function(arrayA, arrayB){
+            _arraysEqual: function _arraysEqual(arrayA, arrayB){
                 if (arrayA === arrayB){
                     return true;
                 }
@@ -389,7 +389,7 @@ define(
              * Destroys the widget and clears timers
              * @private
              */
-            destroy: function () {
+            destroy: function destroy() {
                 if(this._updateInterval){
                     clearInterval(this._updateInterval);
                     this._updateInterval = null;

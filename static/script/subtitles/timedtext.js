@@ -31,7 +31,7 @@ define(
              *
              * @constructor
              */
-            init: function (head, body) {
+            init: function init(head, body) {
                 this._head = head;
                 this._body = body;
 
@@ -50,7 +50,7 @@ define(
              *
              * @returns {TimedTextHead} the <head> child
              */
-            getHead: function() {
+            getHead: function getHead() {
                 return this._head;
             },
 
@@ -59,7 +59,7 @@ define(
              *
              * @returns {TimedTextBody} the <body> child
              */
-            getBody: function() {
+            getBody: function getBody() {
                 return this._body;
             },
 
@@ -69,7 +69,7 @@ define(
              * @param {antie.subtitles.TimedTextAttributes} attributeDefaults
              *        Default values for attributes
              */
-            setAttributeDefaults: function(attributeDefaults) {
+            setAttributeDefaults: function setAttributeDefaults(attributeDefaults) {
                 if (typeof attributeDefaults !== 'object' || !(attributeDefaults instanceof TimedTextAttributes)) {
                     throw new Error('setAttributeDefaults: attributeDefaults should be a antie.subtitles.TimedTextAttributes, but was ' + typeof attributeDefaults + ': ' + attributeDefaults);
                 }
@@ -84,7 +84,7 @@ define(
              * @override
              * @protected
              */
-            _getAttributeDefault: function(name) {
+            _getAttributeDefault: function _getAttributeDefault(name) {
                 return this._attributeDefaults ? this._attributeDefaults.getAttribute(name) : null;
             },
 
@@ -98,7 +98,7 @@ define(
              *        The time in milliseconds
              * @private
              */
-            _addElementAtTime: function(element, milliseconds)  {
+            _addElementAtTime: function _addElementAtTime(element, milliseconds)  {
                 if (this._timePoints.length > 0 && this._timePoints[this._timePoints.length - 1].milliseconds === milliseconds) {
                     this._timePoints[this._timePoints.length - 1].active.add(element);
                 } else {
@@ -130,7 +130,7 @@ define(
              *        The time in milliseconds
              * @private
              */
-            _removeElementAtTime: function(element, milliseconds)  {
+            _removeElementAtTime: function _removeElementAtTime(element, milliseconds)  {
                 if (this._timePoints.length > 0 && this._timePoints[this._timePoints.length - 1].milliseconds === milliseconds) {
                     this._timePoints[this._timePoints.length - 1].active.delete(element);
                 } else {
@@ -153,7 +153,7 @@ define(
              * Initialises all the timepoints so {@link antie.subtitles.TimedTextElement#getActiveElements}
              * has something to work off.
              */
-            initialiseActiveElements: function() {
+            initialiseActiveElements: function initialiseActiveElements() {
                 var beginnings = this.getTimingPoints().sort(function(a, b) {
                     return a.beginMilliseconds - b.beginMilliseconds;
                 });
@@ -192,7 +192,7 @@ define(
              * @returns {TimedTextElement[]} elements that should be onscreen at the specified time
              * @public
              */
-            getActiveElements: function(seconds) {
+            getActiveElements: function getActiveElements(seconds) {
                 if (!this._timePoints || this._timePoints.length === 0) {
                     return [];
                 }
@@ -218,7 +218,7 @@ define(
              * Cleans out this instance ready for garbage collection.  This
              * instance cannot be used after this.
              */
-            destroy: function() {
+            destroy: function destroy() {
                 destroy.base.call(this);
                 this._head = null;
                 this._body = null;

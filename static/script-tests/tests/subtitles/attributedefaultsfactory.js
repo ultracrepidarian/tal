@@ -10,8 +10,11 @@ require(
         describe('antie.subtitles.AttributeDefaultsFactory', function() {
 
             beforeEach(function() {
+                // we are commenting the init on AttributeTransformerCss3 as it is calling device
                 spyOn(AttributeTransformerCss3.prototype, 'init');
-                spyOn(AttributeTransformerCss3.prototype, 'transformFontFamily').andCallFake(function(value) {
+                // we are commenting the init on AttributeTransformerCss3 as it is calling device via inherited method of AttributeTransformerTextSize
+                spyOn(AttributeTransformerTextSize.prototype.init, 'base');
+                spyOn(AttributeTransformerCss3.prototype, 'transformFontFamily').and.callFake(function(value) {
                     return value;
                 });
             });
@@ -54,7 +57,7 @@ require(
                 attributeDefaultsFactoryCss3.setDefault('lineHeight', '56px');
                 expect(attributeDefaultsFactoryCss3.getAttributes().getAttribute('lineHeight')).toBe('56px');
 
-                // Uses the specified AttributeTransformerTextSize (which limits max lineHeight to 39px)
+                // Uses the specified AttributeTransformerTextSize (which limits max line
                 var attributeDefaultsFactoryTextSize = new AttributeDefaultsFactory(new AttributeTransformerTextSize());
                 attributeDefaultsFactoryTextSize.setDefault('lineHeight', '56px');
                 expect(attributeDefaultsFactoryTextSize.getAttributes().getAttribute('lineHeight')).toBe('39px');

@@ -69,7 +69,7 @@ define(
              * @constructor
              * @ignore
              */
-            init: function(attributeTransformer) {
+            init: function init(attributeTransformer) {
                 if (attributeTransformer) {
                     if (typeof attributeTransformer === 'object' && attributeTransformer instanceof AttributeTransformer) {
                         this._attributeTransformer = attributeTransformer;
@@ -93,7 +93,7 @@ define(
              *        The default value of the attribute
              * @public
              */
-            setDefault: function(name, value) {
+            setDefault: function setDefault(name, value) {
                 var attribute = this._attributeTransformer.transform(name, value);
                 if (attribute && !this._attributes.getAttribute(name)) {
                     this._attributes.setAttribute(name, attribute);
@@ -106,7 +106,7 @@ define(
              * @returns {antie.subtitles.TimedTextAttributes} the default attributes
              * @public
              */
-            getAttributes: function() {
+            getAttributes: function getAttributes() {
                 // Set any defaults that have not already been set.
                 for (var name in DEFAULTS) {
                     if (DEFAULTS.hasOwnProperty(name)) {

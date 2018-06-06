@@ -53,7 +53,7 @@ define(
              * @constructor
              * @ignore
              */
-            init: function(report) {
+            init: function init(report) {
                 init.base.call(this, report);
             },
 
@@ -71,7 +71,7 @@ define(
              * @public
              * @override
              */
-            transform: function(name, value) {
+            transform: function transform(name, value) {
                 var result =  transform.base.call(this, name, value);
                 var matches;
                 var pixels;

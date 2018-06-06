@@ -23,7 +23,7 @@ define(
              * @constructor
              * @ignore
              */
-            init: function (styling, layout) {
+            init: function init(styling, layout) {
                 this._styling = styling;
                 this._layout = layout;
 
@@ -37,11 +37,11 @@ define(
                 init.base.call(this, TimedTextElement.NODE_NAME.head, children);
             },
 
-            getStyling: function() {
+            getStyling: function getStyling() {
                 return this._styling;
             },
 
-            getLayout: function() {
+            getLayout: function getLayout() {
                 return this._layout;
             },
 
@@ -49,7 +49,7 @@ define(
              * Cleans out this instance ready for garbage collection.  This
              * instance cannot be used after this.
              */
-            destroy : function() {
+            destroy : function destroy() {
                 destroy.base.call(this);
                 this._styling = null;
                 this._layout = null;

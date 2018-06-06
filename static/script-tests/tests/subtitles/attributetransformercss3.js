@@ -34,9 +34,9 @@ require(
                     }
                 };
                 mockDevice = Object.create(Device.prototype);
-                spyOn(mockDevice, 'getConfig').andReturn(stubConfig);
+                spyOn(mockDevice, 'getConfig').and.returnValue(stubConfig);
                 mockApplication = Object.create(Application.prototype);
-                spyOn(mockApplication, 'getDevice').andReturn(mockDevice);
+                spyOn(mockApplication, 'getDevice').and.returnValue(mockDevice);
                 RuntimeContext.setCurrentApplication(mockApplication);
 
                 mockReporter = jasmine.createSpy('mockReporter');

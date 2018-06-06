@@ -14,7 +14,7 @@ require(
 
             beforeEach(function() {
                 spyOn(AttributeTransformerCss3.prototype, 'init');
-                spyOn(AttributeTransformerCss3.prototype, 'transformFontFamily').andCallFake(function(value) {
+                spyOn(AttributeTransformerCss3.prototype, 'transformFontFamily').and.callFake(function(value) {
                     return value;
                 });
             });

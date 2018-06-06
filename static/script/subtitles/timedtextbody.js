@@ -25,7 +25,7 @@ define(
              *
              * @constructor
              */
-            init: function (children) {
+            init: function init(children) {
                 init.base.call(this, TimedTextElement.NODE_NAME.body, children);
             },
 
@@ -34,7 +34,7 @@ define(
              * instance cannot be used after this.
              * @public
              */
-            destroy : function() {
+            destroy : function destroy() {
                 destroy.base.call(this);
             }
         });
