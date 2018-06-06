@@ -10,9 +10,9 @@ require(
         describe('antie.subtitles.AttributeDefaultsFactory', function() {
 
             beforeEach(function() {
-                // we are commenting the init on AttributeTransformerCss3 as it is calling device
+                // we are spying on the init of AttributeTransformerCss3 as it is calling device api
                 spyOn(AttributeTransformerCss3.prototype, 'init');
-                // we are commenting the init on AttributeTransformerCss3 as it is calling device via inherited method of AttributeTransformerTextSize
+                // we need to spy on the init of AttributeTransformerCss3 as it is calling device api via inherited method of AttributeTransformerTextSize which is exposed via the base
                 spyOn(AttributeTransformerTextSize.prototype.init, 'base');
                 spyOn(AttributeTransformerCss3.prototype, 'transformFontFamily').and.callFake(function(value) {
                     return value;
