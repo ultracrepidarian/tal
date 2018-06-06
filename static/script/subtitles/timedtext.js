@@ -42,7 +42,7 @@ define(
                 if (body) {
                     children.push(body);
                 }
-                this._super(TimedTextElement.NODE_NAME.tt, children);
+                init.base.call(this, TimedTextElement.NODE_NAME.tt, children);
             },
 
             /**
@@ -219,7 +219,7 @@ define(
              * instance cannot be used after this.
              */
             destroy: function() {
-                this._super.destroy();
+                destroy.base.call(this);
                 this._head = null;
                 this._body = null;
             }

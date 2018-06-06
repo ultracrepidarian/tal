@@ -50,7 +50,7 @@ define(
              * @ignore
              */
             init: function(id, timedText, getMediaTimeCallback, mediaPollMilliseconds) {
-                this._super(id);
+                init.base.call(this, id);
 
                 this._timedText = timedText;
                 this._getMediaTimeCallback = getMediaTimeCallback;

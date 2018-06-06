@@ -26,7 +26,7 @@ define(
              * @constructor
              */
             init: function (children) {
-                this._super(TimedTextElement.NODE_NAME.body, children);
+                init.base.call(this, TimedTextElement.NODE_NAME.body, children);
             },
 
             /**
@@ -35,7 +35,7 @@ define(
              * @public
              */
             destroy : function() {
-                this._super.destroy();
+                destroy.base.call(this);
             }
         });
 

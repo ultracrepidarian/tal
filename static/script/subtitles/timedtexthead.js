@@ -34,7 +34,7 @@ define(
                 if (layout) {
                     children.push(layout);
                 }
-                this._super(TimedTextElement.NODE_NAME.head, children);
+                init.base.call(this, TimedTextElement.NODE_NAME.head, children);
             },
 
             getStyling: function() {
@@ -50,7 +50,7 @@ define(
              * instance cannot be used after this.
              */
             destroy : function() {
-                this._super.destroy();
+                destroy.base.call(this);
                 this._styling = null;
                 this._layout = null;
             }

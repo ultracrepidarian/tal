@@ -27,7 +27,7 @@ define(
              * @ignore
              */
             init: function(report) {
-                this._super(report);
+                init.base.call(this, report);
                 var device = RuntimeContext.getDevice();
                 if (device.getConfig().accessibility && device.getConfig().accessibility.captions) {
                     this._captionsConfig = device.getConfig().accessibility.captions;

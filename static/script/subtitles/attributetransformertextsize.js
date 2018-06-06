@@ -54,7 +54,7 @@ define(
              * @ignore
              */
             init: function(report) {
-                this._super(report);
+                init.base.call(this, report);
             },
 
             /**
@@ -72,7 +72,7 @@ define(
              * @override
              */
             transform: function(name, value) {
-                var result = this._super(name, value);
+                var result =  transform.base.call(this, name, value);
                 var matches;
                 var pixels;
 
