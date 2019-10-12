@@ -35,7 +35,7 @@ define(
                 }
                 this._truncationMode = Label.TRUNCATION_MODE_NONE;
                 this._maxLines = 0;
-                this._enableHTML = enableHTML || false;
+                this._enableHTML = true;
                 this._width = 0;
                 this.addClass('label');
             },
