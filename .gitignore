@@ -13,3 +13,4 @@ jsdoc/index.html
 jsdoc/files.html
 jsdoc/symbols
 config/pagestrategy
+package-lock.json
