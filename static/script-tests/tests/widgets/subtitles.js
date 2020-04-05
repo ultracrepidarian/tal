@@ -1013,7 +1013,7 @@ require(
 
             it('will set the displayAlign before styling on an element correctly', function(){
                 var subtitles = new Subtitles('id', mockTimedText, mockGetMediaTimeCallback);
-                spyOn(subtitles, '_setStyleAttributeOnElement');
+                spyOn(subtitles, '_setStyleAttributeWithVendorPrefix');
                 var mockTimedTextElement = Object.create(TimedTextElement.prototype);
 
                 spyOn(mockTimedTextElement, 'getAttribute').and.callFake(function(style){
@@ -1024,13 +1024,13 @@ require(
 
                 subtitles._setStylingOnElement(mockHTMLElement, mockTimedTextElement);
 
-                expect(subtitles._setStyleAttributeOnElement).toHaveBeenCalledWith(mockHTMLElement, 'display', '-webkit-flex');
-                expect(subtitles._setStyleAttributeOnElement).toHaveBeenCalledWith(mockHTMLElement, '-webkit-align-items', 'flex-start');
+                expect(subtitles._setStyleAttributeWithVendorPrefix).toHaveBeenCalledWith(mockHTMLElement, 'display', 'flex','value');
+                expect(subtitles._setStyleAttributeWithVendorPrefix).toHaveBeenCalledWith(mockHTMLElement, 'align-items', 'flex-start','prop');
             });
 
             it('will set the displayAlign after styling on an element correctly', function(){
                 var subtitles = new Subtitles('id', mockTimedText, mockGetMediaTimeCallback);
-                spyOn(subtitles, '_setStyleAttributeOnElement');
+                spyOn(subtitles, '_setStyleAttributeWithVendorPrefix');
                 var mockTimedTextElement = Object.create(TimedTextElement.prototype);
 
                 spyOn(mockTimedTextElement, 'getAttribute').and.callFake(function(style){
@@ -1041,13 +1041,13 @@ require(
 
                 subtitles._setStylingOnElement(mockHTMLElement, mockTimedTextElement);
 
-                expect(subtitles._setStyleAttributeOnElement).toHaveBeenCalledWith(mockHTMLElement, 'display', '-webkit-flex');
-                expect(subtitles._setStyleAttributeOnElement).toHaveBeenCalledWith(mockHTMLElement, '-webkit-align-items', 'flex-end');
+                expect(subtitles._setStyleAttributeWithVendorPrefix).toHaveBeenCalledWith(mockHTMLElement, 'display', 'flex','value');
+                expect(subtitles._setStyleAttributeWithVendorPrefix).toHaveBeenCalledWith(mockHTMLElement, 'align-items', 'flex-end','prop');
             });
 
             it('will set the displayAlign after styling on an element correctly', function(){
                 var subtitles = new Subtitles('id', mockTimedText, mockGetMediaTimeCallback);
-                spyOn(subtitles, '_setStyleAttributeOnElement');
+                spyOn(subtitles, '_setStyleAttributeWithVendorPrefix');
                 var mockTimedTextElement = Object.create(TimedTextElement.prototype);
 
                 spyOn(mockTimedTextElement, 'getAttribute').and.callFake(function(style){
@@ -1058,13 +1058,13 @@ require(
 
                 subtitles._setStylingOnElement(mockHTMLElement, mockTimedTextElement);
 
-                expect(subtitles._setStyleAttributeOnElement).toHaveBeenCalledWith(mockHTMLElement, 'display', '-webkit-flex');
-                expect(subtitles._setStyleAttributeOnElement).toHaveBeenCalledWith(mockHTMLElement, '-webkit-align-items', 'center');
+                expect(subtitles._setStyleAttributeWithVendorPrefix).toHaveBeenCalledWith(mockHTMLElement, 'display', 'flex','value');
+                expect(subtitles._setStyleAttributeWithVendorPrefix).toHaveBeenCalledWith(mockHTMLElement, 'align-items', 'center','prop');
             });
 
             it('will set the textOutline styling on an element correctly', function(){
                 var subtitles = new Subtitles('id', mockTimedText, mockGetMediaTimeCallback);
-                spyOn(subtitles, '_setStyleAttributeOnElement');
+                spyOn(subtitles, '_setStyleAttributeWithVendorPrefix');
                 var mockTimedTextElement = Object.create(TimedTextElement.prototype);
 
                 spyOn(mockTimedTextElement, 'getAttribute').and.callFake(function(style){
@@ -1075,7 +1075,7 @@ require(
 
                 subtitles._setStylingOnElement(mockHTMLElement, mockTimedTextElement);
 
-                expect(subtitles._setStyleAttributeOnElement).toHaveBeenCalledWith(mockHTMLElement, '-webkit-text-stroke', '3px red');
+                expect(subtitles._setStyleAttributeWithVendorPrefix).toHaveBeenCalledWith(mockHTMLElement, 'text-stroke', '3px red','prop');
             });
 
             it('will set other unmapped styling on an element directly', function(){
@@ -1137,6 +1137,55 @@ require(
                 expect(subtitles._setStyleAttributeOnElement).toHaveBeenCalledWith(mockHTMLElement, 'wrapOption', 'wrapOptionValue');
                 expect(subtitles._setStyleAttributeOnElement).toHaveBeenCalledWith(mockHTMLElement, 'writingMode', 'writingModeValue');
                 expect(subtitles._setStyleAttributeOnElement).toHaveBeenCalledWith(mockHTMLElement, 'zIndex', 'zIndexValue');
+            });
+
+            describe('_setStyleAttributeWithVendorPrefix' ,function(){
+                var subtitles;
+                //Over ride the vendor prefixes
+                Subtitles.VENDOR_PREFIXES = ['-vendor1-', '-vendor2-'];
+
+                beforeEach(function(){
+                    spyOn(Subtitles.prototype, '_setStyleAttributeOnElement');
+
+                    subtitles = new Subtitles('id', mockTimedText, mockGetMediaTimeCallback);
+
+                    subtitles._setStyleAttributeOnElement.calls.reset();
+                });
+
+                it('calls the _setStyleAttributeOnElement iteratively based on the length of vendor prefixes and with concatenated prop/value if the prefixedOn is prop/value', function(){
+                    //method to be tested - for value prefix
+                    subtitles._setStyleAttributeWithVendorPrefix(mockHTMLElement, 'display', 'flex','value');
+
+                    expect(subtitles._setStyleAttributeOnElement.calls.count()).toBe(2);
+                    expect(subtitles._setStyleAttributeOnElement).toHaveBeenCalledWith(mockHTMLElement, 'display', '-vendor1-flex');
+                    expect(subtitles._setStyleAttributeOnElement).toHaveBeenCalledWith(mockHTMLElement, 'display', '-vendor2-flex');
+
+
+                    subtitles._setStyleAttributeOnElement.calls.reset();
+
+                    //method to be tested - for prop prefix
+                    subtitles._setStyleAttributeWithVendorPrefix(mockHTMLElement, 'align-items', 'center','prop');
+
+                    expect(subtitles._setStyleAttributeOnElement.calls.count()).toBe(2);
+                    expect(subtitles._setStyleAttributeOnElement).toHaveBeenCalledWith(mockHTMLElement, '-vendor1-align-items', 'center');
+                    expect(subtitles._setStyleAttributeOnElement).toHaveBeenCalledWith(mockHTMLElement, '-vendor2-align-items', 'center');
+                });
+
+                it('calls the _setStyleAttributeOnElement once and with no change if the prefixedOn is neither prop nor value', function(){
+                    //method to be tested - for random prefix
+                    subtitles._setStyleAttributeWithVendorPrefix(mockHTMLElement, 'display', 'flex','random');
+
+                    expect(subtitles._setStyleAttributeOnElement.calls.count()).toBe(1);
+                    expect(subtitles._setStyleAttributeOnElement).toHaveBeenCalledWith(mockHTMLElement, 'display', 'flex');
+
+                    subtitles._setStyleAttributeOnElement.calls.reset();
+
+                    //method to be tested - for undefined prefix
+                    subtitles._setStyleAttributeWithVendorPrefix(mockHTMLElement, 'align-items', 'center');
+
+                    expect(subtitles._setStyleAttributeOnElement.calls.count()).toBe(1);
+                    expect(subtitles._setStyleAttributeOnElement).toHaveBeenCalledWith(mockHTMLElement, 'align-items', 'center');
+                });
             });
         });
     }

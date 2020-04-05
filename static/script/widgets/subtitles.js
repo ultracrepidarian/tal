@@ -319,26 +319,50 @@ define(
                                 this._setStyleAttributeOnElement(htmlElement, 'left', attributeValue.left);
                                 this._setStyleAttributeOnElement(htmlElement, 'top', attributeValue.top);
                             } else if (style === 'displayAlign'){
-                                //TODO - make this non webkit specific
-                                this._setStyleAttributeOnElement(htmlElement, 'display', '-webkit-flex');
+                                this._setStyleAttributeWithVendorPrefix(htmlElement, 'display', 'flex', Subtitles.PREFIX_ON.VALUE);
                                 switch(attributeValue){
                                 case 'before':
-                                    this._setStyleAttributeOnElement(htmlElement, '-webkit-align-items', 'flex-start');
+                                    this._setStyleAttributeWithVendorPrefix(htmlElement, 'align-items' , 'flex-start', Subtitles.PREFIX_ON.PROP);
                                     break;
                                 case 'after':
-                                    this._setStyleAttributeOnElement(htmlElement, '-webkit-align-items', 'flex-end');
+                                    this._setStyleAttributeWithVendorPrefix(htmlElement, 'align-items' , 'flex-end', Subtitles.PREFIX_ON.PROP);
                                     break;
                                 case 'center':
-                                    this._setStyleAttributeOnElement(htmlElement, '-webkit-align-items', 'center');
+                                    this._setStyleAttributeWithVendorPrefix(htmlElement, 'align-items' , 'center', Subtitles.PREFIX_ON.PROP);
                                     break;
                                 }
                             } else if (style === 'textOutline'){
-                                this._setStyleAttributeOnElement(htmlElement, '-webkit-text-stroke', [attributeValue.outlineThickness, attributeValue.color].join(' '));
+                                this._setStyleAttributeWithVendorPrefix(htmlElement, 'text-stroke', [attributeValue.outlineThickness, attributeValue.color].join(' '), Subtitles.PREFIX_ON.PROP);
                             } else {
                                 this._setStyleAttributeOnElement(htmlElement, Subtitles.SUPPORTED_STYLES[style], attributeValue);
                             }
                         }
                     }
+                }
+            },
+
+
+            /**
+             * set the value of a named styled attribute of an HTMLElement with Vendor specific
+             *
+             * @param {HTMLElement} element the HTML element to set the styling on
+             * @param {String} attribute the name of the attribute to set i.e. 'backgroundColour'
+             * @param {String} value the value to set the named attribute to
+             * @param {String} prefixedOn the identifier to decide where the prefix is to be added (the prop/ the value)
+             */
+
+            _setStyleAttributeWithVendorPrefix:function _setStyleAttributeWithVendorPrefix(element, attribute, value, prefixedOn){
+
+                if(prefixedOn === Subtitles.PREFIX_ON.PROP || prefixedOn === Subtitles.PREFIX_ON.VALUE){
+                    for(var index=0; index < Subtitles.VENDOR_PREFIXES.length; index++){
+                        if(prefixedOn === Subtitles.PREFIX_ON.PROP){
+                            this._setStyleAttributeOnElement(element, Subtitles.VENDOR_PREFIXES[index] + attribute, value);
+                        }else {
+                            this._setStyleAttributeOnElement(element, attribute, Subtitles.VENDOR_PREFIXES[index] + value);
+                        }
+                    }
+                }else{
+                    this._setStyleAttributeOnElement(element,attribute,value);
                 }
             },
 
@@ -426,6 +450,13 @@ define(
             'wrapOption'          : 'wrapOption',
             'writingMode'         : 'writingMode',
             'zIndex'              : 'zIndex'
+        };
+
+        Subtitles.VENDOR_PREFIXES = ['','-webkit-','-moz-','-o-'];
+
+        Subtitles.PREFIX_ON = {
+            PROP : 'prop',
+            VALUE : 'value'
         };
 
         return Subtitles;
